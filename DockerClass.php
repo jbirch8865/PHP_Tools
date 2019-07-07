@@ -14,20 +14,14 @@ class Docker {
 	{
 		$this->all_docker_secrets = array();
 		$this->all_docker_configs = array();
+		$this->docker_secrets_folder_location = $secrets_folder;
+		$this->docker_configs_folder_location = $configs_folder;
 		try {
-			if(Is_This_A_Valid_File_Or_Directory($secrets_folder) && Is_This_A_Valid_File_Or_Directory($configs_folder))
-			{
-				$this->docker_secrets_folder_location = $secrets_folder;
-				$this->docker_configs_folder_location = $configs_folder;
-				$this->Populate_Docker_Secrets();
-				$this->Populate_Docker_Configs();
-			}else
-			{
-				throw new BadFolderLocation("The secret or configs folder location is not a valid location");
-			}
+			$this->Populate_Docker_Secrets();
+			$this->Populate_Docker_Configs();
 		} catch (BadFolderLocation $e)
 		{
-			throw new BadFolderLocation($e->getMessage());
+			throw new BadFolderLocation($secrets_folder, $configs_folder);
 		} catch (\Exception $e)
 		{
 			throw new \Exception($e->getMessage());
@@ -42,11 +36,11 @@ class Docker {
 				return $this->All_Docker_Secrets[$Secret_To_Get];
 			}else
 			{
-				throw new SecretDoesNotExist($Secret_To_Get." does not appear to be a valid secret");
+				throw new SecretDoesNotExist($Secret_To_Get);
 			}
 		}catch (SecretDoesNotExist $e)
 		{
-			throw new SecretDoesNotExist($e->getMessage());
+			throw new SecretDoesNotExist($Secret_To_Get);
 		}catch (\Exception $e)
 		{
 			throw new \Exception($e->getMessage());
@@ -61,11 +55,11 @@ class Docker {
 				return $this->All_Docker_Configs[$Config_To_Get];
 			}else
 			{
-				throw new ConfigDoesNotExist($Config_To_Get." does not appear to be a valid config");
+				throw new ConfigDoesNotExist($Config_To_Get);
 			}
 		}catch (ConfigDoesNotExist $e)
 		{
-			throw new ConfigDoesNotExist($e->getMessage());
+			throw new ConfigDoesNotExist($Config_To_Get);
 		}catch (\Exception $e)
 		{
 			throw new \Exception($e->getMessage());
@@ -75,14 +69,23 @@ class Docker {
 	private function Populate_Docker_Secrets()
 	{
 		try {
-			$dir = new DirectoryIterator($this->docker_secrets_folder_location);
-			foreach ($dir as $fileinfo) {
-    			if (!$fileinfo->isDot())
+			if(Is_This_A_Valid_File_Or_Directory($this->docker_secrets_folder_location))
 			{
-				myfile = fopen($fileinfo->getFilename(), "r");
-        			$this->all_docker_secrets[$fileinfo->getFilename()] = fread($myfile,filesize($fileinfo->getFilename()));
-				fclose($myfile);
-    			}
+				$dir = new DirectoryIterator($this->docker_secrets_folder_location);
+				foreach ($dir as $fileinfo) {
+    				if (!$fileinfo->isDot())
+				{
+					myfile = fopen($fileinfo->getFilename(), "r");
+        				$this->all_docker_secrets[$fileinfo->getFilename()] = fread($myfile,filesize($fileinfo->getFilename()));
+					fclose($myfile);
+    				}
+			}else
+			{
+				throw new BadFolderLocation();
+			}
+		} catch (BadFolderLocation $e)
+		{
+			throw new BadFolderLocation()
 		} catch (\Exception $e)
 		{
 			throw new \Exception($e->getMessage());
@@ -92,14 +95,23 @@ class Docker {
 	private function Populate_Docker_Configs()
 	{
 		try {
-			$dir = new DirectoryIterator($this->docker_configss_folder_location);
-			foreach ($dir as $fileinfo) {
-    			if (!$fileinfo->isDot())
+			if(Is_This_A_Valid_File_Or_Directory($this->docker_configs_folder_location))
 			{
-				myfile = fopen($fileinfo->getFilename(), "r");
-        			$this->all_docker_configs[$fileinfo->getFilename()] = fread($myfile,filesize($fileinfo->getFilename()));
-				fclose($myfile);
-    			}
+				$dir = new DirectoryIterator($this->docker_configss_folder_location);
+				foreach ($dir as $fileinfo) {
+    				if (!$fileinfo->isDot())
+				{
+					myfile = fopen($fileinfo->getFilename(), "r");
+        				$this->all_docker_configs[$fileinfo->getFilename()] = fread($myfile,filesize($fileinfo->getFilename()));
+					fclose($myfile);
+    				}
+			}else
+			{
+				throw new BadFolderLocation();
+			}
+		} catch (BadFolderLocation $e)
+		{
+			throw new BadFolderLocation();
 		} catch (\Exception $e)
 		{
 			throw new \Exception($e->getMessage());
