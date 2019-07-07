@@ -1,8 +1,5 @@
 <?php
 namespace 'docker';
-class BadFolderLocation{}
-class SecretDoesNotExist{}
-class ConfigDoesNotExist{}
 
 class Docker {
 	private all_docker_secrets;
