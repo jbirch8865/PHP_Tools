@@ -1,5 +1,5 @@
 <?php
-namespace 'number_validator';
+namespace number_validator;
 
 class PhoneNumber {
 	private $phone_number;
@@ -10,7 +10,7 @@ class PhoneNumber {
 		try {
 			$this->phone_number = $phone_number;
 			$this->Load_Validate_Keys();
-'			$this->ValidatePhoneNumber();
+			$this->ValidatePhoneNumber();
 		} catch (InvalidPhoneNumber $e)
 		{
 			throw new InvalidPhoneNumber($this->phone_number);
@@ -20,7 +20,7 @@ class PhoneNumber {
 	public function ValidatePhoneNumber()
 	{
 		try {
-			$submit_request = curl_init('http://apilayer.net/api/validate?access_key='.$this->access_key.'&number='.$this->phone_number.'');
+			$submit_request = curl_init("http://apilayer.net/api/validate?access_key=".$this->access_key."&number=".$this->phone_number);
 			curl_setopt($submit_request, CURLOPT_RETURNTRANSFER, true);
 			$json_results = curl_exec($submit_request);
 			curl_close($submit_request);

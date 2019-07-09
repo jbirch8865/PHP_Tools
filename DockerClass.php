@@ -1,11 +1,11 @@
 <?php
-namespace 'docker';
+namespace docker;
 
 class Docker {
-	private all_docker_secrets;
-	private all_docker_configs:
-	private docker_secrets_folder_location;
-	private docker_configs_folder_location;
+	private $all_docker_secrets;
+	private $all_docker_configs;
+	private $docker_secrets_folder_location;
+	private $docker_configs_folder_location;
 
 	function __construct($secrets_folder = '/run/secrets/',$configs_folder = '/')
 	{
@@ -66,23 +66,24 @@ class Docker {
 	private function Populate_Docker_Secrets()
 	{
 		try {
-			if(Is_This_A_Valid_File_Or_Directory($this->docker_secrets_folder_location))
+			if($this->Is_This_A_Valid_File_Or_Directory($this->docker_secrets_folder_location))
 			{
-				$dir = new DirectoryIterator($this->docker_secrets_folder_location);
+				$dir = new \DirectoryIterator($this->docker_secrets_folder_location);
 				foreach ($dir as $fileinfo) {
-    				if (!$fileinfo->isDot())
-				{
-					myfile = fopen($fileinfo->getFilename(), "r");
-        				$this->all_docker_secrets[$fileinfo->getFilename()] = fread($myfile,filesize($fileinfo->getFilename()));
-					fclose($myfile);
-    				}
+	    				if (!$fileinfo->isDot() && filesize($this->docker_secrets_folder_location."/".$fileinfo->getFilename()) != 0)
+					{
+						$myfile = fopen($this->docker_secrets_folder_location."/".$fileinfo->getFilename(), "r");
+        					$this->all_docker_secrets[$fileinfo->getFilename()] = fread($myfile,filesize($this->docker_secrets_folder_location."/".$fileinfo->getFilename()));
+						fclose($myfile);
+    					}
+				}
 			}else
 			{
 				throw new BadFolderLocation();
 			}
 		} catch (BadFolderLocation $e)
 		{
-			throw new BadFolderLocation()
+			throw new BadFolderLocation();
 		} catch (\Exception $e)
 		{
 			throw new \Exception($e->getMessage());
@@ -92,16 +93,17 @@ class Docker {
 	private function Populate_Docker_Configs()
 	{
 		try {
-			if(Is_This_A_Valid_File_Or_Directory($this->docker_configs_folder_location))
+			if($this->Is_This_A_Valid_File_Or_Directory($this->docker_configs_folder_location))
 			{
-				$dir = new DirectoryIterator($this->docker_configss_folder_location);
+				$dir = new \DirectoryIterator($this->docker_configs_folder_location);
 				foreach ($dir as $fileinfo) {
-    				if (!$fileinfo->isDot())
-				{
-					myfile = fopen($fileinfo->getFilename(), "r");
-        				$this->all_docker_configs[$fileinfo->getFilename()] = fread($myfile,filesize($fileinfo->getFilename()));
-					fclose($myfile);
-    				}
+	    				if (!$fileinfo->isDot() && filesize($this->docker_configs_folder_location."/".$fileinfo->getFilename()) != 0)
+					{
+						$myfile = fopen($this->docker_configs_folder_location."/".$fileinfo->getFilename(), "r");
+        					$this->all_docker_configs[$fileinfo->getFilename()] = fread($myfile,filesize($this->docker_configs_folder_location."/".$fileinfo->getFilename()));
+						fclose($myfile);
+    					}
+				}
 			}else
 			{
 				throw new BadFolderLocation();
