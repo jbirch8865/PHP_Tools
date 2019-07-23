@@ -1,6 +1,7 @@
 <?php
 namespace sms;
 use Twilio\Rest\Client;
+use PHPUnit\Util\Configuration;
 
 class IniConfigError Extends \Exception{}
 class MessageBodyTooLong Extends \Exception{}
@@ -24,13 +25,10 @@ class TextMessage {
 	{
 		try
 		{
-			$docker = new \docker\Docker;
-			$this->sid = $docker->Get_Secret_Value('Twilio_SID');
-			$this->token = $docker->Get_Secret_Value('Twilio_Token');
-			$this->send_from = $docker->Get_Config_Value('Twilio_From_Number');
-		} catch (\docker\SecretDoesNotExist $e)
-		{
-			throw new Missing_SID_Or_Token($e->getMessage()." <<<--- See previous message to determine what ");
+			$Configs = new \config\ConfigurationFile;
+			$this->sid = $Configs->Configurations()['Twilio_SID'];
+			$this->token = $Configs->Configurations()['Twilio_Token'];
+			$this->send_from = $Configs->Configurations()['Twilio_From_Number'];
 		} catch (\Exception $e)
 		{
 			throw new \Exception($e->getMessage());
@@ -40,10 +38,7 @@ class TextMessage {
 	public function Set_To_Number($send_to)
 	{
 		try {
-			$this->send_to = new PhoneNumber($send_to);
-		} catch (\number_validator\InvalidPhoneNumber $e)
-		{
-			throw new \number_validator\InvalidPhoneNumber($send_to);
+			$this->send_to = new \number_validator\PhoneNumber($send_to);
 		} catch (\Exception $e)
 		{
 			throw new \Exception($e->getMessage());

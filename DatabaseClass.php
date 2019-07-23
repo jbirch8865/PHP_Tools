@@ -31,25 +31,26 @@ Class MySQLLink
 		try 
 		{
 			$configs = new \Config\ConfigurationFile;
-			if($this->AreConfigurationValuesValid($configs))
+			if($this->AreConfigurationValuesValid($configs->Configurations()))
 			{
+				$configs = $configs->Configurations();
 				$this->UserName = $configs['username'];
 				$this->Password = $configs['password'];
 				$this->Hostname = $configs['hostname'];
 				$this->ListeningPort = $configs['listeningport'];
 			}else
 			{
-				throw new \Exception("Databse configs are invalid");
+				throw new \Exception("Database Configs are Invalid");
 			}
 		} catch (\Exception $e)
 		{
-			throw new \Exception("Error loading config file.  Please ensure there is a valid config.local.ini file in the relative current directory.");
+			throw new \Exception($e->getMessage());
 		}
 	}
-	
+
 	private function AreConfigurationValuesValid($configs)
 	{
-		if(isset($configs->username)&&isset($configs->password)&&isset($configs->hostname)&&isset($configs->listeningport))
+		if(isset($configs['username'])&&isset($configs['password'])&&isset($configs['hostname'])&&isset($configs['listeningport']))
 		{
 			if($Con = mysqli_connect($configs['hostname'], $configs['username'], $configs['password'], 'syslog', $configs['listeningport']))
 			{
@@ -59,6 +60,9 @@ Class MySQLLink
 			{
 				return false;
 			}
+		}else
+		{
+			return false;
 		}
 	}
 	
@@ -73,23 +77,23 @@ Class MySQLLink
 		}
 	}
 	
-	function ExecuteSQLQuery( $Query, $Type = '10' )
+	function ExecuteSQLQuery( $Query, $Type = '10', $Ignore_Log_Error = true)
 	{
 		Try
 		{
 			$Response = $this->QuerySQL($Query);
 			$this->LastInsertID = mysqli_insert_id($this->Database);
-			$this->AddToSyslog($Query, mysqli_error($this->Database), $Type);		
-			return $Response;
+			$this->AddToSyslog($Query, mysqli_error($this->Database), $Type,$Ignore_Log_Error);		
+			return $this->LastInsertID;
 		} catch (SQLQueryError $e)
 		{
-			throw new SQLQueryError("MySQL rejected this query - ".$Query);
+			throw new SQLQueryError(mysqli_error($this->Database));
 		} catch (DuplicatePrimaryKeyRequest $e)
 		{
-			throw new DuplicatePrimaryKeyRequest("You are trying to create a duplicate entry for the primary key in the DB");
+			throw new DuplicatePrimaryKeyRequest($e->getMessage());
 		} catch (Exception $e)
 		{
-			throw new \Exception("Unknown query error");
+			throw new \Exception($e->getMessage());
 		}
 	}
 	
@@ -97,13 +101,12 @@ Class MySQLLink
 	{
 		if(!$Response = mysqli_query($this->Database, $Query))
 		{
-//			echo mysqli_error($this->Database);
 			if(mysqli_errno($this->Database) == '1062')
 			{
 				throw new DuplicatePrimaryKeyRequest("You are trying to create a duplicate entry for the primary key in the DB");
 			}else
 			{
-				throw new SQLQueryError("SQL Server returned an error");
+				throw new SQLQueryError("SQL Server returned an error ".mysqli_error($this->Database));
 			}
 		}else
 		{
@@ -111,14 +114,18 @@ Class MySQLLink
 		}
 	}
 	
-	function AddToSyslog( $Query, $Response = "", $Type = '3' )
+	function AddToSyslog( $Query, $Response = "", $Type = '3',$Ignore_Log_Error)
 	{
 		Try 
 		{
-			$this->QuerySQL("INSERT INTO syslog SET description = '$Query', Response = '$Response', Type = '$Type'");
+			$this->QuerySQL("INSERT INTO Sys_Log SET Message = '".str_replace("'","\'",$Query)."', Response = '".str_replace("'","\'",$Response)."', Message_Type = '$Type'");
 			$this->LastLogID = mysqli_insert_id($this->Database);
 		} catch (SQLQueryError $e)
 		{
+			if(!$Ignore_Log_Error)
+			{
+				throw new SQLQueryError($e->getMessage());
+			}
 		}
 	}
 	function GetCurrentLink()

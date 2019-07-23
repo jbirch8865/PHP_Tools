@@ -11,9 +11,9 @@ class PhoneNumber {
 			$this->phone_number = $phone_number;
 			$this->Load_Validate_Keys();
 			$this->ValidatePhoneNumber();
-		} catch (InvalidPhoneNumber $e)
+		} catch (\Exception $e)
 		{
-			throw new InvalidPhoneNumber($this->phone_number);
+			throw new \Exception($e->getMessage());
 		}
 	}
 
@@ -24,13 +24,11 @@ class PhoneNumber {
 			curl_setopt($submit_request, CURLOPT_RETURNTRANSFER, true);
 			$json_results = curl_exec($submit_request);
 			curl_close($submit_request);
-
 			$validation_results = json_decode($json_results, true);
+			
 			if(!$validation_results['valid']) {
-				throw new InvalidPhoneNumber();
+				throw new \Exception("Phone Number not valid");
 			}
-		} catch (InvalidPhoneNumber $e) {
-			throw new InvalidPhoneNumber();
 		} catch (\Exception $e)
 		{
 			throw new \Exception($e->getMessage());
@@ -39,16 +37,13 @@ class PhoneNumber {
 
 	private function Load_Validate_Keys()
 	{
-                try
-                {
-                       	$Access_Key = new \docker\Docker;
-                        $this->access_key = $Access_Key->Get_Secret_Value('Number_Validator_Access_Key');
-                } catch (\docker\SecretDoesNotExist $e)
-                {
-                        throw new Missing_Access_Key('Number_Validator_Access_Key');
-                } catch (\Exception $e)
+		try
 		{
-			throw new \Exception($e->getMessage());
+				$Access_Key = new \config\ConfigurationFile();
+				$this->access_key = $Access_Key->Configurations()['Number_Validator_Access_Key'];
+		} catch (\Exception $e)
+		{
+				throw new \Exception($e->getMessage());
 		}
 	}
 
