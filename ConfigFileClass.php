@@ -1,10 +1,13 @@
 <?php
 namespace config;
+
 class ConfigurationFile
 {
 	private $Configurations;
+
 	function __construct($fileName = "config.local.ini")
 	{
+		$fileName = dirname(__FILE__) . DIRECTORY_SEPARATOR . $fileName;
 		if($this->IsThisAString($fileName))
 		{
 			if($this->DoesFileExist($fileName))
