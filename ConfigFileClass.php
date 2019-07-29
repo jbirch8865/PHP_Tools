@@ -7,7 +7,10 @@ class ConfigurationFile
 
 	function __construct($fileName = "config.local.ini")
 	{
-		$fileName = dirname(__FILE__) . DIRECTORY_SEPARATOR . $fileName;
+		if($fileName == "config.local.ini" || $fileName == "DatabaseClass.php")
+		{			
+			$fileName = dirname(__FILE__) . DIRECTORY_SEPARATOR . $fileName;
+		}
 		if($this->IsThisAString($fileName))
 		{
 			if($this->DoesFileExist($fileName))

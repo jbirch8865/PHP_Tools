@@ -122,10 +122,8 @@ class SMSMessageWithChecks extends TextMessage
 		try {
 			$twilio = $this->Twilio_Client_Object();
 
-			$date = date_create();
-			date_sub($date, date_interval_create_from_date_string('1 days'));
-
-			$messages = $twilio->messages->read(array("dateSent" => $date,"to" => $this->Print_Send_To()),20);
+			$today = new \DateTime(date('Y-m-d'));
+			$messages = $twilio->messages->read(array("dateSent" => $today,"to" => $this->Print_Send_To()),20);
 			foreach($messages as $record)
 			{
 				if($record->body == $this->Print_Message_Body())

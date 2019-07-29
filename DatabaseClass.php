@@ -13,6 +13,7 @@ Class MySQLLink
 	private $Password;
 	private $Hostname;
 	private $ListeningPort;
+	private $LastMySQLError;
 	function __construct($Database)
 	{
 		
@@ -83,16 +84,19 @@ Class MySQLLink
 		{
 			$Response = $this->QuerySQL($Query);
 			$this->LastInsertID = mysqli_insert_id($this->Database);
-			$this->AddToSyslog($Query, mysqli_error($this->Database), $Type,$Ignore_Log_Error);		
-			return $this->LastInsertID;
+			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
+			return $Response;
 		} catch (SQLQueryError $e)
 		{
-			throw new SQLQueryError(mysqli_error($this->Database));
+			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
+			throw new SQLQueryError($e->getMessage());
 		} catch (DuplicatePrimaryKeyRequest $e)
 		{
+			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
 			throw new DuplicatePrimaryKeyRequest($e->getMessage());
 		} catch (Exception $e)
 		{
+			$this->AddToSyslog($Query, "unknown error running this SQL query", $Type,$Ignore_Log_Error);		
 			throw new \Exception($e->getMessage());
 		}
 	}
@@ -101,6 +105,7 @@ Class MySQLLink
 	{
 		if(!$Response = mysqli_query($this->Database, $Query))
 		{
+			$this->LastMySQLError = mysqli_error($this->Database);
 			if(mysqli_errno($this->Database) == '1062')
 			{
 				throw new DuplicatePrimaryKeyRequest("You are trying to create a duplicate entry for the primary key in the DB");
@@ -118,7 +123,7 @@ Class MySQLLink
 	{
 		Try 
 		{
-			$this->QuerySQL("INSERT INTO Sys_Log SET Message = '".str_replace("'","\'",$Query)."', Response = '".str_replace("'","\'",$Response)."', Message_Type = '$Type'");
+			$this->QuerySQL("INSERT INTO `syslog`.`Sys_Log` SET Message = '".str_replace("'","\'",$Query)."', Response = '".str_replace("'","\'",$Response)."', Message_Type = '$Type'");
 			$this->LastLogID = mysqli_insert_id($this->Database);
 		} catch (SQLQueryError $e)
 		{
@@ -139,6 +144,10 @@ Class MySQLLink
 	function GetLastLogID()
 	{
 		return $this->LastLogID;
+	}
+	function GetLastError()
+	{
+		return $this->LastMySQLError;
 	}
 }
 ///UPDATE - BELOW is an exerpt from a previous project I am retaining in case it comes in handy again.

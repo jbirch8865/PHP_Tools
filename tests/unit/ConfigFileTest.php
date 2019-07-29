@@ -13,7 +13,7 @@ class ConfigFileTest extends \PHPUnit\Framework\TestCase
 		'config.local.ini' => "Token=ThisIsAToken"
 	  ];
 	  // setup and cache the virtual file system
-	  $this->file_system = org\bovigo\vfs\vfsStream::setup('root', 444, $directory);
+	  $this->file_system = \org\bovigo\vfs\vfsStream::setup('root', 444, $directory);
 	}
 
 	function test_Errors_On_Non_String()
@@ -38,7 +38,7 @@ class ConfigFileTest extends \PHPUnit\Framework\TestCase
 	function test_Return_Known_Configs_From_File()
 	{
 
-		$this->configs = new \config\ConfigurationFile(org\bovigo\vfs\vfsStream::url('root/config.local.ini'));
+		$this->configs = new \config\ConfigurationFile(\org\bovigo\vfs\vfsStream::url('root/config.local.ini'));
 		$this->assertArrayHasKey('Token',$this->configs->Configurations());
 		$this->assertEquals('ThisIsAToken',$this->configs->Configurations()['Token']);
 	}
