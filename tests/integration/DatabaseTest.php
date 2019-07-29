@@ -11,7 +11,7 @@ class DatabaseTest extends \PHPUnit\Framework\TestCase
 
 	function test_Execute_SQL_Query()
 	{    
-        $this->assertIsNumeric($this->DBLink->ExecuteSQLQuery("INSERT INTO Sys_Log SET `Message` = 'PHPUnit Test Insert Successful'",'10',false));
+        $this->assertTrue($this->DBLink->ExecuteSQLQuery("INSERT INTO Sys_Log SET `Message` = 'PHPUnit Test Insert Successful'",'10',false));
     }
     
     function test_Error_On_Duplicate_Key()
