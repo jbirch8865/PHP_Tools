@@ -25,7 +25,11 @@ class PhoneNumber {
 			$json_results = curl_exec($submit_request);
 			curl_close($submit_request);
 			$validation_results = json_decode($json_results, true);
-			
+			if(!isset($validation_results['valid']))
+			{
+				return true;
+				//throw new \Exception("unknown error - ".$json_results);
+			}
 			if(!$validation_results['valid']) {
 				throw new \Exception("Phone Number not valid");
 			}

@@ -14,6 +14,7 @@ Class MySQLLink
 	private $Hostname;
 	private $ListeningPort;
 	private $LastMySQLError;
+	private $LastMySQLErrorNo;
 	function __construct($Database)
 	{
 		
@@ -106,12 +107,13 @@ Class MySQLLink
 		if(!$Response = mysqli_query($this->Database, $Query))
 		{
 			$this->LastMySQLError = mysqli_error($this->Database);
-			if(mysqli_errno($this->Database) == '1062')
+			$this->LastMySQLErrorNo = mysqli_errno($this->Database);
+			if($this->LastMySQLErrorNo == '1062')
 			{
 				throw new DuplicatePrimaryKeyRequest("You are trying to create a duplicate entry for the primary key in the DB");
 			}else
 			{
-				throw new SQLQueryError("SQL Server returned an error ".mysqli_error($this->Database));
+				throw new SQLQueryError("SQL Server returned error number ".$this->LastMySQLErrorNo." - ".mysqli_error($this->Database));
 			}
 		}else
 		{
@@ -148,6 +150,10 @@ Class MySQLLink
 	function GetLastError()
 	{
 		return $this->LastMySQLError;
+	}
+	function GetLastErrorNumber()
+	{
+		return $this->LastMySQLErrorNo;
 	}
 }
 ///UPDATE - BELOW is an exerpt from a previous project I am retaining in case it comes in handy again.
