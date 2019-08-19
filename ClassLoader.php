@@ -5,4 +5,6 @@ require dirname(__FILE__) . DIRECTORY_SEPARATOR . "NumberValidator.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "SendSMS.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "ConfigFileClass.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "DatabaseClass.php";
+require dirname(__FILE__) . DIRECTORY_SEPARATOR . "UserClass.php";
+require dirname(__FILE__) . DIRECTORY_SEPARATOR . "TestClass.php";
 ?>

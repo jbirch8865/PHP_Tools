@@ -147,6 +147,12 @@ Class MySQLLink
 	{
 		return $this->LastLogID;
 	}
+
+	/**
+    *
+    * Returns the last error that mysqli had
+    *
+    */
 	function GetLastError()
 	{
 		return $this->LastMySQLError;

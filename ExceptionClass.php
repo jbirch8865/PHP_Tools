@@ -67,5 +67,19 @@ class ThisIsADuplicateMessage Extends \Exception{
 	}
 }
 
+namespace User_Session;
+class User_Does_Not_Exist Extends \Exception{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}
+}
+
+class User_Is_Not_Authenticated Extends \Exception{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}	
+}
 ?>
 
