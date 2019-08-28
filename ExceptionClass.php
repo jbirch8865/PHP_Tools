@@ -81,5 +81,41 @@ class User_Is_Not_Authenticated Extends \Exception{
 		parent::__construct($message);
 	}	
 }
+
+namespace DatabaseLink;
+class Field_Is_Locked Extends \Exception{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
+class Not_A_Primary_Key Extends \Exception{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
+class Primary_Key_Auto_Increments Extends \Exception{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
+class Row_Not_Ready_To_Update Extends \Exception{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
+class Fields_Are_Not_Set_Properly Extends \Exception{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
 ?>
 

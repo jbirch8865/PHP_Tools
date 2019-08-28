@@ -46,7 +46,7 @@ class ConfigFileTest extends \PHPUnit\Framework\TestCase
 	function test_Expect_Exception_On_Non_Ini_File()
 	{
 		$this->expectException(Exception::class);
-		$this->configs = new \config\ConfigurationFile('DatabaseClass.php');
+		$this->configs = new \config\ConfigurationFile('ConfigFileClass.php');
 	}
 }
 
