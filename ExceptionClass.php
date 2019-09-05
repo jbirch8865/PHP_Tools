@@ -1,5 +1,4 @@
 <?php
-//We don't need a namespace as each class we should be using the long name which would include any namespaces
 namespace docker;
 
 class BadFolderLocation Extends \Exception {
@@ -82,6 +81,12 @@ class User_Is_Not_Authenticated Extends \Exception{
 	}	
 }
 
+class User_Is_Already_Authenticated Extends \Exception{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}	
+}
 namespace DatabaseLink;
 class Field_Is_Locked Extends \Exception{
 	function __construct($message = Null)
@@ -118,4 +123,3 @@ class Fields_Are_Not_Set_Properly Extends \Exception{
 	}		
 }
 ?>
-

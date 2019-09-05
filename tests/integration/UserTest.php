@@ -1,6 +1,6 @@
 <?php
 
-use User_Session\User_Session;
+use User_Session\User_Is_Not_Authenticated;
 
 use function Test_User\invokeMethod;
 
@@ -23,6 +23,12 @@ class UserTest extends \PHPUnit\Framework\TestCase
 	{
 
 	}
+
+    function test_No_Current_Session()
+    {
+        $user = new \User_Session\Current_User;
+        $this->assertFalse(invokeMethod($user,'Does_User_Session_Exist'));
+    }
 
     function test_Set_Username()
     {
@@ -98,7 +104,22 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($this->user->Delete_User());
     }
 
+    function test_Current_Session_And_Is_Authenticated()
+    {
+        $user = new \User_Session\Current_User;
+        $this->assertTrue($user->Authenticate());
+        $user->LogOut();
+    }
+
+    function test_Current_Session_And_Is_Not_Authenticated()
+    {
+        $this->expectException(User_Is_Not_Authenticated::class);
+        $user = new \User_Session\Current_User;
+        $user->Authenticate();
+    }
 
 }
+
+
 
 ?>

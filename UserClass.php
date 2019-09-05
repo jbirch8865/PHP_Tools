@@ -10,6 +10,7 @@ class User_Session
     private $configs;
     private $salt;
     private $is_user_authenticated;
+    private $session_expires;
 
     function __construct()
     {
@@ -18,6 +19,7 @@ class User_Session
         $this->username = "";
         $this->password = "";
         $this->hashed_password_given = "";    
+        $this->session_expires = date('Y-m-d H:i:s');
     }
 
     function Set_Username($username)
@@ -37,9 +39,13 @@ class User_Session
 
     function Authenticate_User()
     {
+        if($this->Am_I_Currently_Authenticated())
+        {
+            return true;
+        }
         if($this->username == "" || $this->password == "")
         {
-            throw new \Exception("You can't authenticate a user until you set the username and password");
+            throw new User_Is_Not_Authenticated("You can't authenticate a user until you set the username and password");
         }
         if(!$this->Does_User_Exist())
         {
@@ -53,13 +59,16 @@ class User_Session
             $this->is_user_authenticated = false;
             throw new User_Is_Not_Authenticated("password given is incorrect");
         }
+        $this->session_expires = date('Y-m-d H:i:s',strtotime('+'.$this->configs['Session_Time_Limit_In_Minutes'].' minutes'));
+        
+        $this->password = "";
+        $_SESSION["User_Session"] = $this;        
         return $this->is_user_authenticated;
     }
     /**
      * 
-     * @param int $user_id must pass in the unique id of the user being created
      */
-    function Create_User(int $user_id)
+    function Create_User()
     {
         if($this->username == "" || $this->password == "")
         {
@@ -72,7 +81,7 @@ class User_Session
 
         try
         {
-            if($results = $this->dblink->ExecuteSQLQuery("INSERT INTO ".$this->configs['user_table_name']." SET ".$this->configs['user_id_column_name']." = '".$user_id."', ".$this->configs['username_column_name']." = '".$this->username."', ".$this->configs['password_column_name']." = '".$this->hashed_password_given."', ".$this->configs['cspring_column_name']." = '".$this->salt."'"))
+            if($results = $this->dblink->ExecuteSQLQuery("INSERT INTO ".$this->configs['user_table_name']." SET ".$this->configs['username_column_name']." = '".$this->username."', ".$this->configs['password_column_name']." = '".$this->hashed_password_given."', ".$this->configs['cspring_column_name']." = '".$this->salt."'"))
             {
                 return true;    
             }else
@@ -114,19 +123,51 @@ class User_Session
         }       
     }
     
+    function LogOut()
+    {
+        $this->is_user_authenticated = false;
+        $this->password = "";
+        $this->session_expires = date('Y-m-d H:i:s');
+        $_SESSION['User_Session'] = $this;
+    }
+    
+    private function Am_I_Currently_Authenticated()
+    {
+        if($this->is_user_authenticated)
+        {
+            if(Date('Y-m-d H:i:s') < $this->session_expires)
+            {
+                $this->Renew_Session();
+                return true;
+            }else
+            {
+                return false;
+            }
+        }else
+        {
+            return false;
+        }
+    }
+
     private function Get_Username()
     {
         return $this->username;
     }
-
     private function Get_Password()
     {
         return $this->password;
     }
-
     private function Get_Hashed_Password()
     {
         return $this->hashed_password_given;
+    }
+
+
+    private function Renew_Session()
+    {
+        $this->session_expires = date('Y-m-d H:i:s',strtotime('+'.$this->configs['Session_Time_Limit_In_Minutes'].' minutes'));
+        $this->password = ""; //Should already be blank but just in case
+        $_SESSION["User_Session"] = $this;  
     }
 
     private function Does_User_Exist()
@@ -256,5 +297,52 @@ class User_Session
         }
     }
     
+}
+
+class Current_User
+{
+    private $user_session;
+
+    function __construct()
+    {
+        if($this->Does_User_Session_Exist())
+        {
+            $this->user_session = $_SESSION['User_Session'];
+        }else
+        {
+            $this->user_session = new User_Session;   
+        }
+    }
+
+    private function Does_User_Session_Exist()
+    {
+        if(isset($_SESSION['User_Session']))
+        {
+            return true;
+        }else
+        {
+            return false;
+        }
+    }
+
+    function Authenticate()
+    {
+        return $this->user_session->Authenticate_User();
+    }
+
+    function LogOut()
+    {
+        $this->user_session->LogOut();
+    }
+
+    function Set_Password($password)
+    {
+        $this->user_session->Set_Password($password);
+    }
+
+    function Set_Username($username)
+    {
+        $this->user_session->Set_Username($username);
+    }
 }
 ?>

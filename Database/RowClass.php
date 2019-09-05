@@ -6,6 +6,7 @@ class Row {
     private $field_object;
     private $primary_keys;
     private $table_name;
+    private $loaded_from_db;
 
     function __construct(string $database, $table_name, $field_object = "\DatabaseLink\Field")
     {
@@ -14,6 +15,16 @@ class Row {
         $this->dblink = new \DatabaseLink\MySQLLink($database);
         $this->Build_Fields_For_Row();
         $this->Load_Empty_Primary_Keys();
+        $this->loaded_from_db = false;
+    }
+    /**
+     * When we load a row from a database query this will return true
+     * if we have not loaded the row from the database it likely means
+     * we are creating a new entry and this will return false
+     */
+    protected function Have_I_Been_Loaded_From_DB()
+    {
+        return $this->loaded_from_db;
     }
     /**
      * Returns field value
@@ -30,6 +41,21 @@ class Row {
             throw new \Exception($e->getMessage());
         }
     }
+    /**
+     * Sets field value
+     * @param string $column_name
+     */
+    protected function Set_Field_Value($column_name,$value_to_set)
+    {
+        try
+        {
+            return $this->fields[$column_name]->Manually_Set_Field_Value($value_to_set);
+        } catch (\Exception $e)
+        {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
     /**
      * Returns first row matched
      * @param string $column_name_to_search
@@ -56,6 +82,7 @@ class Row {
                 }
             }
             $this->Set_Primary_Keys_From_Search($column_name_to_search,$value_to_find);
+            $this->loaded_from_db = true;
         } catch (\Exception $e)
         {
             throw new \Exception($e->getMessage());
