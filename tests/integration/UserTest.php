@@ -24,10 +24,15 @@ class UserTest extends \PHPUnit\Framework\TestCase
 
 	}
 
-    function test_No_Current_Session()
+    function I_Have_Not_Tried_To_Login_This_Session_Yet()
     {
         $user = new \User_Session\Current_User;
         $this->assertFalse(invokeMethod($user,'Does_User_Session_Exist'));
+    }
+
+    function I_Have_Tried_And_Failed_To_Login_This_Session()
+    {
+
     }
 
     function test_Set_Username()
@@ -47,6 +52,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     function test_Hash_Password()
     {
         $user = new \User_Session\User_Session;
+        $user->Set_Username($this->username);
         $user->Set_Password('TestAPassword');
         $this->assertIsString(\Test_User\invokeMethod($user, 'Hash_Password_Given'));
     }    
@@ -54,6 +60,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     function test_Get_New_Salt()
     {
         $user = new \User_Session\User_Session;
+        $user->Set_Username('New_User');
         $user->Set_Password('TestAPassword');
         $this->assertIsString(\Test_User\invokeMethod($user, 'Get_A_Valid_Salt'));
     }
@@ -61,6 +68,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     function test_Set_Password()
     {
         $user = new \User_Session\User_Session;
+        $user->Set_Username('jbirch8865');
         $user->Set_Password('TestAPassword');
         $this->assertEquals('TestAPassword',invokeMethod($user,'Get_Password'));
     }
@@ -70,7 +78,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->user = new \User_Session\User_Session;
         $this->user->Set_Username($this->username);
         $this->user->Set_Password('TestAPassword');
-        $this->assertTrue($this->user->Create_User(1));
+        $this->assertTrue($this->user->Create_User());
     }
 
 	function test_Does_User_Exist()
@@ -92,34 +100,37 @@ class UserTest extends \PHPUnit\Framework\TestCase
     {
         $this->expectException(\User_Session\User_Is_Not_Authenticated::Class);
         $this->user = new \User_Session\User_Session;
-        $this->user->Set_Password('TestAWrongPassword');
         $this->user->Set_Username($this->username);
+        $this->user->Set_Password('TestAWrongPassword');
         $this->user->Authenticate_User();
     }
-    
+
+    function test_Authenticate_Session()
+    {
+        $user = new \User_Session\Current_User;
+        $user->Set_Username($this->username);
+        $user->Set_Password('TestAPassword');
+        $this->assertTrue($user->Authenticate());
+    }
+
+    function test_Current_Session_And_Is_Authenticated()
+    {
+        $user = new \User_Session\Current_User;
+        $this->assertTrue($user->Am_I_Currently_Authenticated());
+        $user->LogOut();
+    }
+
+    function test_Current_Session_Is_Not_Authenticated()
+    {
+        $user = new \User_Session\Current_User;
+        $this->assertFalse($user->Am_I_Currently_Authenticated());
+    }
+
     function test_Delete_User()
     {
         $this->user = new \User_Session\User_Session;
         $this->user->Set_Username($this->username);
         $this->assertTrue($this->user->Delete_User());
     }
-
-    function test_Current_Session_And_Is_Authenticated()
-    {
-        $user = new \User_Session\Current_User;
-        $this->assertTrue($user->Authenticate());
-        $user->LogOut();
-    }
-
-    function test_Current_Session_And_Is_Not_Authenticated()
-    {
-        $this->expectException(User_Is_Not_Authenticated::class);
-        $user = new \User_Session\Current_User;
-        $user->Authenticate();
-    }
-
 }
-
-
-
 ?>

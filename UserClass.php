@@ -33,6 +33,10 @@ class User_Session
 
     function Set_Password($password)
     {
+        if($this->Get_Username() == "")
+        {
+            throw new User_Does_Not_Exist("You need to set a username before you configure a password");
+        }
         $this->password = $password;
         $this->Hash_Password_Given();
     }
@@ -61,8 +65,7 @@ class User_Session
         }
         $this->session_expires = date('Y-m-d H:i:s',strtotime('+'.$this->configs['Session_Time_Limit_In_Minutes'].' minutes'));
         
-        $this->password = "";
-        $_SESSION["User_Session"] = $this;        
+        $this->password = "";  
         return $this->is_user_authenticated;
     }
     /**
@@ -131,7 +134,7 @@ class User_Session
         $_SESSION['User_Session'] = $this;
     }
     
-    private function Am_I_Currently_Authenticated()
+    public function Am_I_Currently_Authenticated()
     {
         if($this->is_user_authenticated)
         {
@@ -302,15 +305,17 @@ class User_Session
 class Current_User
 {
     private $user_session;
-
+    private $number_of_authentication_attemps;
     function __construct()
     {
+        $this->number_of_authentication_attemps = 0;
         if($this->Does_User_Session_Exist())
         {
             $this->user_session = $_SESSION['User_Session'];
         }else
         {
             $this->user_session = new User_Session;   
+            $_SESSION["User_Session"] = $this->user_session;
         }
     }
 
@@ -325,11 +330,36 @@ class Current_User
         }
     }
 
-    function Authenticate()
+    function Am_I_Currently_Authenticated()
     {
-        return $this->user_session->Authenticate_User();
+        return $this->user_session->Am_I_Currently_Authenticated();
     }
 
+    function Authenticate()
+    {
+        $this->number_of_authentication_attemps = $this->number_of_authentication_attemps + 1;
+        try
+        {
+            $authenticated = $this->user_session->Authenticate_User();
+        } catch (\Exception $e)
+        {
+            $authenticated = false;
+        }
+        return $authenticated;
+    }
+    /**
+     * Have I tried more than once to authenticate and I'm currently not authenticated
+     */
+    function Have_I_Failed_At_Authenticating_This_Session()
+    {
+        if($this->number_of_authentication_attemps > 0 && !$this->user_session->Am_I_Currently_Authenticated())
+        {
+            return true;
+        }else
+        {
+            return false;
+        }
+    }
     function LogOut()
     {
         $this->user_session->LogOut();
