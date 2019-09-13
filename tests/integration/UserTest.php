@@ -126,7 +126,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($user->Am_I_Currently_Authenticated());
     }
 
-    function test_Delete_User()
+    function Delete_User()
     {
         $this->user = new \User_Session\User_Session;
         $this->user->Set_Username($this->username);

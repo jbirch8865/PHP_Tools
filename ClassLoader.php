@@ -8,5 +8,7 @@ require dirname(__FILE__) . DIRECTORY_SEPARATOR . "ConfigFileClass.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "Database/ClassLoader.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "UserClass.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "TestClass.php";
-require dirname(__FILE__) . DIRECTORY_SEPARATOR . "BootstrapClass.php";
+require dirname(__FILE__) . DIRECTORY_SEPARATOR . "BootstrapHTMLClass.php";
+require dirname(__FILE__) . DIRECTORY_SEPARATOR . "BootstrapJSClass.php";
+
 ?>

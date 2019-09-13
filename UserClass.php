@@ -3,6 +3,7 @@ namespace User_Session;
 
 class User_Session 
 {
+    private $person_id;
     private $username;
     private $password;
     private $hashed_password_given;
@@ -11,13 +12,16 @@ class User_Session
     private $salt;
     private $is_user_authenticated;
     private $session_expires;
+    private $number_of_authentication_attempts;
 
     function __construct()
     {
         $this->LoadConfigurationFile();
-        $this->dblink = new \DatabaseLink\MySQLLink($this->configs['database_name']);
+        $this->Create_Database_Connection();
         $this->username = "";
         $this->password = "";
+        $this->person_id = "";
+        $this->number_of_authentication_attempts = 0;
         $this->hashed_password_given = "";    
         $this->session_expires = date('Y-m-d H:i:s');
     }
@@ -41,8 +45,14 @@ class User_Session
         $this->Hash_Password_Given();
     }
 
+    function Set_User_ID($id)
+    {
+        $this->person_id = $id;
+    }
+
     function Authenticate_User()
     {
+        $this->number_of_authentication_attempts = $this->number_of_authentication_attempts + 1;
         if($this->Am_I_Currently_Authenticated())
         {
             return true;
@@ -51,6 +61,7 @@ class User_Session
         {
             throw new User_Is_Not_Authenticated("You can't authenticate a user until you set the username and password");
         }
+        $this->password = "";  //This is just to be safe and get rid of plain text passwords asap
         if(!$this->Does_User_Exist())
         {
             throw new User_Does_Not_Exist("You can't authenticate a user that doesn't exist");
@@ -65,7 +76,6 @@ class User_Session
         }
         $this->session_expires = date('Y-m-d H:i:s',strtotime('+'.$this->configs['Session_Time_Limit_In_Minutes'].' minutes'));
         
-        $this->password = "";  
         return $this->is_user_authenticated;
     }
     /**
@@ -152,9 +162,27 @@ class User_Session
         }
     }
 
-    private function Get_Username()
+    /**
+     * Have I tried more than once to authenticate and I'm currently not authenticated
+     */
+    function Have_I_Failed_At_Authenticating_This_Session()
+    {
+        if($this->number_of_authentication_attempts > 0 && !$this->Am_I_Currently_Authenticated())
+        {
+            return true;
+        }else
+        {
+            return false;
+        }
+    }
+
+    public function Get_Username()
     {
         return $this->username;
+    }
+    public function Get_User_ID()
+    {
+        return $this->person_id;
     }
     private function Get_Password()
     {
@@ -213,7 +241,7 @@ class User_Session
 
     private function Get_A_Valid_Salt()
     {
-        if($this->Does_User_Exist())
+       if($this->Does_User_Exist())
         {
             return $this->Get_Salt_From_DB();
         }else
@@ -299,22 +327,30 @@ class User_Session
             return true;
         }
     }
+
+    public function Create_Database_Connection()
+    {
+        $this->dblink = new \DatabaseLink\MySQLLink($this->configs['database_name']);
+    }
     
+    public function Get_DBLink()
+    {
+        return $this->dblink;
+    }
 }
 
 class Current_User
 {
     private $user_session;
-    private $number_of_authentication_attemps;
     function __construct()
     {
-        $this->number_of_authentication_attemps = 0;
         if($this->Does_User_Session_Exist())
         {
             $this->user_session = $_SESSION['User_Session'];
+            $this->user_session->Create_Database_Connection();
         }else
         {
-            $this->user_session = new User_Session;   
+            $this->user_session = new User_Session;  
             $_SESSION["User_Session"] = $this->user_session;
         }
     }
@@ -337,7 +373,6 @@ class Current_User
 
     function Authenticate()
     {
-        $this->number_of_authentication_attemps = $this->number_of_authentication_attemps + 1;
         try
         {
             $authenticated = $this->user_session->Authenticate_User();
@@ -347,19 +382,12 @@ class Current_User
         }
         return $authenticated;
     }
-    /**
-     * Have I tried more than once to authenticate and I'm currently not authenticated
-     */
+
     function Have_I_Failed_At_Authenticating_This_Session()
     {
-        if($this->number_of_authentication_attemps > 0 && !$this->user_session->Am_I_Currently_Authenticated())
-        {
-            return true;
-        }else
-        {
-            return false;
-        }
+        return $this->user_session->Have_I_Failed_At_Authenticating_This_Session();
     }
+
     function LogOut()
     {
         $this->user_session->LogOut();
@@ -373,6 +401,11 @@ class Current_User
     function Set_Username($username)
     {
         $this->user_session->Set_Username($username);
+    }
+
+    function Get_Username()
+    {
+        return $this->user_session->Get_Username();
     }
 }
 ?>
