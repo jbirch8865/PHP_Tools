@@ -104,7 +104,7 @@ class Field
     */
    protected function Is_Field_Required()
    {
-       if($this->required = 'false')
+       if($this->required == 'false')
        {
            return false;
        }else

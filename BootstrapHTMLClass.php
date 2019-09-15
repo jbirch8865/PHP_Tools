@@ -139,10 +139,16 @@ class context_menu
    * @param string $text_to_display plain text to display to user
    * @param array an array of complex data you want to store as json in the data_context attribute
    */
-  function Add_Action(string $text_to_display,array $data_context)
+  function Add_Action(string $text_to_display,array $data_context,$Red_Color = false)
   {
     echo '<li tabindex="-1" data-context = \''.json_encode($data_context).'\'>';
-    echo '<a href = "#" class="list-group-item list-group-item-action">';
+    if($Red_Color)
+    {
+      echo '<a href = "#" class="list-group-item list-group-item-action list-group-item-danger">';
+    }else
+    {
+      echo '<a href = "#" class="list-group-item list-group-item-action">';
+    }
     if(isset($data_context['checked']))
     {
       if($data_context['checked']){echo '<img src="images/checkmark.jpg" style="width:20px;margin-right:25px;">';}
@@ -152,7 +158,8 @@ class context_menu
 
   function Add_Divider()
   {
-    echo '<li class="divider"></li>';
+    echo '<li class="divider list-group-item"></li>';
+    
   }
 
   function Close_Context_Menu()

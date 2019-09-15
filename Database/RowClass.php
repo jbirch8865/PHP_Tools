@@ -74,6 +74,7 @@ class Row {
         try {
             $query = $this->dblink->ExecuteSQLQuery("SELECT ".$return_columns." FROM `".$this->table_name."` WHERE `".$column_name_to_search."` = '".$value_to_find."'");
             $query = mysqli_fetch_assoc($query);
+            if(is_null($query)){throw new SQL_Search_Returned_Null("The Single_Row_Search() query returned no results");}
             ForEach($query as $field_name => $field_value)
             {
                 if(isset($this->fields[$field_name]))

@@ -19,6 +19,10 @@ class Context_Menu
             custom.initEvent('customEvent', true, true);
             for (var i = 0; i < children.length; i++) {
               var tableChild = children[i];
+              if(tableChild.classList.contains('divider'))
+              {
+                continue;
+              }
               var html = tableChild.innerHTML;
               html = html.replace('<img src=\"images/checkmark.jpg\" style=\"width:20px;margin-right:25px;\">','');
               tableChild.innerHTML = html;

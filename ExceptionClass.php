@@ -122,4 +122,12 @@ class Fields_Are_Not_Set_Properly Extends \Exception{
 		parent::__construct($message);
 	}		
 }
+
+class SQL_Search_Returned_Null Extends \Exception{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
 ?>

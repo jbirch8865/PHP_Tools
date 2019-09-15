@@ -96,6 +96,7 @@ class User_Session
         {
             if($results = $this->dblink->ExecuteSQLQuery("INSERT INTO ".$this->configs['user_table_name']." SET ".$this->configs['username_column_name']." = '".$this->username."', ".$this->configs['password_column_name']." = '".$this->hashed_password_given."', ".$this->configs['cspring_column_name']." = '".$this->salt."'"))
             {
+                $this->Set_User_ID($this->dblink->GetLastInsertID());
                 return true;    
             }else
             {
@@ -208,6 +209,8 @@ class User_Session
             $results = $this->dblink->ExecuteSQLQuery("SELECT * FROM ".$this->configs['user_table_name']." WHERE ".$this->configs['username_column_name']." = '".$this->username."'");
             if(mysqli_num_rows($results) == 1)
             {
+                $results = mysqli_fetch_assoc($results);
+                $this->Set_User_ID($results['person_id']);
                 return true;
             }else
             {

@@ -9,20 +9,32 @@ class UserTest extends \PHPUnit\Framework\TestCase
 	private $dblink;
     private $user;
     private $username;
+    private $configs;
 
-    public static function setUpBeforeClass() :void
-    {
-    }
     public function __construct()
     {
         parent::__construct();
-        $this->username = 'jbirch8865';
-        $this->dblink = new DatabaseLink\MySQLLink('D-H');   
+        $this->configs = new \config\ConfigurationFile();
+        $this->username = $this->configs->Configurations()['test_username'];
+        $this->dblink = new DatabaseLink\MySQLLink($this->configs->Configurations()['database_name']);   
     }
     public function setUp() :void
 	{
 
 	}
+
+    function test_Delete_User()
+    {
+        $this->user = new \User_Session\User_Session;
+        $this->user->Set_Username($this->username);
+        if(invokeMethod($this->user,'Does_User_Exist'))
+        {
+            $this->assertTrue($this->user->Delete_User());
+        }else
+        {
+            $this->assertTrue(true);
+        }
+    }
 
     function I_Have_Not_Tried_To_Login_This_Session_Yet()
     {
@@ -68,7 +80,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     function test_Set_Password()
     {
         $user = new \User_Session\User_Session;
-        $user->Set_Username('jbirch8865');
+        $user->Set_Username($this->username);
         $user->Set_Password('TestAPassword');
         $this->assertEquals('TestAPassword',invokeMethod($user,'Get_Password'));
     }
@@ -124,13 +136,6 @@ class UserTest extends \PHPUnit\Framework\TestCase
     {
         $user = new \User_Session\Current_User;
         $this->assertFalse($user->Am_I_Currently_Authenticated());
-    }
-
-    function Delete_User()
-    {
-        $this->user = new \User_Session\User_Session;
-        $this->user->Set_Username($this->username);
-        $this->assertTrue($this->user->Delete_User());
     }
 }
 ?>
