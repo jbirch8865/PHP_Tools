@@ -142,7 +142,10 @@ class User_Session
         $this->is_user_authenticated = false;
         $this->password = "";
         $this->session_expires = date('Y-m-d H:i:s');
-        $_SESSION['User_Session'] = $this;
+        try{
+            session_destroy();
+        }catch (\Exception $e)
+        {}
     }
     
     public function Am_I_Currently_Authenticated()
@@ -272,12 +275,34 @@ class User_Session
         {
             throw new \Exception("You can't hash until you add a password");
         }
+        return $this->Hash_Password($this->password);
+    }
+
+    private function Hash_Password($password)
+    {
         $this->salt = $this->Get_A_Valid_Salt();
-        $PasswordHash = $this->password.$this->salt;
+        $PasswordHash = $password.$this->salt;
         $this->hashed_password_given = hash('sha256', $PasswordHash);
         return $this->hashed_password_given;
     }
 
+    public function Change_Password($password)
+    {
+        $this->Hash_Password($password);
+        try
+        {
+            if($results = $this->dblink->ExecuteSQLQuery("UPDATE ".$this->configs['user_table_name']." SET ".$this->configs['password_column_name']." = '".$this->hashed_password_given."' WHERE ".$this->configs['username_column_name']." = '".$this->username."'"))
+            {
+                return true;    
+            }else
+            {
+                throw new \Exception('Error updating user password'.$this->dblink->GetLastError());
+            }
+        } catch (\Exception $e)
+        {
+            throw new \Exception($e->getMessage());
+        }
+    }
     /**
      * If the user has already been created in the past this will get the original hashed password
      * so we can compare the hashed_password_given with this password for authentication
@@ -339,6 +364,17 @@ class User_Session
     public function Get_DBLink()
     {
         return $this->dblink;
+    }
+
+    public function Currently_Default_Password()
+    {
+        if($this->Am_I_Currently_Authenticated() && $this->Get_Hashed_Password() == $this->Hash_Password($this->configs['default_password']))
+        {
+            return true;
+        }else
+        {
+            return false;
+        }
     }
 }
 
@@ -409,6 +445,16 @@ class Current_User
     function Get_Username()
     {
         return $this->user_session->Get_Username();
+    }
+
+    function Currently_Default_Password()
+    {
+        return $this->user_session->Currently_Default_Password();
+    }
+
+    function Change_Password($password)
+    {
+        $this->user_session->Change_Password($password);
     }
 }
 ?>

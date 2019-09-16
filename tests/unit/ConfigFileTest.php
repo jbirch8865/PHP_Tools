@@ -48,6 +48,13 @@ class ConfigFileTest extends \PHPUnit\Framework\TestCase
 		$this->expectException(Exception::class);
 		$this->configs = new \config\ConfigurationFile('ConfigFileClass.php');
 	}
+
+	function test_Add_Config()
+	{
+		$this->configs = new \config\ConfigurationFile();
+		$this->configs->Add_Or_Update_Config("new_config","value2");
+		$this->assertEquals("value2",$this->configs->Configurations()['new_config']);
+	}
 }
 
 ?>
