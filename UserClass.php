@@ -466,6 +466,11 @@ class Current_User
         return $this->user_session->Currently_Default_Password();
     }
 
+    function Get_User_ID()
+    {
+        $this->user_session->Get_User_ID();
+    }
+
     function Change_Password($password)
     {
         if($this->Get_Username() == "")
@@ -473,6 +478,11 @@ class Current_User
             throw new User_Does_Not_Exist("You need to set a username before you can change the password");
         }
         $this->user_session->Change_Password($password);
+    }
+
+    function Get_DBLink()
+    {
+        return $this->user_session->Get_DBLink();
     }
 }
 ?>
