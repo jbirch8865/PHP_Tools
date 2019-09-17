@@ -1,6 +1,7 @@
 <?php
 namespace config;
 
+
 class ConfigurationFile
 {
 	private $Configurations;

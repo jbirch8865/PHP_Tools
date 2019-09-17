@@ -434,7 +434,13 @@ class Current_User
 
     function Set_Password($password)
     {
-        $this->user_session->Set_Password($password);
+        try
+        {
+            $this->user_session->Set_Password($password);
+        } catch (User_Does_Not_Exist $e)
+        {
+            throw new User_Does_Not_Exist($e->getMessage());
+        }
     }
 
     function Set_Username($username)
@@ -454,6 +460,10 @@ class Current_User
 
     function Change_Password($password)
     {
+        if($this->Get_Username() == "")
+        {
+            throw new User_Does_Not_Exist("You need to set a username before you can change the password");
+        }
         $this->user_session->Change_Password($password);
     }
 }
