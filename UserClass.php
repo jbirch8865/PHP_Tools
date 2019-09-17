@@ -410,6 +410,14 @@ class Current_User
         return $this->user_session->Am_I_Currently_Authenticated();
     }
 
+    function Exit_If_Not_Currently_Authenticated($message = "")
+    {
+        if(!$this->Am_I_Currently_Authenticated())
+        {
+            exit($message);
+        }
+    }
+
     function Authenticate()
     {
         try
