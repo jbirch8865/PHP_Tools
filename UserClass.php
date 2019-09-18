@@ -468,7 +468,7 @@ class Current_User
 
     function Get_User_ID()
     {
-        $this->user_session->Get_User_ID();
+        return $this->user_session->Get_User_ID();
     }
 
     function Change_Password($password)
