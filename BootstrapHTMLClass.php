@@ -1,63 +1,6 @@
 <?php
 namespace bootstrap;
 
-class Alerts
-{
-    private $alerts;
-    private $field_object;
-    function __construct($field_object = "Alert")
-    {
-      $this->field_object = $field_object;
-        if($this->Does_Alert_Session_Exist())
-        {
-            $this->alerts = $_SESSION['Alert_Session'];
-        }else
-        {
-            $this->alerts = array();  
-            $this->Renew_Session();
-        }
-    }
-
-    private function Does_Alert_Session_Exist()
-    {
-        if(isset($_SESSION['Alert_Session']))
-        {
-            return true;
-        }else
-        {
-            return false;
-        }
-    }
-
-    public function Add_Alert($strong_text,$error_message,$hault_execution)
-    {
-        $this->alerts[] = new $this->field_object($strong_text,$error_message,$hault_execution);
-        $this->Renew_Session();
-    }
-
-    private function Remove_Alert($key)
-    {
-        unset($this->alerts[$key]);
-        $this->Renew_Session();
-    }
-
-    private function Renew_Session()
-    {
-        $_SESSION["Alert_Session"] = $this->alerts;
-    }
-
-    public function Process_Alerts()
-    {
-        ForEach($this->alerts as $key => $alert)
-        {
-            echo $this->alerts[$key]->Display_Alert();
-            $should_i_hault = $this->alerts[$key];
-            $this->Remove_Alert($key);
-            $should_i_hault->Terminate_Execution_On_Hault();
-        }
-    }
-}
-
 class Alert
 {
     private $hault_execution;
@@ -91,6 +34,61 @@ class Alert
     
 }
 
+class Alerts
+{
+    private $alerts;
+    function __construct()
+    {
+        if($this->Does_Alert_Session_Exist())
+        {
+            $this->alerts = $_SESSION['Alert_Session'];
+        }else
+        {
+            $this->alerts = array();  
+            $this->Renew_Session();
+        }
+    }
+
+    private function Does_Alert_Session_Exist()
+    {
+        if(isset($_SESSION['Alert_Session']))
+        {
+            return true;
+        }else
+        {
+            return false;
+        }
+    }
+
+    public function Add_Alert($strong_text,$error_message,$hault_execution)
+    {
+        $this->alerts[] = new Alert($strong_text,$error_message,$hault_execution);
+        $this->Renew_Session();
+    }
+
+    private function Remove_Alert($key)
+    {
+        unset($this->alerts[$key]);
+        $this->Renew_Session();
+    }
+
+    private function Renew_Session()
+    {
+        $_SESSION["Alert_Session"] = $this->alerts;
+    }
+
+    public function Process_Alerts()
+    {
+        ForEach($this->alerts as $key => $alert)
+        {
+            echo $this->alerts[$key]->Display_Alert();
+            $should_i_hault = $this->alerts[$key];
+            $this->Remove_Alert($key);
+            $should_i_hault->Terminate_Execution_On_Hault();
+        }
+    }
+}
+
 class navbar
 {
   function __construct()
@@ -118,12 +116,14 @@ class table
 {
   function __construct($id = "")
   {
-      echo '<table id = "'.$id.'" class="table table-striped table-bordered table-sm table-hover" style = "margin-top:25px;">';
+      echo '<div class = "container">';
+      echo '<table id = "'.$id.'" class="table p-4 table-dark table-lg table-hover table-responsive rounded" style = "margin-top:25px;">';
   }
 
   function Close_Table()
   {
     echo '</table>';
+    echo '</div>';
   }
 }
 
