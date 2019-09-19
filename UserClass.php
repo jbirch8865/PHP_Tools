@@ -28,7 +28,7 @@ class User_Session
 
     function Set_Username($username)
     {
-        $this->username = $username;
+        $this->username = str_replace(" ","_",$username);
         if($this->Does_User_Exist())
         {
             $this->Get_Salt_From_DB();
@@ -89,7 +89,7 @@ class User_Session
         }
         if($this->Does_User_Exist())
         {
-            throw new \Exception("this user has already been created");
+            throw new User_Already_Exists("this user has already been created");
         }
 
         try

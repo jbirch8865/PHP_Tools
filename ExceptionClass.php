@@ -1,19 +1,28 @@
 <?php
+namespace exception;
+
+class CustomException Extends \Exception {
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
 namespace docker;
 
-class BadFolderLocation Extends \Exception {
+class BadFolderLocation Extends \exception\CustomException {
 	function __construct($secret_directory = '/run/secret/', $config_directory = '/')
 	{
 		parent::__construct("Either the Secret directory ".$secret_directory.", or config directory ".$config_directory." does not exist.  Please verify existance in the container");
 	}
 }
-class SecretDoesNotExist Extends \Exception{
+class SecretDoesNotExist Extends \exception\CustomException{
 	function __construct($secret_name)
 	{
 		parent::__construct("The docker secret ".$secret_name." does not exist, please ensure the docker secret is configured in the docker swarm");
 	}
 }
-class ConfigDoesNotExist Extends \Exception{
+class ConfigDoesNotExist Extends \exception\CustomException{
 	function __construct($config_name)
 	{
 		parent::__construct("The docker config ".$config_name." does not exist. Please make sure docker swarm is configured with it");
@@ -21,7 +30,7 @@ class ConfigDoesNotExist Extends \Exception{
 }
 
 namespace number_validator;
-class InvalidPhoneNumber Extends \Exception {
+class InvalidPhoneNumber Extends \exception\CustomException {
 	function __construct($phone_number)
 	{
 		parent::__construct("The phone number ".$phone_number." is not valid, please try again.  Make sure it does not start with a + and is no more than 11 digits if using the country code");
@@ -47,19 +56,19 @@ class Missing_From_Number Extends \docker\ConfigDoesNotExist {
 		parent::__construct($what_is_missing);
 	}
 }
-class MessageBodyTooLong Extends \Exception{
+class MessageBodyTooLong Extends \exception\CustomException{
 	function __construct($message_body)
 	{
 		parent::__construct("Message body is more than 160 legal characters - ".$message_body);
 	}
 }
-class MessageNotReadyToSend Extends \Exception{
+class MessageNotReadyToSend Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
 	}
 }
-class ThisIsADuplicateMessage Extends \Exception{
+class ThisIsADuplicateMessage Extends \exception\CustomException{
 	function __construct()
 	{
 		parent::__construct("You are trying to send the same message to the same person today.  You can't do this using Send_SMS use Send_Message to bypas this error and send anyway");
@@ -67,63 +76,70 @@ class ThisIsADuplicateMessage Extends \Exception{
 }
 
 namespace User_Session;
-class User_Does_Not_Exist Extends \Exception{
+class User_Already_Exists Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
 	}
 }
 
-class User_Is_Not_Authenticated Extends \Exception{
+class User_Does_Not_Exist Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}
+}
+
+class User_Is_Not_Authenticated Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
 	}	
 }
 
-class User_Is_Already_Authenticated Extends \Exception{
+class User_Is_Already_Authenticated Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
 	}	
 }
 namespace DatabaseLink;
-class Field_Is_Locked Extends \Exception{
+class Field_Is_Locked Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
 	}		
 }
 
-class Not_A_Primary_Key Extends \Exception{
+class Not_A_Primary_Key Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
 	}		
 }
 
-class Primary_Key_Auto_Increments Extends \Exception{
+class Primary_Key_Auto_Increments Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
 	}		
 }
 
-class Row_Not_Ready_To_Update Extends \Exception{
+class Row_Not_Ready_To_Update Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
 	}		
 }
 
-class Fields_Are_Not_Set_Properly Extends \Exception{
+class Fields_Are_Not_Set_Properly Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
 	}		
 }
 
-class SQL_Search_Returned_Null Extends \Exception{
+class SQL_Search_Returned_Null Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);

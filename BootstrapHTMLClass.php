@@ -1,15 +1,94 @@
 <?php
 namespace bootstrap;
 
+class Alerts
+{
+    private $alerts;
+    private $field_object;
+    function __construct($field_object = "Alert")
+    {
+      $this->field_object = $field_object;
+        if($this->Does_Alert_Session_Exist())
+        {
+            $this->alerts = $_SESSION['Alert_Session'];
+        }else
+        {
+            $this->alerts = array();  
+            $this->Renew_Session();
+        }
+    }
+
+    private function Does_Alert_Session_Exist()
+    {
+        if(isset($_SESSION['Alert_Session']))
+        {
+            return true;
+        }else
+        {
+            return false;
+        }
+    }
+
+    public function Add_Alert($strong_text,$error_message,$hault_execution)
+    {
+        $this->alerts[] = new $this->field_object($strong_text,$error_message,$hault_execution);
+        $this->Renew_Session();
+    }
+
+    private function Remove_Alert($key)
+    {
+        unset($this->alerts[$key]);
+        $this->Renew_Session();
+    }
+
+    private function Renew_Session()
+    {
+        $_SESSION["Alert_Session"] = $this->alerts;
+    }
+
+    public function Process_Alerts()
+    {
+        ForEach($this->alerts as $key => $alert)
+        {
+            echo $this->alerts[$key]->Display_Alert();
+            $should_i_hault = $this->alerts[$key];
+            $this->Remove_Alert($key);
+            $should_i_hault->Terminate_Execution_On_Hault();
+        }
+    }
+}
+
 class Alert
 {
-    public function Display_Warninig($strong_text_to_display, $text_to_display)
+    private $hault_execution;
+    private $strong_text_to_display;
+    private $text_to_display;
+
+    function __construct($strong_text ="Unknown Error",$error_message = "An unknown error occured.",$hault_execution = false)
     {
-      echo '<div class="alert alert-danger alert-dismissible" style = "margin-bottom:0">
-      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-      <strong>'.$strong_text_to_display.'</strong>'.$text_to_display.'
-    </div>';
+      $this->hault_execution = $hault_execution;
+      $this->strong_text_to_display = $strong_text;
+      $this->text_to_display = $error_message;
     }
+
+    public function Display_Alert()
+    {
+      return '<div class="alert alert-danger alert-dismissible" style = "margin-bottom:0">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <strong>'.$this->strong_text_to_display.'</strong>'.$this->text_to_display.'
+      </div>';
+    }
+
+    public function Terminate_Execution_On_Hault()
+    {
+      if($this->hault_execution)
+      {
+        unset($_SESSION["Alert_Session"]);
+        exit();
+      }
+    }
+
+    
 }
 
 class navbar
