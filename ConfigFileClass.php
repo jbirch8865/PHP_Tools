@@ -73,6 +73,22 @@ class ConfigurationFile
 		return $this->Configurations;
 	}
 
+	function Is_Dev()
+	{
+		if(isset($this->Configurations()['Environment']))
+		{
+			if(strtoupper($this->Configurations()['Environment']) == "DEVELOPMENT")
+			{
+				return true;
+			}else
+			{
+				return false;
+			}
+		}else
+		{
+			return false;
+		}
+	}
 	function Add_Or_Update_Config($key, $value)
 	{
 		$this->Configurations[$key] = $value;

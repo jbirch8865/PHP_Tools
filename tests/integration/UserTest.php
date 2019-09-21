@@ -128,14 +128,14 @@ class UserTest extends \PHPUnit\Framework\TestCase
     function test_Current_Session_And_Is_Authenticated()
     {
         $user = new \User_Session\Current_User;
-        $this->assertTrue($user->Am_I_Currently_Authenticated());
+        $this->assertTrue(invokeMethod($user,'Am_I_Currently_Authenticated'));
         $user->LogOut();
     }
 
     function test_Current_Session_Is_Not_Authenticated()
     {
         $user = new \User_Session\Current_User;
-        $this->assertFalse($user->Am_I_Currently_Authenticated());
+        $this->assertFalse(invokeMethod($user,'Am_I_Currently_Authenticated'));
     }
 }
 ?>

@@ -76,6 +76,12 @@ class ThisIsADuplicateMessage Extends \exception\CustomException{
 }
 
 namespace User_Session;
+class User_Session_Expired Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}	
+}
 class User_Already_Exists Extends \exception\CustomException{
 	function __construct($message = Null)
 	{

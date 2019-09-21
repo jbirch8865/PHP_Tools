@@ -148,11 +148,11 @@ class User_Session
         {}
     }
     
-    public function Am_I_Currently_Authenticated()
+    public function Am_I_Currently_Authenticated($throw_exception = false)
     {
         if($this->is_user_authenticated)
         {
-            if(Date('Y-m-d H:i:s') < $this->session_expires)
+            if(!$this->Is_Expired($throw_exception))
             {
                 $this->Renew_Session();
                 return true;
@@ -160,6 +160,21 @@ class User_Session
             {
                 return false;
             }
+        }else
+        {
+            return false;
+        }
+    }
+
+    private function Is_Expired($throw_exception)
+    {
+        if(Date('Y-m-d H:i:s') > $this->session_expires)
+        {
+            if($throw_exception)
+            {
+                throw new User_Session_Expired("The authentication has expired");
+            }
+            return true;
         }else
         {
             return false;
@@ -405,14 +420,14 @@ class Current_User
         }
     }
 
-    function Am_I_Currently_Authenticated()
+    public function Am_I_Currently_Authenticated($throw_exception = false)
     {
-        return $this->user_session->Am_I_Currently_Authenticated();
+        return $this->user_session->Am_I_Currently_Authenticated($throw_exception);
     }
 
-    function Exit_If_Not_Currently_Authenticated($message = "")
+    function Exit_If_Not_Currently_Authenticated($message = "",$throw_exception = false)
     {
-        if(!$this->Am_I_Currently_Authenticated())
+        if(!$this->Am_I_Currently_Authenticated($throw_exception))
         {
             exit($message);
         }
