@@ -97,9 +97,9 @@ class ConfigurationFile
 	}
 	function Get_Images_URL()
 	{
-		if(isset($this->Configurations()['backend_images_directory']))
+		if(isset($this->Configurations()['vendor_directory']))
 		{
-			return $this->Configurations()['backend_images_directory'];
+			return $this->Configurations()['vendor_directory']."/jbirch8865/php_tools/images";
 		}
 	}
 	

@@ -230,7 +230,11 @@ class context_menu
     }
     if(isset($data_context['checked']))
     {
-      if($data_context['checked']){echo '<img src="images/checkmark.jpg" style="width:20px;margin-right:25px;">';}
+      if($data_context['checked'])
+      {
+        global $html_green_checkmark;
+        echo $html_green_checkmark;
+      }
     }
     echo $text_to_display.'</a></li>';
   }
