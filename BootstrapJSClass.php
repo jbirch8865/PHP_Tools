@@ -9,6 +9,7 @@ class Context_Menu
 {
   function __construct(string $tbody_id,string $context_menu)
   {
+    global $html_checkmark;
     echo "<script>
     $('#".$tbody_id." tr').on('contextmenu', function (e) {
             console.log('user right clicked a table row');
@@ -24,7 +25,7 @@ class Context_Menu
                 continue;
               }
               var html = tableChild.innerHTML;
-              html = html.replace('<img src=\"images/checkmark.jpg\" style=\"width:20px;margin-right:25px;\">','');
+              html = html.replace('".$html_checkmark."','');
               tableChild.innerHTML = html;
               json = JSON.parse(tableChild.dataset.context);
               json.added_context = JSON.parse(this.dataset.context);

@@ -72,7 +72,6 @@ class ConfigurationFile
 	{
 		return $this->Configurations;
 	}
-
 	function Is_Dev()
 	{
 		if(isset($this->Configurations()['Environment']))
@@ -89,6 +88,22 @@ class ConfigurationFile
 			return false;
 		}
 	}
+	function Name_Of_Project_Database()
+	{
+		if(isset($this->Configurations()['database_name']))
+		{
+			return $this->Configurations()['database_name'];
+		}
+	}
+	function Get_Images_URL()
+	{
+		if(isset($this->Configurations()['backend_images_directory']))
+		{
+			return $this->Configurations()['backend_images_directory'];
+		}
+	}
+	
+	
 	function Add_Or_Update_Config($key, $value)
 	{
 		$this->Configurations[$key] = $value;
