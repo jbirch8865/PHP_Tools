@@ -31,7 +31,12 @@ class User_Session
         $this->username = str_replace(" ","_",$username);
         if($this->Does_User_Exist())
         {
+            $this->Set_User_ID_From_Username();
             $this->Get_Salt_From_DB();
+            return true;
+        }else
+        {
+            return false;
         }
     }
 
@@ -220,16 +225,38 @@ class User_Session
         $_SESSION["User_Session"] = $this;  
     }
 
+    private function Set_User_ID_From_Username()
+    {
+        if($results = $this->Query_DB_For_User())
+        {
+            $results = mysqli_fetch_assoc($results);
+            $this->Set_User_ID($results['person_id']);
+        }else
+        {
+            return false;
+        }
+
+    }
     private function Does_User_Exist()
+    {
+        if($results = $this->Query_DB_For_User())
+        {
+            return true;
+        }else
+        {
+            return false;
+        }
+        
+    }
+
+    private function Query_DB_For_User()
     {
         try
         {
             $results = $this->dblink->ExecuteSQLQuery("SELECT * FROM ".$this->configs['user_table_name']." WHERE ".$this->configs['username_column_name']." = '".$this->username."'");
             if(mysqli_num_rows($results) == 1)
             {
-                $results = mysqli_fetch_assoc($results);
-                $this->Set_User_ID($results['person_id']);
-                return true;
+                return $results;
             }else
             {
                 return false;
