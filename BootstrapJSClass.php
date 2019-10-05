@@ -13,30 +13,31 @@ class Context_Menu
     echo "<script>
     $('#".$tbody_id." tr').on('contextmenu', function (e) {
             tbl_name = '".$tbody_id."';
+            var user_clicked = this;
             console.log('user right clicked a table row');
             cm = document.querySelector('#".$context_menu."');
             e.preventDefault();
             var children = cm.children;
             var custom = document.createEvent('HTMLEvents');
             custom.initEvent('customEvent', true, true);
-            for (var i = 0; i < children.length; i++) {
-              var tableChild = children[i];
-              if(tableChild.classList.contains('divider'))
+            $(cm).children().each(function (i) {
+              if(this.classList.contains('divider'))
               {
-                continue;
+                return true;
               }
-              var html = tableChild.innerHTML;
+              var html = this.innerHTML;
               html = html.replace('".$html_checkmark."','');
-              tableChild.innerHTML = html;
-              json = JSON.parse(tableChild.dataset.context);
-              json.added_context = JSON.parse(this.dataset.context);
-              tableChild.dataset.context = JSON.stringify(json);
-              tableChild.dataset.unique_id = json.unique_id;
+              this.innerHTML = html;
+              json = JSON.parse(this.dataset.context);
+              json.added_context = JSON.parse($(user_clicked).attr('data-context'));
+              $(this).attr('data-context', JSON.stringify(json));
+              $(this).attr('data-unique_id', json.unique_id);
               custom.data = JSON.stringify(json);
               dispatchEvent(custom);
-            }
+            
+            });
+
             Show_Element_If_True(cm,true);
-            console.log(tbl_name);
             if(String(tbl_name).startsWith('modal'))
             {
               cm.style.top = e.originalEvent.layerY+'px';
