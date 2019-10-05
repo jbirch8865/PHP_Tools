@@ -162,6 +162,7 @@ class Table_Row
 {
   private $num_of_cols;
   private $data_context;
+  private $three_dots_context;
   /**
    * data_context is to store complex json data inside the tr html element in a data_context attribut
    * This will then be able to be used when using a context menu to pass information onto a php script
@@ -170,9 +171,10 @@ class Table_Row
    * @param array $values an array of values in order for column 1, 2 ,3 etc
    * @param array this is the array that will be converted to json for passing into other apps
    */
-  function __construct(int $num_of_cols,array $values,array $data_context = array())
+  function __construct(int $num_of_cols,array $values,array $data_context = array(),array $three_dots_context = array())
   {
     $this->data_context = json_encode($data_context);
+    $this->three_dots_context = $three_dots_context;
     if(count($values) <> $num_of_cols)
     {
       throw new \Exception("data given doesn't match number of columns");
@@ -187,16 +189,30 @@ class Table_Row
     $i = 0;
     while($i < $this->num_of_cols)
     {
-      $this->Add_Data($values[$i]);
+      if($i == $this->num_of_cols - 1 && !empty($this->three_dots_context))
+      {
+        $this->Add_Data($values[$i],true);
+      }else
+      {
+        $this->Add_Data($values[$i],false);
+      }
       $i = $i + 1;
     }
     echo '</tr>';
   }
-
-  private function Add_Data($data)
+  private function Add_Data($data,$context_menu)
   {
     echo '<td>';
     echo $data;
+    if($context_menu)
+    {
+      $three_dots = new \bootstrap\drop_down_menu();
+      ForEach($this->three_dots_context as $text_to_display => $context_option)
+      {
+        $three_dots->Add_Action($text_to_display,$context_option);
+      }
+      $three_dots->Close_Context_Menu();
+    }
     echo '</td>';
   }
 }
@@ -208,11 +224,11 @@ class context_menu
    * @param string $context_menu this is the id for the context menu 
    * WARNING THIS CLASS DEPENDS ON A JAVASCRIPT FUNCTION CALLED Show_Element_If_True(element to hide/show,true = show[css_display=block] false = hidden[css_display=none])
    */
-  function __construct($id = "context_menu",$tbody_id = "mt")
+  function __construct($id = "context_menu",$tbody_id = "modalmt")
   {
     $jscontext_menu = new \bootstrap_js\Context_Menu($tbody_id,$id);    
     echo '<div>
-        <ul  id="'.$id.'" class="dropdown-menu list-group" role="menu">';
+        <ul  id="'.$id.'" style = "position: absolute;" class="dropdown-menu list-group" role="menu">';
   }
   /**
    * @param string $text_to_display plain text to display to user
@@ -248,6 +264,75 @@ class context_menu
   function Close_Context_Menu()
   {
     echo '</ul></div>';
+  }
+}
+
+class drop_down_menu
+{
+  /**
+   * @param string $tbody_id this is a unique id given to the bootstrap tbody element that this context menu will be active inside
+   * @param string $context_menu this is the id for the context menu 
+   * WARNING THIS CLASS DEPENDS ON A JAVASCRIPT FUNCTION CALLED Show_Element_If_True(element to hide/show,true = show[css_display=block] false = hidden[css_display=none])
+   */
+  function __construct($id = "drop_down_menu")
+  {
+    echo '<div class="dropdown show d-inline">
+        <a  id="'.$id.'" class="btn" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        ';
+    global $white_html_three_dots_jpg;
+    echo $white_html_three_dots_jpg;
+    echo '</a>
+        <div class="dropdown-menu" aria-labelledby="'.$id.'">';
+  }       
+  /**
+   * @param string $text_to_display plain text to display to user
+   * @param array an array of complex data you want to store as json in the data_context attribute
+   */
+  function Add_Action(string $text_to_display,array $data_context)
+  {
+    $a_string = "";
+    if(!empty($data_context))
+    {
+      if(isset($data_context['href']))
+      {
+        $a_string = ' href = "'.$data_context['href'].'"';
+      }
+      $a_string = $a_string.' class = "dropdown-item, ';
+      if(isset($data_context['class']))
+      {
+        
+        ForEach($data_context['class'] as $class)
+        {
+          $a_string = $a_string.$class.", ";
+        }
+      }
+      $a_string = substr($a_string,0,strlen($a_string) - 2);      
+      $a_string = $a_string.'"';
+      echo '<a'.$a_string.'>';
+    }else
+    {
+      echo '<a href = "#" class="dropdown-item">';
+    }
+    if(isset($data_context['checked']))
+    {
+      if($data_context['checked'])
+      {
+        global $html_green_checkmark;
+        echo $html_green_checkmark;
+      }
+    }
+    echo $text_to_display.'</a>';
+  }
+
+  function Add_Divider()
+  {
+    echo '<li class="divider list-group-item"></li>';
+    
+  }
+
+  function Close_Context_Menu()
+  {
+    echo '</div></div>';
   }
 }
 ?>

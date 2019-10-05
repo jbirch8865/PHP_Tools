@@ -12,6 +12,7 @@ class Context_Menu
     global $html_checkmark;
     echo "<script>
     $('#".$tbody_id." tr').on('contextmenu', function (e) {
+            tbl_name = '".$tbody_id."';
             console.log('user right clicked a table row');
             cm = document.querySelector('#".$context_menu."');
             e.preventDefault();
@@ -35,9 +36,16 @@ class Context_Menu
               dispatchEvent(custom);
             }
             Show_Element_If_True(cm,true);
-            console.log(e.originalEvent);
-            cm.style.top = e.originalEvent.layerY+'px';
-            cm.style.left = e.originalEvent.layerX+'px';
+            console.log(tbl_name);
+            if(String(tbl_name).startsWith('modal'))
+            {
+              cm.style.top = e.originalEvent.layerY+'px';
+              cm.style.left = e.originalEvent.layerX+'px';
+            }else
+            {
+              cm.style.top = e.originalEvent.layerY+'px';
+              cm.style.left = e.originalEvent.layerX+'px';
+            }
         });
         window.addEventListener('click', () => {
             cm = document.querySelector('#".$context_menu."');  
