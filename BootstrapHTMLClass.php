@@ -94,7 +94,7 @@ class navbar
   function __construct()
   {
     echo '  <!-- A vertical navbar -->
-      <nav class="navbar navbar-dark bg-dark">
+      <nav class="navbar navbar-dark bg-dark" style = "width:200px;margin:auto;float:left;display:inline-block;">
   
       <!-- Links -->
       <ul class="navbar-nav">';
