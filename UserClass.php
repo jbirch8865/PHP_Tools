@@ -129,7 +129,7 @@ class User_Session
 
         try
         {
-            if($results = $this->dblink->ExecuteSQLQuery("DELETE FROM ".$this->configs['user_table_name']." WHERE ".$this->configs['username_column_name']." = '".$this->username."'"))
+            if($results = $this->dblink->ExecuteSQLQuery("UPDATE ".$this->configs['user_table_name']." SET `Active_Status` = '0' WHERE ".$this->configs['username_column_name']." = '".$this->username."'"))
             {
                 return true;    
             }else
@@ -142,6 +142,35 @@ class User_Session
         }       
     }
     
+    /**
+     *  Uses username to delete the unique record.
+     */
+    private function Delete_User_From_DB()
+    {
+        if($this->username == "")
+        {
+            throw new \Exception("you can't Delete a user without setting the username");
+        }
+        if(!$this->Does_User_Exist())
+        {
+            throw new \Exception("this user does not exist");
+        }
+
+        try
+        {
+            if($results = $this->dblink->ExecuteSQLQuery("DELETE FROM ".$this->configs['user_table_name']." WHERE ".$this->configs['username_column_name']." = '".$this->username."'"))
+            {
+                return true;    
+            }else
+            {
+                throw new \Exception('Error deleting user '.$this->dblink->GetLastError());
+            }
+        } catch (\Exception $e)
+        {
+            throw new \Exception($e->getMessage());
+        }       
+    }
+
     function LogOut()
     {
         $this->is_user_authenticated = false;
@@ -256,6 +285,7 @@ class User_Session
             $results = $this->dblink->ExecuteSQLQuery("SELECT * FROM ".$this->configs['user_table_name']." WHERE ".$this->configs['username_column_name']." = '".$this->username."'");
             if(mysqli_num_rows($results) == 1)
             {
+                $this->dblink->ExecuteSQLQuery("UPDATE ".$this->configs['user_table_name']." SET `Active_Status` = '1' WHERE ".$this->configs['username_column_name']." = '".$this->username."'");
                 return $results;
             }else
             {

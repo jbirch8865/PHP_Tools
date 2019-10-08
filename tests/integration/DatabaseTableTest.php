@@ -11,7 +11,7 @@ class FieldTest extends \PHPUnit\Framework\TestCase
 		$this->configs = $this->configs->Configurations();
         $this->DBLink = new DatabaseLink\MySQLLink($this->configs['database_name']);   
 	}
-
+	
 	function test_Instantiate_Field()
 	{    
 		$field = new DatabaseLink\Field($this->DBLink,$this->configs["username_column_name"],$this->configs["user_table_name"]);

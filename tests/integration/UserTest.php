@@ -29,7 +29,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->user->Set_Username($this->username);
         if(invokeMethod($this->user,'Does_User_Exist'))
         {
-            $this->assertTrue($this->user->Delete_User());
+            $this->assertTrue(invokeMethod($this->user, "Delete_User_From_DB"));
         }else
         {
             $this->assertTrue(true);
