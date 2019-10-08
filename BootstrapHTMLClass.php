@@ -116,13 +116,15 @@ class table
 {
   function __construct($id = "")
   {
-      echo '<div class = "container">';
-      echo '<table id = "'.$id.'" class="table p-4 table-dark table-lg table-hover table-responsive rounded" style = "margin-top:25px;">';
+      echo '<div class = "container-fluid">';
+      echo '<div class = "table-responsive">';
+      echo '<table id = "'.$id.'" class="table p-4 table-dark table-lg table-hover">';
   }
 
   function Close_Table()
   {
     echo '</table>';
+    echo '</div>';
     echo '</div>';
   }
 }
@@ -297,16 +299,16 @@ class drop_down_menu
       {
         $a_string = ' href = "'.$data_context['href'].'"';
       }
-      $a_string = $a_string.' class = "dropdown-item, ';
+      $a_string = $a_string.' class = "dropdown-item ';
       if(isset($data_context['class']))
       {
         
         ForEach($data_context['class'] as $class)
         {
-          $a_string = $a_string.$class.", ";
+          $a_string = $a_string.$class." ";
         }
       }
-      $a_string = substr($a_string,0,strlen($a_string) - 2);      
+      $a_string = substr($a_string,0,strlen($a_string) - 1);      
       $a_string = $a_string.'"';
       echo '<a'.$a_string.'>';
     }else
