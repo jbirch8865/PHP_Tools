@@ -204,16 +204,20 @@ class Table_Row
   }
   private function Add_Data($data,$context_menu)
   {
-    echo '<td>';
-    echo $data;
     if($context_menu)
     {
-      $three_dots = new \bootstrap\drop_down_menu();
+      echo '<td nowrap>';
+      echo $data;
+        $three_dots = new \bootstrap\drop_down_menu();
       ForEach($this->three_dots_context as $text_to_display => $context_option)
       {
         $three_dots->Add_Action($text_to_display,$context_option);
       }
       $three_dots->Close_Context_Menu();
+    }else
+    {
+      echo '<td>';
+      echo $data;      
     }
     echo '</td>';
   }
@@ -278,7 +282,7 @@ class drop_down_menu
    */
   function __construct($id = "drop_down_menu")
   {
-    echo '<div class="dropdown show d-inline">
+    echo '<div class="dropdown show d-inline-block">
         <a  id="'.$id.'" class="btn" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         ';
     global $white_html_three_dots_jpg;
