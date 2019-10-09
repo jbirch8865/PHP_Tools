@@ -266,6 +266,7 @@ class User_Session
         }
 
     }
+
     private function Does_User_Exist()
     {
         if($results = $this->Query_DB_For_User())
@@ -275,9 +276,8 @@ class User_Session
         {
             return false;
         }
-        
     }
-
+    
     private function Query_DB_For_User()
     {
         try

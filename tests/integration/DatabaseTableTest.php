@@ -1,5 +1,5 @@
 <?php
-
+use function Test_User\invokeMethod;
 class FieldTest extends \PHPUnit\Framework\TestCase
 {
 	private $DBLink;
@@ -189,7 +189,7 @@ class RowTest extends \PHPUnit\Framework\TestCase
 	{
 		$user = new \User_Session\User_Session;
 		$user->Set_Username($this->configs['test_username']);
-		$user->Delete_User();
+		invokeMethod($user, "Delete_User_From_DB");
 	}
 }
 ?>
