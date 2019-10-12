@@ -114,7 +114,7 @@ class navbar
 
 class table 
 {
-  function __construct($id = "")
+  function __construct($id = "mt")
   {
       echo '<div class = "container-fluid">';
       echo '<div class = "table-responsive">';
