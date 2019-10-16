@@ -91,72 +91,146 @@ class Alerts
 
 class navbar
 {
-  function __construct()
+  function __construct($echo = true)
   {
-    echo '  <!-- A vertical navbar -->
+    if($echo)
+    {
+      echo '  <!-- A vertical navbar -->
+        <nav class="navbar navbar-dark bg-dark" style = "width:200px;margin:auto;float:left;display:inline-block;">
+    
+        <!-- Links -->
+              <ul class="navbar-nav">';
+    }else
+    {
+      return '  <!-- A vertical navbar -->
       <nav class="navbar navbar-dark bg-dark" style = "width:200px;margin:auto;float:left;display:inline-block;">
   
       <!-- Links -->
-      <ul class="navbar-nav">';
+            <ul class="navbar-nav">';
+    }
   }
-  function Add_Link($href,$text_to_display)
+
+  function Add_Link($href,$text_to_display,$echo = true)
   {
-    echo '<li class="nav-item">
-      <a class="nav-link" href="'.$href.'">'.$text_to_display.'</a>
-      </li>';
+    if($echo)
+    {
+      echo '<li class="nav-item">
+        <a class="nav-link" href="'.$href.'">'.$text_to_display.'</a>
+        </li>';
+    }else
+    {
+      return '<li class="nav-item">
+        <a class="nav-link" href="'.$href.'">'.$text_to_display.'</a>
+        </li>';      
+    }
   }
-  function Close_Navbar()
+  function Close_Navbar($echo = true)
   {
-    echo '</ul>
-      </nav>';
+    if($echo = true)
+    {
+      echo '</ul>
+          </nav>';
+    }else
+    {
+      return '</ul>
+          </nav>';      
+    }
   }
 }
 
 class table 
 {
-  function __construct($id = "mt")
+  function __construct($id = "mt",$echo = true)
   {
+    if($echo)
+    {
       echo '<div class = "container-fluid">';
       echo '<div class = "table-responsive">';
       echo '<table id = "'.$id.'" class="table p-4 table-dark table-lg table-hover">';
+    }else
+    {
+      return '<div class = "container-fluid">
+      <div class = "table-responsive">
+      <table id = "'.$id.'" class="table p-4 table-dark table-lg table-hover">';      
+    }
   }
 
-  function Close_Table()
+  function Close_Table($echo = true)
   {
-    echo '</table>';
-    echo '</div>';
-    echo '</div>';
+    if($echo)
+    {
+      echo '</table>';
+      echo '</div>';
+      echo '</div>';
+    }else
+    {
+      return '</table>
+      </div>
+      </div>';      
+    }
   }
 }
 
 class Table_Header
 {
-  function __construct()
+  function __construct($echo = true)
   {
-    echo '<thead>
-    <tr>';
+    if($echo)
+    {
+      echo '<thead>
+      <tr>';
+    }else
+    {
+      return '<thead>
+      <tr>';
+    }
   }
-  function Add_Header($text,$scope="col")
+  function Add_Header($text,$scope="col", $echo = true)
   {
-    echo '<th scope="'.$scope.'">'.$text.'</th>';
+    if($echo)
+    {
+      echo '<th scope="'.$scope.'">'.$text.'</th>';
+    }else
+    {
+      return '<th scope="'.$scope.'">'.$text.'</th>';
+    }
   }
-  function Close_Header()
+  function Close_Header($echo = true)
   {
-    echo '</tr>
-      </thead>';
+    if($echo)
+    {
+      echo '</tr>
+        </thead>';
+    }else
+    {
+      return '</tr>
+        </thead>';      
+    }
   }
 }
 
 class Table_Body
 {
-  function __construct($id = "")
+  function __construct($id = "",$echo = true)
   {
-    echo '<tbody id = "'.$id.'">';
+    if($echo)
+    {
+      echo '<tbody id = "'.$id.'">';
+    }else
+    {
+      return '<tbody id = "'.$id.'">';
+    }
   }
 
-  function Close_Body()
+  function Close_Body($echo = true)
   {
-    echo '</tbody>';
+    if($echo)
+    {
+      echo '</tbody>';
+    }else
+    {
+      return '</tbody>';
+    }
   }
 }
 
@@ -165,6 +239,8 @@ class Table_Row
   private $num_of_cols;
   private $data_context;
   private $three_dots_context;
+  private $current_string;
+  private $echo;
   /**
    * data_context is to store complex json data inside the tr html element in a data_context attribut
    * This will then be able to be used when using a context menu to pass information onto a php script
@@ -173,8 +249,10 @@ class Table_Row
    * @param array $values an array of values in order for column 1, 2 ,3 etc
    * @param array this is the array that will be converted to json for passing into other apps
    */
-  function __construct(int $num_of_cols,array $values,array $data_context = array(),array $three_dots_context = array())
+  function __construct(int $num_of_cols,array $values,array $data_context = array(),array $three_dots_context = array(),$echo = true)
   {
+    $this->echo = $echo;
+    $this->current_string = "";
     $this->data_context = json_encode($data_context);
     $this->three_dots_context = $three_dots_context;
     if(count($values) <> $num_of_cols)
@@ -185,9 +263,20 @@ class Table_Row
     $this->Add_Row($values);
   }
   
+  public function Return_String()
+  {
+    return $this->current_string;
+  }
+
   private function Add_Row($values)
   {
-    echo '<tr data-context = \''.$this->data_context.'\'>';
+    if($this->echo)
+    {
+      echo '<tr data-context = \''.$this->data_context.'\'>';
+    }else
+    {
+      $this->current_string = $this->current_string.'<tr data-context = \''.$this->data_context.'\'>';
+    }
     $i = 0;
     while($i < $this->num_of_cols)
     {
@@ -200,15 +289,28 @@ class Table_Row
       }
       $i = $i + 1;
     }
-    echo '</tr>';
+    if($this->echo)
+    {
+      echo '</tr>';
+    }else
+    {
+      $this->current_string = $this->current_string.'</tr>';
+    }
   }
   private function Add_Data($data,$context_menu)
   {
     if($context_menu)
     {
-      echo '<td nowrap>';
-      echo $data;
-        $three_dots = new \bootstrap\drop_down_menu();
+      if($this->echo)
+      {
+        echo '<td nowrap>';
+        echo $data;
+      }else
+      {
+        $this->current_string = $this->current_string.'<td nowrap>'.$data;
+      }
+
+      $three_dots = new \bootstrap\drop_down_menu();
       ForEach($this->three_dots_context as $text_to_display => $context_option)
       {
         $three_dots->Add_Action($text_to_display,$context_option);
@@ -216,10 +318,22 @@ class Table_Row
       $three_dots->Close_Context_Menu();
     }else
     {
-      echo '<td>';
-      echo $data;      
+      if($this->echo)
+      {
+        echo '<td>';
+        echo $data;      
+      }else
+      {
+        $this->current_string = $this->current_string.'<td>'.$data;
+      }
     }
-    echo '</td>';
+    if($this->echo)
+    {
+      echo '</td>';
+    }else
+    {
+      $this->current_string = $this->current_string.'</td>';
+    }
   }
 }
 
@@ -275,26 +389,36 @@ class context_menu
 
 class drop_down_menu
 {
+  private $string_to_return;
   /**
    * @param string $tbody_id this is a unique id given to the bootstrap tbody element that this context menu will be active inside
    * @param string $context_menu this is the id for the context menu 
    * WARNING THIS CLASS DEPENDS ON A JAVASCRIPT FUNCTION CALLED Show_Element_If_True(element to hide/show,true = show[css_display=block] false = hidden[css_display=none])
    */
-  function __construct($id = "drop_down_menu")
+  function __construct($id = "drop_down_menu",$echo = true)
   {
-    echo '<div class="dropdown show d-inline-block">
-        <a  id="'.$id.'" class="btn" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        ';
     global $white_html_three_dots_jpg;
-    echo $white_html_three_dots_jpg;
-    echo '</a>
-        <div class="dropdown-menu" aria-labelledby="'.$id.'">';
+    if($echo)
+    {
+      echo '<div class="dropdown show d-inline-block">
+          <a  id="'.$id.'" class="btn" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+      echo $white_html_three_dots_jpg;
+      echo '</a>
+          <div class="dropdown-menu" aria-labelledby="'.$id.'">';
+    }else
+    {
+      $this->string_to_return = '<div class="dropdown show d-inline-block">
+          <a  id="'.$id.'" class="btn" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          $white_html_three_dots_jpg;
+          </a>
+          <div class="dropdown-menu" aria-labelledby="'.$id.'">';
+    }
   }       
   /**
    * @param string $text_to_display plain text to display to user
    * @param array an array of complex data you want to store as json in the data_context attribute
    */
-  function Add_Action(string $text_to_display,array $data_context)
+  function Add_Action(string $text_to_display,array $data_context,$echo = true)
   {
     $a_string = "";
     if(!empty($data_context))
@@ -314,31 +438,67 @@ class drop_down_menu
       }
       $a_string = substr($a_string,0,strlen($a_string) - 1);      
       $a_string = $a_string.'"';
-      echo '<a'.$a_string.'>';
+      if($echo)
+      {
+        echo '<a'.$a_string.'>';
+      }else
+      {
+        $this->return_string = $this->return_string.'<a'.$a_string.'>';
+      }
     }else
     {
-      echo '<a href = "#" class="dropdown-item">';
+      if($echo)
+      {
+        echo '<a href = "#" class="dropdown-item">';
+      }else
+      {
+        $this->return_string = $this->return_string.'<a href = "#" class="dropdown-item">';
+      }
     }
     if(isset($data_context['checked']))
     {
       if($data_context['checked'])
       {
         global $html_green_checkmark;
-        echo $html_green_checkmark;
+        if($echo)
+        {
+          echo $html_green_checkmark;
+        }else
+        {
+          $this->return_string = $this->return_string.$html_green_checkmark;
+        }
       }
     }
-    echo $text_to_display.'</a>';
+    if($echo)
+    {
+      echo $text_to_display.'</a>';
+    }else
+    {
+      $this->return_string = $this->return_string.$text_to_display.'</a>';
+      return $this->return_string;
+    }
   }
 
-  function Add_Divider()
+  function Add_Divider($echo = true)
   {
-    echo '<li class="divider list-group-item"></li>';
-    
+    if($echo)
+    {
+      echo '<li class="divider list-group-item"></li>';
+    }else
+    {
+      return '<li class="divider list-group-item"></li>';
+    }
   }
 
-  function Close_Context_Menu()
+  function Close_Context_Menu($echo = true)
   {
-    echo '</div></div>';
+    if($echo)
+    {
+      echo '</div></div>';
+    }else
+    {
+      return '</div></div>';
+    }
   }
 }
 ?>
