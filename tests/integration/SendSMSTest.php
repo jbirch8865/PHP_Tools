@@ -16,7 +16,7 @@ class SendSMSTest extends \PHPUnit\Framework\TestCase
 		$phone = '15038287180';
 		$sms->Set_Message_Body("Can I send a test - Unique Test #".$this->unique_text);
 		$this->assertNull($sms->Set_To_Number($phone));
-		$sms->Send_Message();
+		//$sms->Send_Message();
 
 	}
 	
@@ -26,7 +26,7 @@ class SendSMSTest extends \PHPUnit\Framework\TestCase
 		$sms = new \sms\SMSMessageWithChecks;
 		$phone = '15038287180';
 		$sms->Set_Message_Body("Can I send a test - Unique Test #".$this->unique_text);
-		$sms->Send_SMS();
+		//$sms->Send_SMS();
 	}
 
 }

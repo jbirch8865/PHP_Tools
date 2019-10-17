@@ -249,7 +249,7 @@ class Table_Row
    * @param array $values an array of values in order for column 1, 2 ,3 etc
    * @param array this is the array that will be converted to json for passing into other apps
    */
-  function __construct(int $num_of_cols,array $values,array $data_context = array(),array $three_dots_context = array(),$echo = true)
+  function __construct(int $num_of_cols,array $values,array $data_context = array(),array $three_dots_context = array(),$echo = true,$tooltip = "")
   {
     $this->echo = $echo;
     $this->current_string = "";
@@ -260,7 +260,7 @@ class Table_Row
       throw new \Exception("data given doesn't match number of columns");
     }
     $this->num_of_cols = $num_of_cols;
-    $this->Add_Row($values);
+    $this->Add_Row($values,$tooltip);
   }
   
   public function Return_String()
@@ -268,11 +268,11 @@ class Table_Row
     return $this->current_string;
   }
 
-  private function Add_Row($values)
+  private function Add_Row($values,$tooltip)
   {
     if($this->echo)
     {
-      echo '<tr data-context = \''.$this->data_context.'\'>';
+      echo '<tr data-context = \''.$this->data_context.'\' data-toggle="tooltip" title="'.$tooltip.'">';
     }else
     {
       $this->current_string = $this->current_string.'<tr data-context = \''.$this->data_context.'\'>';
