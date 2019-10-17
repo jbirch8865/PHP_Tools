@@ -14,10 +14,12 @@ class TextMessage {
 	private $sid;
 	private $token;
 	private $send_from;
+	private $message_sid;
 
 
 	function __construct()
 	{
+		$this->message_sid = null;
 		$this->LoadConfigs();
 	}
 
@@ -68,6 +70,7 @@ class TextMessage {
 			try {
 				$twilio = $this->Twilio_Client_Object();
 				$message = $twilio->messages->create($this->send_to->Print_Number(),array("body" => $this->message_body,"from" => $this->send_from));
+				$this->message_sid = $message->sid;
 			} catch (\Exception $e)
 			{
 				throw new \Exception($e->getMessage());
@@ -107,6 +110,11 @@ class TextMessage {
 	public function Print_Message_Body()
 	{
 		return $this->message_body;
+	}
+
+	public function Get_Message_SID()
+	{
+		return $this->message_sid;
 	}
 }
 

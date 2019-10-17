@@ -400,7 +400,7 @@ class drop_down_menu
     global $white_html_three_dots_jpg;
     if($echo)
     {
-      echo '<div class="dropdown show d-inline-block">
+      echo '<div class="dropdown show d-inline-block" style = "float:right;">
           <a  id="'.$id.'" class="btn" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
       echo $white_html_three_dots_jpg;
       echo '</a>
