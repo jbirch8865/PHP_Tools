@@ -237,7 +237,8 @@ class Table_Body
 class Table_Row
 {
   private $num_of_cols;
-  private $data_context;
+  private $tr_data_context;
+  private $td_data_context;
   private $three_dots_context;
   private $current_string;
   private $echo;
@@ -249,11 +250,12 @@ class Table_Row
    * @param array $values an array of values in order for column 1, 2 ,3 etc
    * @param array this is the array that will be converted to json for passing into other apps
    */
-  function __construct(int $num_of_cols,array $values,array $data_context = array(),array $three_dots_context = array(),$echo = true,$tooltip = "")
+  function __construct(int $num_of_cols,array $values,array $tr_data_context = array(),array $three_dots_context = array(),$echo = true,$tooltip = "",$td_data_context = array())
   {
     $this->echo = $echo;
     $this->current_string = "";
-    $this->data_context = json_encode($data_context);
+    $this->tr_data_context = json_encode($tr_data_context);
+    $this->td_data_context = $td_data_context;
     $this->three_dots_context = $three_dots_context;
     if(count($values) <> $num_of_cols)
     {
@@ -272,20 +274,20 @@ class Table_Row
   {
     if($this->echo)
     {
-      echo '<tr data-context = \''.$this->data_context.'\' data-toggle="tooltip" title="'.$tooltip.'">';
+      echo '<tr data-context = \''.$this->tr_data_context.'\' data-toggle="tooltip" title="'.$tooltip.'">';
     }else
     {
-      $this->current_string = $this->current_string.'<tr data-context = \''.$this->data_context.'\'>';
+      $this->current_string = $this->current_string.'<tr data-context = \''.$this->tr_data_context.'\'>';
     }
     $i = 0;
     while($i < $this->num_of_cols)
     {
       if($i == $this->num_of_cols - 1 && !empty($this->three_dots_context))
       {
-        $this->Add_Data($values[$i],true);
+        $this->Add_Data($values[$i],$i,true);
       }else
       {
-        $this->Add_Data($values[$i],false);
+        $this->Add_Data($values[$i],$i,false);
       }
       $i = $i + 1;
     }
@@ -297,17 +299,24 @@ class Table_Row
       $this->current_string = $this->current_string.'</tr>';
     }
   }
-  private function Add_Data($data,$context_menu)
+  private function Add_Data($data,$column_number,$context_menu)
   {
     if($context_menu)
     {
+      if(!empty($this->td_data_context[$column_number]))
+      {
+        $td = '<td data-context = \''.$this->td_data_context[$column_number].'\' nowrap>';
+      }else
+      {
+        $td = '<td nowrap>';
+      }
       if($this->echo)
       {
-        echo '<td nowrap>';
+        echo $td;
         echo $data;
       }else
       {
-        $this->current_string = $this->current_string.'<td nowrap>'.$data;
+        $this->current_string = $this->current_string.$td.$data;
       }
 
       $three_dots = new \bootstrap\drop_down_menu();
@@ -318,13 +327,20 @@ class Table_Row
       $three_dots->Close_Context_Menu();
     }else
     {
+      if(!empty($this->td_data_context[$column_number]))
+      {
+        $td = '<td data-context = \''.$this->td_data_context[$column_number].'\'>';
+      }else
+      {
+        $td = '<td>';
+      }
       if($this->echo)
       {
-        echo '<td>';
+        echo $td;
         echo $data;      
       }else
       {
-        $this->current_string = $this->current_string.'<td>'.$data;
+        $this->current_string = $this->current_string.$td.$data;
       }
     }
     if($this->echo)
