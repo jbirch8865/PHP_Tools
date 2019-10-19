@@ -284,10 +284,10 @@ class Table_Row
     {
       if($i == $this->num_of_cols - 1 && !empty($this->three_dots_context))
       {
-        $this->Add_Data($values[$i],$i,true);
+        $this->Add_Data($values[$i],$i - 1,true);
       }else
       {
-        $this->Add_Data($values[$i],$i,false);
+        $this->Add_Data($values[$i],$i - 1,false);
       }
       $i = $i + 1;
     }
