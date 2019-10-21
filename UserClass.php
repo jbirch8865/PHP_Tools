@@ -129,7 +129,7 @@ class User_Session
 
         try
         {
-            if($results = $this->dblink->ExecuteSQLQuery("UPDATE ".$this->configs['user_table_name']." SET `Active_Status` = '0' WHERE ".$this->configs['username_column_name']." = '".$this->username."'"))
+            if($results = $this->dblink->ExecuteSQLQuery("DELETE FROM ".$this->configs['user_table_name']." WHERE ".$this->configs['username_column_name']." = '".$this->username."'"))
             {
                 return true;    
             }else

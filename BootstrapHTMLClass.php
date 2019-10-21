@@ -274,7 +274,7 @@ class Table_Row
   {
     if($this->echo)
     {
-      echo '<tr data-context = \''.$this->tr_data_context.'\' data-toggle="tooltip" title="'.$tooltip.'">';
+      echo '<tr data-context = \''.$this->tr_data_context.'\' data-toggle="tooltip" title="'.$tooltip.'" data-trigger="click">';
     }else
     {
       $this->current_string = $this->current_string.'<tr data-context = \''.$this->tr_data_context.'\'>';
