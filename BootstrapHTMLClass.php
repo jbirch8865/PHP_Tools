@@ -140,19 +140,25 @@ class navbar
 
 class table 
 {
-  function __construct($id = "mt",$echo = true)
+  private $table_id;
+  private $classlist;
+  function __construct($id = "mt",$echo = true,$classlist = "")
   {
+    $this->table_id = $id;
+    $this->classlist = $classlist;
     if($echo)
     {
       echo '<div class = "container-fluid">';
       echo '<div class = "table-responsive">';
-      echo '<table id = "'.$id.'" class="table p-4 table-dark table-lg table-hover">';
-    }else
-    {
-      return '<div class = "container-fluid">
-      <div class = "table-responsive">
-      <table id = "'.$id.'" class="table p-4 table-dark table-lg table-hover">';      
+      echo '<table id = "'.$this->table_id.'" class="table p-4 table-dark table-lg table-hover '.$this->classlist.'">';
     }
+  }
+
+  function Start_Table()
+  {
+    return '<div class = "container-fluid">
+    <div class = "table-responsive">
+    <table id = "'.$this->table_id.'" class="table p-4 table-dark table-lg table-hover '.$this->classlist.'">';         
   }
 
   function Close_Table($echo = true)
@@ -173,17 +179,21 @@ class table
 
 class Table_Header
 {
-  function __construct($echo = true)
+  private $classlist;
+  function __construct($echo = true,$classlist="")
   {
+    $this->classlist = $classlist;
     if($echo)
     {
       echo '<thead>
-      <tr>';
-    }else
-    {
-      return '<thead>
-      <tr>';
+      <tr class = "'.$this->classlist.'">';
     }
+  }
+
+  function Start_Header()
+  {
+    return '<thead>
+    <tr class = "'.$this->classlist.'">';
   }
   function Add_Header($text,$scope="col", $echo = true)
   {
@@ -211,15 +221,19 @@ class Table_Header
 
 class Table_Body
 {
+  private $body_id;
   function __construct($id = "",$echo = true)
   {
+    $this->body_id = $id;
     if($echo)
     {
-      echo '<tbody id = "'.$id.'">';
-    }else
-    {
-      return '<tbody id = "'.$id.'">';
+      echo '<tbody id = "'.$this->body_id.'">';
     }
+  }
+
+  function Start_Body()
+  {
+    return '<tbody id = "'.$this->body_id.'">';
   }
 
   function Close_Body($echo = true)
@@ -241,6 +255,7 @@ class Table_Row
   private $td_data_context;
   private $three_dots_context;
   private $current_string;
+  private $classlist;
   private $echo;
   /**
    * data_context is to store complex json data inside the tr html element in a data_context attribut
@@ -250,8 +265,9 @@ class Table_Row
    * @param array $values an array of values in order for column 1, 2 ,3 etc
    * @param array this is the array that will be converted to json for passing into other apps
    */
-  function __construct(int $num_of_cols,array $values,array $tr_data_context = array(),array $three_dots_context = array(),$echo = true,$tooltip = "",$td_data_context = array())
+  function __construct(int $num_of_cols,array $values,array $tr_data_context = array(),array $three_dots_context = array(),$echo = true,$tooltip = "",$td_data_context = array(),$classlist = "")
   {
+    $this->classlist = $classlist;
     $this->echo = $echo;
     $this->current_string = "";
     $this->tr_data_context = json_encode($tr_data_context);
@@ -274,22 +290,31 @@ class Table_Row
   {
     if($this->echo)
     {
-      echo '<tr data-context = \''.$this->tr_data_context.'\' data-toggle="tooltip" title="'.$tooltip.'" data-trigger="click">';
+      echo '<tr class = "'.$this->classlist.'" data-context = \''.$this->tr_data_context.'\' data-toggle="tooltip" title="'.$tooltip.'" data-trigger="click">';
     }else
     {
-      $this->current_string = $this->current_string.'<tr data-context = \''.$this->tr_data_context.'\'>';
+      $this->current_string = $this->current_string.'<tr class = "'.$this->classlist.'" data-context = \''.$this->tr_data_context.'\'>';
     }
-    $i = 0;
-    while($i < $this->num_of_cols)
+    $am_i_last_column_yet = 0;
+    ForEach($values as $key => $data)
     {
-      if($i == $this->num_of_cols - 1 && !empty($this->three_dots_context))
+      if(substr($key,0,7) == 'colspan')
       {
-        $this->Add_Data($values[$i],$i - 1,true);
+        $colspan = "colspan=\"".substr($key,7,strlen($key))."\"";
       }else
       {
-        $this->Add_Data($values[$i],$i - 1,false);
+        $colspan = "";
       }
-      $i = $i + 1;
+      if($am_i_last_column_yet == $this->num_of_cols - 1 && !empty($this->three_dots_context))
+      {
+        $last_column = $am_i_last_column_yet;
+        $this->Add_Data($data,$last_column - 1,true,$colspan);
+      }else
+      {
+        $i_am_not_last_column_yet = $am_i_last_column_yet;
+        $this->Add_Data($data,$i_am_not_last_column_yet - 1,false,$colspan);
+      }
+      $am_i_last_column_yet = $am_i_last_column_yet + 1;
     }
     if($this->echo)
     {
@@ -299,16 +324,16 @@ class Table_Row
       $this->current_string = $this->current_string.'</tr>';
     }
   }
-  private function Add_Data($data,$column_number,$context_menu)
+  private function Add_Data($data,$column_number,$context_menu,$colspan)
   {
     if($context_menu)
     {
       if(!empty($this->td_data_context[$column_number]))
       {
-        $td = '<td data-context = \''.$this->td_data_context[$column_number].'\' nowrap>';
+        $td = '<td '.$colspan.' data-context = \''.$this->td_data_context[$column_number].'\' nowrap>';
       }else
       {
-        $td = '<td nowrap>';
+        $td = '<td '.$colspan.' nowrap>';
       }
       if($this->echo)
       {
@@ -319,20 +344,24 @@ class Table_Row
         $this->current_string = $this->current_string.$td.$data;
       }
 
-      $three_dots = new \bootstrap\drop_down_menu();
+      $three_dots = new \bootstrap\drop_down_menu('drop_down_menu',$this->echo);
       ForEach($this->three_dots_context as $text_to_display => $context_option)
       {
-        $three_dots->Add_Action($text_to_display,$context_option);
+        $three_dots->Add_Action($text_to_display,$context_option,$this->echo);
       }
       $three_dots->Close_Context_Menu();
+      if(!$this->echo)
+      {
+        $this->current_string = $this->current_string.$three_dots->Return_String();
+      }
     }else
     {
       if(!empty($this->td_data_context[$column_number]))
       {
-        $td = '<td data-context = \''.$this->td_data_context[$column_number].'\'>';
+        $td = '<td '.$colspan.' data-context = \''.$this->td_data_context[$column_number].'\'>';
       }else
       {
-        $td = '<td>';
+        $td = '<td '.$colspan.'>';
       }
       if($this->echo)
       {
@@ -416,20 +445,25 @@ class drop_down_menu
     global $white_html_three_dots_jpg;
     if($echo)
     {
-      echo '<div class="dropdown show d-inline-block" style = "float:right;">
-          <a  id="'.$id.'" class="btn" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+      echo '<div class="dropdown show d-inline-block three_dots_menu" style = "float:right;">
+          <a data-context="three_dots_context" id="'.$id.'" class="btn" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
       echo $white_html_three_dots_jpg;
       echo '</a>
           <div class="dropdown-menu" aria-labelledby="'.$id.'">';
     }else
     {
-      $this->string_to_return = '<div class="dropdown show d-inline-block">
-          <a  id="'.$id.'" class="btn" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          $white_html_three_dots_jpg;
+      $this->string_to_return = '<div class="dropdown show d-inline-block" style = "float:right;" >
+          <a  data-context="three_dots_context" id="'.$id.'" class="btn" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          '.$white_html_three_dots_jpg.'
           </a>
           <div class="dropdown-menu" aria-labelledby="'.$id.'">';
     }
-  }       
+  }
+
+  public function Return_String()
+  {
+    return $this->string_to_return;
+  }
   /**
    * @param string $text_to_display plain text to display to user
    * @param array an array of complex data you want to store as json in the data_context attribute
@@ -459,7 +493,7 @@ class drop_down_menu
         echo '<a'.$a_string.'>';
       }else
       {
-        $this->return_string = $this->return_string.'<a'.$a_string.'>';
+        $this->string_to_return = $this->string_to_return.'<a'.$a_string.'>';
       }
     }else
     {
@@ -468,7 +502,7 @@ class drop_down_menu
         echo '<a href = "#" class="dropdown-item">';
       }else
       {
-        $this->return_string = $this->return_string.'<a href = "#" class="dropdown-item">';
+        $this->string_to_return = $this->string_to_return.'<a href = "#" class="dropdown-item">';
       }
     }
     if(isset($data_context['checked']))
@@ -481,7 +515,7 @@ class drop_down_menu
           echo $html_green_checkmark;
         }else
         {
-          $this->return_string = $this->return_string.$html_green_checkmark;
+          $this->string_to_return = $this->string_to_return.$html_green_checkmark;
         }
       }
     }
@@ -490,8 +524,8 @@ class drop_down_menu
       echo $text_to_display.'</a>';
     }else
     {
-      $this->return_string = $this->return_string.$text_to_display.'</a>';
-      return $this->return_string;
+      $this->string_to_return = $this->string_to_return.$text_to_display.'</a>';
+      return $this->string_to_return;
     }
   }
 
