@@ -88,6 +88,16 @@ class ConfigurationFile
 			return false;
 		}
 	}
+	function Get_End_User_Date_Format()
+	{
+		if(!empty($this->Configurations()['end_user_date_format']))
+		{
+			return $this->Configurations()['end_user_date_format'];
+		}else
+		{
+			return 'Y-m-d';
+		}
+	}
 	function Name_Of_Project_Database()
 	{
 		if(isset($this->Configurations()['database_name']))

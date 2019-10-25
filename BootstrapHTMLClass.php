@@ -22,6 +22,14 @@ class Alert
       </div>';
     }
 
+    public function Display_Information()
+    {
+      return '<div class="alert alert-primary alert-dismissible" style = "margin-bottom:0">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <strong>'.$this->strong_text_to_display.'</strong>'.$this->text_to_display.'
+      </div>';      
+    }
+
     public function Terminate_Execution_On_Hault()
     {
       if($this->hault_execution)
@@ -86,6 +94,12 @@ class Alerts
             $this->Remove_Alert($key);
             $should_i_hault->Terminate_Execution_On_Hault();
         }
+        ForEach($_SESSION['Add_Info'] as $Info)
+        {
+          $alert = new Alert($Info['big_text'],$Info['little_text'],false);
+          echo $alert->Display_Information();
+        }
+        $_SESSION['Add_Info'] = array();
     }
 }
 
