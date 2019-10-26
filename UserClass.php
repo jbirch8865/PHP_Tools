@@ -178,6 +178,8 @@ class User_Session
         $this->session_expires = date('Y-m-d H:i:s');
         try{
             session_destroy();
+            session_start();
+            $_SESSION['Add_Info'] = array();
         }catch (\Exception $e)
         {}
     }
