@@ -6,5 +6,4 @@ $html_checkmark = '<img src="'.$cConfigs->Get_Images_URL().'/checkmark.jpg" styl
 $html_delete = '<img src="'.$cConfigs->Get_Images_URL().'/delete.png" style="width:30px;">';
 $html_yellow_exclamation = '<img src="'.$cConfigs->Get_Images_URL().'/yellow_exclamation.png" style="width:30px;">';
 $html_white_down_arrow = '<img src="'.$cConfigs->Get_Images_URL().'/white_down_arrow.png" style="width:30px;">';
-if(!isset($_SESSION['Add_Info'])){$_SESSION['Add_Info'] = array();}
 ?>

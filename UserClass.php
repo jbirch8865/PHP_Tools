@@ -180,6 +180,8 @@ class User_Session
             session_destroy();
             session_start();
             $_SESSION['Add_Info'] = array();
+            $_SESSION['Add_Warning'] = array();
+            
         }catch (\Exception $e)
         {}
     }

@@ -1,6 +1,26 @@
 <?php
 namespace bootstrap;
 
+class Toast
+{
+  function __construct($strong_text ,$error_message)
+  {
+    $cConfigs = new \config\ConfigurationFile();
+    echo '<div class="toast" role="alert" aria-live="assertive" data-autohide = "false" aria-atomic="true">
+      <div class="toast-header">
+        <img src="'.$cConfigs->Configurations()['Base_URL'].'images/LogoIcon.jpg" height = "35px" width = "35px" class="rounded mr-2" alt="...">
+        <strong class="mr-auto">'.$strong_text.'</strong>
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="toast-body">
+        '.$error_message.'
+      </div>
+    </div>';
+  }
+
+}
 class Alert
 {
     private $hault_execution;
@@ -37,9 +57,7 @@ class Alert
         unset($_SESSION["Alert_Session"]);
         exit();
       }
-    }
-
-    
+    }    
 }
 
 class Alerts
@@ -87,6 +105,12 @@ class Alerts
 
     public function Process_Alerts()
     {
+        ForEach($_SESSION['Add_Warning'] as $Info)
+        {
+          $alert = $this->Add_Alert($Info['big_text'],$Info['little_text'],false);
+        }
+        $_SESSION['Add_Warning'] = array();
+
         ForEach($this->alerts as $key => $alert)
         {
             echo $this->alerts[$key]->Display_Alert();
