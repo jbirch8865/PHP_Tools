@@ -5,5 +5,5 @@ $html_green_checkmark = '<img src="'.$cConfigs->Get_Images_URL().'/green_checkma
 $html_checkmark = '<img src="'.$cConfigs->Get_Images_URL().'/checkmark.jpg" style="width:30px;">';
 $html_delete = '<img src="'.$cConfigs->Get_Images_URL().'/delete.png" style="width:30px;">';
 $html_yellow_exclamation = '<img src="'.$cConfigs->Get_Images_URL().'/yellow_exclamation.png" style="width:30px;">';
-$html_white_down_arrow = '<img src="'.$cConfigs->Get_Images_URL().'/white_down_arrow.png" style="width:30px;">';
+$html_white_down_arrow = '<img id = "expand_selection" src="'.$cConfigs->Get_Images_URL().'/white_down_arrow.png" style="width:30px;">';
 ?>

@@ -331,7 +331,7 @@ class Table_Row
       echo '<tr class = "'.$this->classlist.'" data-context = \''.$this->tr_data_context.'\' data-toggle="tooltip" title="'.$tooltip.'" data-trigger="click">';
     }else
     {
-      $this->current_string = $this->current_string.'<tr class = "'.$this->classlist.'" data-context = \''.$this->tr_data_context.'\'>';
+      $this->current_string = $this->current_string.'<tr class = "'.$this->classlist.'" data-toggle="tooltip" title="'.$tooltip.'" data-trigger="click" data-context = \''.$this->tr_data_context.'\'>';
     }
     $am_i_last_column_yet = 0;
     ForEach($values as $key => $data)
