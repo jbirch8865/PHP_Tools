@@ -109,7 +109,7 @@ class ConfigurationFile
 	{
 		if(isset($this->Configurations()['vendor_directory']))
 		{
-			return $this->Configurations()['vendor_directory']."/jbirch8865/php_tools/images";
+			return $this->Configurations()['vendor_directory']."/images";
 		}
 	}
 	
