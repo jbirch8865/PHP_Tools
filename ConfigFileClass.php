@@ -113,6 +113,22 @@ class ConfigurationFile
 		}
 	}
 	
+	function Is_Feature_Enabled($feature)
+	{
+		if(isset($this->Configurations()[$feature]))
+		{
+			if($this->Configurations()[$feature])
+			{
+				return true;
+			}else
+			{
+				return false;
+			}
+		}else
+		{
+			return false;
+		}
+	}
 	
 	function Add_Or_Update_Config($key, $value)
 	{
