@@ -112,6 +112,13 @@ class ConfigurationFile
 			return $this->Configurations()['vendor_directory']."/images";
 		}
 	}
+	function Get_Vendor_URL()
+	{
+		if(isset($this->Configurations()['vendor_directory']))
+		{
+			return $this->Configurations()['vendor_directory']."/vendor";
+		}
+	}
 	
 	function Is_Feature_Enabled($feature)
 	{
