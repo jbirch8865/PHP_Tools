@@ -43,7 +43,7 @@ class TextMessage {
 			$this->send_to = new \number_validator\PhoneNumber($send_to);
 		} catch (\Exception $e)
 		{
-			//throw new \Exception($e->getMessage());
+			throw new \Exception($e->getMessage());
 		}
 	}
 

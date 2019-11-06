@@ -9,8 +9,8 @@ class PhoneNumber {
 	{
 		try {
 			$this->phone_number = $phone_number;
-			$this->Load_Validate_Keys();
-			$this->ValidatePhoneNumber();
+			//$this->Load_Validate_Keys();
+			//$this->ValidatePhoneNumber();
 		} catch (\Exception $e)
 		{
 			throw new \Exception($e->getMessage());
