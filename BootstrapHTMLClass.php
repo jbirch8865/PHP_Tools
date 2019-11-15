@@ -83,6 +83,11 @@ class icon
         $this->file_name = $file_name;
     }
 
+    public function Get_Icon_ID()
+    {
+      return $this->verified_icon_id;
+    }
+
     public function Get_File_Name()
     {
         return $this->file_name;
@@ -142,7 +147,52 @@ class icon
     }
 }
 
+class icons
+{
+  public $icons;
+  public $dblink;
 
+  function __construct($auto_load = true)
+  {
+      $this->icons = array();
+      global $dblink;
+      $this->dblink = $dblink;
+      if($auto_load)
+      {
+          $this->Load_Icons();
+      }
+  }
+
+  private function Load_Icons()
+  {
+      $icons = $this->Get_SQL_Icons();
+      while($row = mysqli_fetch_assoc($icons))
+      {
+          $this->Load_Icon(new icon($row['id']));
+      }
+  }
+
+  private function Get_SQL_Icons()
+  {
+      $results = $this->dblink->ExecuteSQLQuery("SELECT * FROM `icon_library`");
+      return $results;
+  }
+
+  private function Load_Icon($icon)
+  {
+      if($icon instanceof icon)
+      {
+          if(is_null($icon->Get_Icon_ID()))
+          {
+              return false;
+          }
+          $this->icons[$icon->Get_Icon_ID()] = $icon;
+      }else
+      {
+          return false;
+      }
+  }
+}
 
 class Toast
 {
