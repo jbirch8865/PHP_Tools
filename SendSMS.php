@@ -2,7 +2,6 @@
 namespace sms;
 use Twilio\Rest\Client;
 use PHPUnit\Util\Configuration;
-
 class IniConfigError Extends \Exception{}
 class MessageBodyTooLong Extends \Exception{}
 class MessageNotReadyToSend Extends \Exception{}
@@ -13,6 +12,7 @@ class TextMessage {
 	private $send_to;
 	private $sid;
 	private $token;
+	private $carrier;
 	private $send_from;
 	private $message_sid;
 
@@ -20,6 +20,7 @@ class TextMessage {
 	function __construct()
 	{
 		$this->message_sid = null;
+		$this->send_to = null;
 		$this->LoadConfigs();
 	}
 
@@ -115,6 +116,29 @@ class TextMessage {
 	public function Get_Message_SID()
 	{
 		return $this->message_sid;
+	}
+
+	public function Get_Carrier()
+	{
+		return $this->carrier;
+	}
+
+	public function Lookup_Carrier()
+	{
+		try
+		{
+			if(is_null($this->send_to))
+			{
+				return false;
+			}
+			$response = shell_exec('curl -G https://lookups.twilio.com/v1/PhoneNumbers/'.$this->send_to->Print_Number().'?Type=carrier -u '.$this->sid.':'.$this->token);
+			$response = json_decode($response);
+			$this->carrier = $response->carrier->name;
+			return true;
+		} catch (\Exception $e)
+		{
+			return false;
+		}
 	}
 }
 

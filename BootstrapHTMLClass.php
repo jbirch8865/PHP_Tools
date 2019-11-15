@@ -1,6 +1,149 @@
 <?php
 namespace bootstrap;
 
+
+class icon
+{
+    private $verified_icon_id;
+    private $description;
+    public $file_name;
+    public $dblink;
+
+    function __construct($unverified_icon_id=NULL)
+    {
+        $this->description = "";
+        $this->verified_icon_id = null;
+        $this->file_name = "";
+        global $dblink;
+        $this->dblink = $dblink;
+        if(!is_null($unverified_icon_id))
+        {
+            $this->Load_Icon($unverified_icon_id);
+        }
+    }
+    private function Load_Icon($unverified_icon_id)
+    {
+        if($this->Verify_Icon_ID($unverified_icon_id))
+        {
+            $this->Populate_Icon_Properties();
+        }else
+        {
+            throw new Customer_Does_Not_Exist("Sorry for the epic failed use of Customer does not exist.  This is actually an icon not existing.");
+        }
+    }
+    private function Verify_Icon_ID($id_to_verify)
+    {
+        if($this->Does_Icon_Exist($id_to_verify))
+        {
+            $this->verified_icon_id = $id_to_verify;
+            return true;
+        }else
+        {
+            $this->verified_icon_id = null;
+            return false;
+        }
+    }
+
+    private function Does_Icon_Exist($unverified_Icon_id)
+    {
+        try
+        {
+            $results = $this->dblink->ExecuteSQLQuery("SELECT * FROM `icon_library` WHERE `id` = '".$unverified_Icon_id."'");
+            if(mysqli_num_rows($results) == 1)
+            {
+                return true;
+            }else
+            {
+                return false;
+            }
+        } catch (\Exception $e)
+        {
+            $log_exception = new \logging\Log_To_Console($e->getMessage());
+            return false;
+        }               
+    }
+
+    private function Populate_Icon_Properties()
+    {
+        $results = $this->dblink->ExecuteSQLQuery("SELECT * FROM `icon_library` WHERE `id` = '".$this->verified_icon_id."'");
+        while($row = mysqli_fetch_assoc($results))
+        {
+            $this->description = $row['description'];
+            $this->file_name = $row['file_name'];
+        }
+    }
+
+    public function Set_Description($description)
+    {
+        $this->description = $description;
+    }
+
+    public function Set_File_Name($file_name)
+    {
+        $this->file_name = $file_name;
+    }
+
+    public function Get_File_Name()
+    {
+        return $this->file_name;
+    }
+
+    public function Get_Description()
+    {
+        return $this->description;
+    }
+
+    public function Delete_Icon()
+    {
+        if(!is_null($this->verified_icon_id))
+        {
+//            $this->Delete_Contractors();
+            if($this->dblink->ExecuteSQLQuery("DELETE FROM `icon_library` WHERE `id` = '".$this->verified_icon_id."'"))
+            {
+                return true;
+            }else{
+                return false;
+            }
+        }
+    }
+
+    private function Update_Icon()
+    {
+        if(is_null($this->verified_icon_id)){ return false;}
+        $description = mysqli_real_escape_string($this->dblink->GetCurrentLink(),$this->Get_Description());
+        $file_name = mysqli_real_escape_string($this->dblink->GetCurrentLink(),$this->Get_File_Name()); 
+        if($results = $this->dblink->ExecuteSQLQuery("UPDATE `icon_library` SET `description` = '".$description."', `file_name` = '".$file_name()."' WHERE `id` = '".$this->verified_icon_id."'"))
+        {
+            return true;
+        }else
+        {
+            return false;
+        }
+    }
+
+    public function Create_Icon()
+    {
+        if(is_null($this->verified_icon_id))
+        {
+            $description = mysqli_real_escape_string($this->dblink->GetCurrentLink(),$this->Get_Description());
+            $file_name = mysqli_real_escape_string($this->dblink->GetCurrentLink(),$this->Get_File_Name()); 
+            if($this->dblink->ExecuteSQLQuery("INSERT INTO `icon_library` SET `description` = '".$description."', `file_name` = '".$file_name()."'"))
+            {
+                return $this->Verify_Icon_ID($this->dblink->GetLastInsertID());
+            }else
+            {
+                return false;
+            }
+            
+        }else
+        {
+            return false;
+        }
+    }
+}
+
+
+
 class Toast
 {
   function __construct($strong_text ,$error_message)

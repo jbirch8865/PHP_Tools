@@ -1,7 +1,6 @@
 <?php
 namespace config;
 
-
 class ConfigurationFile
 {
 	private $Configurations;
@@ -112,6 +111,7 @@ class ConfigurationFile
 			return $this->Configurations()['vendor_directory']."/images";
 		}
 	}
+	
 	function Get_Vendor_URL()
 	{
 		if(isset($this->Configurations()['vendor_directory']))
@@ -119,7 +119,15 @@ class ConfigurationFile
 			return $this->Configurations()['vendor_directory']."/vendor";
 		}
 	}
-	
+
+	function Get_Base_URL()
+	{
+		if(isset($this->Configurations()['Base_URL']))
+		{
+			return $this->Configurations()['Base_URL'];
+		}
+	}
+
 	function Is_Feature_Enabled($feature)
 	{
 		if(isset($this->Configurations()[$feature]))
