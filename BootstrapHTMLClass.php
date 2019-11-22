@@ -7,6 +7,7 @@ class icon
     private $verified_icon_id;
     private $description;
     public $file_name;
+    private $code_id;
     public $dblink;
 
     function __construct($unverified_icon_id=NULL)
@@ -145,8 +146,22 @@ class icon
             return false;
         }
     }
-}
 
+    public function Get_File_Name_From_Code_ID($code_id)
+    {
+      if($results = $this->dblink->ExecuteSQLQuery("SELECT `file_name` FROM `icon_library` INNER JOIN `code_has_icon` ON `code_has_icon`.`icon_id` = `icon_library`.`id` WHERE `code_id` = '".$code_id."'"))
+      {
+        if(mysqli_num_rows($results) == 1)
+        {
+          $row = mysqli_fetch_assoc($results);
+          return $row['file_name'];
+        }else
+        {
+          return 'images/white-dollar-icon.png';
+        }
+      }
+    }
+}
 class icons
 {
   public $icons;
