@@ -162,6 +162,23 @@ class icon
         }
       }
     }
+
+    public function Get_File_Name_From_Skill_ID($skill_id)
+    {
+      $cConfigs = new \config\ConfigurationFile();
+      $dblink = new \DatabaseLink\MySQLLink($cConfigs->Name_Of_Project_Database());
+      if($results = $dblink->ExecuteSQLQuery("SELECT `file_name` FROM `icon_library` INNER JOIN `Skills` ON `Skills`.`icon` = `icon_library`.`id` WHERE `Skills`.`Skill_ID` = '".$skill_id."'"))
+      {
+        if(mysqli_num_rows($results) == 1)
+        {
+          $row = mysqli_fetch_assoc($results);
+          return $row['file_name'];
+        }else
+        {
+          return 'images/white-dollar-icon.png';
+        }
+      }
+    }
 }
 class icons
 {
