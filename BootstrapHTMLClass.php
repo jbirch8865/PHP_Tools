@@ -72,6 +72,16 @@ class icon
             $this->file_name = $row['file_name'];
         }
     }
+    public function Get_IMG_HTML($tooltip = null, $height = "25px", $width = "25px")
+    {
+      if(is_null($tooltip))
+      {
+        return "<img src='".$this->Get_File_Name()."' height = '".$height."' width = '".$width."' data-toggle='tooltip' title = '".$this->Get_Description()."'>";
+      }else
+      {
+        return "<img src='".$this->Get_File_Name()."' height = '".$height."' width = '".$width."' data-toggle='tooltip' title = '".$tooltip."'>";
+      }
+    }
 
     public function Set_Description($description)
     {
