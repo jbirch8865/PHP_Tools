@@ -28,7 +28,7 @@ class icon
             $this->Populate_Icon_Properties();
         }else
         {
-            throw new Customer_Does_Not_Exist("Sorry for the epic failed use of Customer does not exist.  This is actually an icon not existing.");
+            throw new \company_program\Customer_Does_Not_Exist("Sorry for the epic failed use of Customer does not exist.  This is actually an icon not existing.");
         }
     }
     private function Verify_Icon_ID($id_to_verify)
@@ -185,7 +185,7 @@ class icon
           return $row['file_name'];
         }else
         {
-          return 'images/white-dollar-icon.png';
+          return false;
         }
       }
     }

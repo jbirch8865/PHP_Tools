@@ -50,11 +50,20 @@ class TextMessage {
 
 	public function Set_Message_Body($message_body)
 	{
+		$num_of_messages = 0;
 		try {
 			$this->message_body = $message_body;
 			$sms_string_analyzer = new \Instasent\SMSCounter\SMSCounter();
 			$analyze_results = $sms_string_analyzer->count($message_body);
-			if($analyze_results->messages > 1){throw new MessageBodyTooLong("This message is too long to send");}
+			if($analyze_results->messages > 1)
+			{
+//				$this->message_body = array();
+//				While($num_of_messages < $analyze_results->messages)
+//				{
+//					$this->message_body[] = substr($message_body,$num_of_messages * 152,152);
+//					$num_of_messages = $num_of_messages + 1;
+//				}
+			}
 		} catch (MessageBodyTooLong $e)
 		{
 			throw new MessageBodyTooLong($this->message_body);
@@ -70,8 +79,18 @@ class TextMessage {
 		{
 			try {
 				$twilio = $this->Twilio_Client_Object();
-				$message = $twilio->messages->create($this->send_to->Print_Number(),array("body" => $this->message_body,"from" => $this->send_from));
-				$this->message_sid = $message->sid;
+				if(is_array($this->message_body))
+				{
+					ForEach($this->message_body as $message)
+					{
+						$message = $twilio->messages->create($this->send_to->Print_Number(),array("body" => $message,"from" => $this->send_from));
+						$this->message_sid = $message->sid;		
+					}
+				}else
+				{
+					$message = $twilio->messages->create($this->send_to->Print_Number(),array("body" => $this->message_body,"from" => $this->send_from));
+					$this->message_sid = $message->sid;		
+				}
 			} catch (\Exception $e)
 			{
 				throw new \Exception($e->getMessage());

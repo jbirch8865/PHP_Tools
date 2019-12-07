@@ -95,7 +95,7 @@ Class MySQLLink
 		{
 			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
 			throw new DuplicatePrimaryKeyRequest($e->getMessage());
-		} catch (Exception $e)
+		} catch (\Exception $e)
 		{
 			$this->AddToSyslog($Query, "unknown error running this SQL query", $Type,$Ignore_Log_Error);		
 			throw new \Exception($e->getMessage());
