@@ -186,13 +186,16 @@ class User_Session
         {}
     }
     
-    public function Am_I_Currently_Authenticated($throw_exception = false)
+    public function Am_I_Currently_Authenticated($throw_exception = false,$auto_renew = true)
     {
         if($this->is_user_authenticated)
         {
             if(!$this->Is_Expired($throw_exception))
             {
-                $this->Renew_Session();
+                if($auto_renew)
+                {
+                    $this->Renew_Session();
+                }
                 return true;
             }else
             {
@@ -481,9 +484,9 @@ class Current_User
         }
     }
 
-    public function Am_I_Currently_Authenticated($throw_exception = false)
+    public function Am_I_Currently_Authenticated($throw_exception = false,$auto_renew = true)
     {
-        return $this->user_session->Am_I_Currently_Authenticated($throw_exception);
+        return $this->user_session->Am_I_Currently_Authenticated($throw_exception,$auto_renew);
     }
 
     function Exit_If_Not_Currently_Authenticated($message = "",$throw_exception = false)
