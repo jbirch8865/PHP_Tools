@@ -152,4 +152,12 @@ class SQL_Search_Returned_Null Extends \exception\CustomException{
 	}		
 }
 
+namespace logging;
+class Log_Does_Not_Exist Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
 ?>

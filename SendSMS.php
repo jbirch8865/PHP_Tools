@@ -15,12 +15,15 @@ class TextMessage {
 	private $carrier;
 	private $send_from;
 	private $message_sid;
+	private $dblink;
 
 
 	function __construct()
 	{
 		$this->message_sid = null;
 		$this->send_to = null;
+		global $dblink;
+		$this->dblink = $dblink;
 		$this->LoadConfigs();
 	}
 
@@ -158,6 +161,10 @@ class TextMessage {
 		{
 			return false;
 		}
+	}
+	public function Mark_dh_read()
+	{
+		
 	}
 }
 
