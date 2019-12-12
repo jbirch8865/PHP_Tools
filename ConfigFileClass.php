@@ -145,6 +145,33 @@ class ConfigurationFile
 		}
 	}
 	
+	public function Set_Night_Mode()
+	{
+		$this->Add_Or_Update_Config('after_business_hours','1');
+	}
+
+	public function Set_Day_Mode()
+	{
+		$this->Add_Or_Update_Config('after_business_hours','0');
+	}
+
+	public function Is_Night_Mode_On()
+	{
+		if($this->Is_Feature_Enabled('after_business_hours'))
+		{
+			if($this->Configurations()['after_business_hours'] == '1')
+			{
+				return true;
+			}else
+			{
+				return false;
+			}
+		}else
+		{
+			return false;
+		}
+	}
+
 	function Add_Or_Update_Config($key, $value)
 	{
 		$this->Configurations[$key] = $value;
