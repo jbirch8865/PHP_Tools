@@ -384,16 +384,16 @@ class navbar
     }
   }
 
-  function Add_Link($href,$text_to_display,$echo = true)
+  function Add_Link($href,$text_to_display,$echo = true,$class = "")
   {
     if($echo)
     {
-      echo '<li class="nav-item">
+      echo '<li class="nav-item '.$class.'">
         <a class="nav-link" href="'.$href.'">'.$text_to_display.'</a>
         </li>';
     }else
     {
-      return '<li class="nav-item">
+      return '<li class="nav-item '.$class.'">
         <a class="nav-link" href="'.$href.'">'.$text_to_display.'</a>
         </li>';      
     }
@@ -416,23 +416,39 @@ class table
 {
   private $table_id;
   private $classlist;
-  function __construct($id = "mt",$echo = true,$classlist = "")
+  private $override;
+  function __construct($id = "mt",$echo = true,$classlist = "",$override = "")
   {
     $this->table_id = $id;
     $this->classlist = $classlist;
+    $this->override = $override;
     if($echo)
     {
       echo '<div class = "container-fluid">';
       echo '<div class = "table-responsive">';
-      echo '<table id = "'.$this->table_id.'" class="table p-4 table-dark table-lg table-hover '.$this->classlist.'">';
+      if($this->override != "")
+      {
+        echo '<table id = "'.$this->table_id.'" class="'.$this->override.'">';
+      }else
+      {
+        echo '<table id = "'.$this->table_id.'" class="table p-4 table-dark table-lg table-hover '.$this->classlist.'">';
+      }
     }
   }
 
   function Start_Table()
   {
-    return '<div class = "container-fluid">
-    <div class = "table-responsive">
-    <table id = "'.$this->table_id.'" class="table p-4 table-dark table-lg table-hover '.$this->classlist.'">';         
+    if($this->override != "")
+    {
+      return '<div class = "container-fluid">
+      <div class = "table-responsive">
+      <table id = "'.$this->table_id.'" class="'.$this->override.'">';         
+      }else
+    {
+      return '<div class = "container-fluid">
+      <div class = "table-responsive">
+      <table id = "'.$this->table_id.'" class="table p-4 table-dark table-lg table-hover '.$this->classlist.'">';         
+      }
   }
 
   function Close_Table($echo = true)
