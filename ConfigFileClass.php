@@ -144,6 +144,17 @@ class ConfigurationFile
 			return false;
 		}
 	}
+
+	public function Get_Value_If_Enabled($configuration_key)
+	{
+		if($this->Is_Feature_Enabled($configuration_key))
+		{
+			return $this->Configurations()[$configuration_key];
+		}else
+		{
+			return false;
+		}
+	}
 	
 	public function Set_Night_Mode()
 	{
