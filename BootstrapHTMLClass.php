@@ -176,7 +176,7 @@ class icon
     {
       $cConfigs = new \config\ConfigurationFile();
       $dblink = new \DatabaseLink\MySQLLink($cConfigs->Name_Of_Project_Database());
-      if($results = $dblink->ExecuteSQLQuery("SELECT `height` FROM `icon_library` INNER JOIN `code_has_icon` ON `code_has_icon`.`icon_id` = `icon_library`.`id` WHERE `code_id` = '".$code_id."'"))
+      if($results = $dblink->ExecuteSQLQuery("SELECT `height` FROM `icon_library` INNER JOIN `code_has_icon` ON `code_has_icon`.`icon_id` = `icon_library`.`id` WHERE `code_id` = '".$code_id."' AND `height` IS NOT NULL"))
       {
         if(mysqli_num_rows($results) == 1)
         {
@@ -193,7 +193,7 @@ class icon
     {
       $cConfigs = new \config\ConfigurationFile();
       $dblink = new \DatabaseLink\MySQLLink($cConfigs->Name_Of_Project_Database());
-      if($results = $dblink->ExecuteSQLQuery("SELECT `width` FROM `icon_library` INNER JOIN `code_has_icon` ON `code_has_icon`.`icon_id` = `icon_library`.`id` WHERE `code_id` = '".$code_id."'"))
+      if($results = $dblink->ExecuteSQLQuery("SELECT `width` FROM `icon_library` INNER JOIN `code_has_icon` ON `code_has_icon`.`icon_id` = `icon_library`.`id` WHERE `code_id` = '".$code_id."' AND `width` IS NOT NULL"))
       {
         if(mysqli_num_rows($results) == 1)
         {
