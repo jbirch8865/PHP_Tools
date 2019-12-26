@@ -112,7 +112,6 @@ class icon
     {
         if(!is_null($this->verified_icon_id))
         {
-//            $this->Delete_Contractors();
             if($this->dblink->ExecuteSQLQuery("DELETE FROM `icon_library` WHERE `id` = '".$this->verified_icon_id."'"))
             {
                 return true;
@@ -173,6 +172,40 @@ class icon
       }
     }
 
+    public function Get_Height_From_Code_ID($code_id)
+    {
+      $cConfigs = new \config\ConfigurationFile();
+      $dblink = new \DatabaseLink\MySQLLink($cConfigs->Name_Of_Project_Database());
+      if($results = $dblink->ExecuteSQLQuery("SELECT `height` FROM `icon_library` INNER JOIN `code_has_icon` ON `code_has_icon`.`icon_id` = `icon_library`.`id` WHERE `code_id` = '".$code_id."'"))
+      {
+        if(mysqli_num_rows($results) == 1)
+        {
+          $row = mysqli_fetch_assoc($results);
+          return $row['height'];
+        }else
+        {
+          return '20';
+        }
+      }
+    }
+
+    public function Get_Width_From_Code_ID($code_id)
+    {
+      $cConfigs = new \config\ConfigurationFile();
+      $dblink = new \DatabaseLink\MySQLLink($cConfigs->Name_Of_Project_Database());
+      if($results = $dblink->ExecuteSQLQuery("SELECT `width` FROM `icon_library` INNER JOIN `code_has_icon` ON `code_has_icon`.`icon_id` = `icon_library`.`id` WHERE `code_id` = '".$code_id."'"))
+      {
+        if(mysqli_num_rows($results) == 1)
+        {
+          $row = mysqli_fetch_assoc($results);
+          return $row['width'];
+        }else
+        {
+          return '20';
+        }
+      }
+    }
+    
     public function Get_File_Name_From_Skill_ID($skill_id)
     {
       $cConfigs = new \config\ConfigurationFile();
