@@ -51,6 +51,11 @@ class TextMessage {
 		}
 	}
 
+	public function Set_From_Number($send_from)
+	{
+			$this->send_from = $send_from;
+	}
+
 	public function Set_Message_Body($message_body)
 	{
 		$num_of_messages = 0;
