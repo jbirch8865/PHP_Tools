@@ -579,6 +579,7 @@ class Table_Row
   private $three_dots_context;
   private $current_string;
   private $classlist;
+  private $row_id;
   private $echo;
   /**
    * data_context is to store complex json data inside the tr html element in a data_context attribut
@@ -588,11 +589,12 @@ class Table_Row
    * @param array $values an array of values in order for column 1, 2 ,3 etc
    * @param array this is the array that will be converted to json for passing into other apps
    */
-  function __construct(int $num_of_cols,array $values,array $tr_data_context = array(),array $three_dots_context = array(),$echo = true,$tooltip = "",$td_data_context = array(),$classlist = "")
+  function __construct(int $num_of_cols,array $values,array $tr_data_context = array(),array $three_dots_context = array(),$echo = true,$tooltip = "",$td_data_context = array(),$classlist = "",$row_id = "")
   {
     $this->classlist = $classlist;
     $this->echo = $echo;
     $this->current_string = "";
+    $this->row_id = $row_id;
     $this->tr_data_context = json_encode($tr_data_context);
     $this->td_data_context = $td_data_context;
     $this->three_dots_context = $three_dots_context;
@@ -613,10 +615,10 @@ class Table_Row
   {
     if($this->echo)
     {
-      echo '<tr class = "'.$this->classlist.'" data-context = \''.$this->tr_data_context.'\' data-toggle="tooltip" title="'.$tooltip.'" data-trigger="click">';
+      echo '<tr id = "'.$this->row_id.'" class = "'.$this->classlist.'" data-context = \''.$this->tr_data_context.'\' data-toggle="tooltip" title="'.$tooltip.'" data-trigger="click">';
     }else
     {
-      $this->current_string = $this->current_string.'<tr class = "'.$this->classlist.'" data-toggle="tooltip" title="'.$tooltip.'" data-trigger="click" data-context = \''.$this->tr_data_context.'\'>';
+      $this->current_string = $this->current_string.'<tr id = "'.$this->row_id.'" class = "'.$this->classlist.'" data-toggle="tooltip" title="'.$tooltip.'" data-trigger="click" data-context = \''.$this->tr_data_context.'\'>';
     }
     $am_i_last_column_yet = 0;
     ForEach($values as $key => $data)
