@@ -84,10 +84,14 @@ class Log_To_DB
         }
     }
 
-    private function Set_Person_ID()
+    public function Set_Person_ID($user_id = null)
     {
         $current_user = new \User_Session\Current_User;
-        $this->person_id = $current_user->Get_User_ID();
+        $this->person_id = $current_user->Get_User_ID();    
+        if($this->person_id == '')
+        {
+            $this->person_id = '1';
+        }
     }
 
     public function Set_Log_Entry($log_entry)
@@ -145,4 +149,97 @@ class Log_To_DB
         }
     }
 }
+
+class Logfile
+{
+	private $file_content;
+	private $filename;
+
+	function __construct($filename,$filelocation = "logs/")
+	{		
+        $this->filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . $filelocation.$filename;
+		if($this->IsThisAString($this->filename))
+		{
+			if($this->DoesFileExist())
+			{
+				$this->file_content = $this->LoadFile();
+			}else
+			{
+				$this->file_content = "";
+			}
+		}else
+		{
+			throw new \Exception("This is not a valid filename");
+		}
+	}
+	
+	private function DoesFileExist()
+	{
+		if($this->IsThisAString($this->filename))
+		{
+			if(file_exists($this->filename))
+			{
+				return true;
+			}else
+			{
+				return false;
+			}
+		}else
+		{
+			return false;
+		}
+	}
+	private function IsThisAString($string)
+	{
+		try
+		{
+			$string = (string) $string;
+			return true;
+		}catch (\Exception $e)
+		{
+			return false;
+		}
+	}
+	private function LoadFile()
+	{
+		try
+		{
+            return file_get_contents($this->filename);
+		} catch (\Exception $e)
+		{
+			throw new \Exception("Error loading this log file");
+		}
+	}
+    function Get_File_Contents()
+	{
+		return $this->file_content;
+    }
+    
+	function Set_File_Contents($file_contents)
+	{
+		$this->safefilerewrite($file_contents);
+	}
+	
+	private function safefilerewrite($dataToSave)
+	{    if ($fp = fopen($this->filename, 'w'))
+		{
+			$startTime = microtime(TRUE);
+			do
+			{            $canWrite = flock($fp, LOCK_EX);
+			   // If lock not obtained sleep for 0 - 100 milliseconds, to avoid collision and CPU load
+			   if(!$canWrite) usleep(round(rand(0, 100)*1000));
+			} while ((!$canWrite)and((microtime(TRUE)-$startTime) < 5));
+	
+			//file was locked so now we can store information
+			if ($canWrite)
+			{            fwrite($fp, $dataToSave);
+				flock($fp, LOCK_UN);
+			}
+			fclose($fp);
+		}
+	
+	}	
+}
+
+
 ?>
