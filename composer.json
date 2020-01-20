@@ -1,0 +1,21 @@
+{
+    "name": "jbirch8865/php_tools",
+    "description": "Base PHP tools and classes",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Joel Birch",
+            "email": "jbirch88655@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "instasent/sms-counter-php": "^0.5.2",
+        "twilio/sdk": "^5.0",
+        "mikey179/vfsstream": "^1.6",
+        "adodb/adodb-php": "^5.20"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8"
+    }
+}
