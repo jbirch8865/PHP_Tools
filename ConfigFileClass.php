@@ -36,7 +36,6 @@ class ConfigurationFile
 			return false;
 		}
 	}
-
 	private function LoadFile()
 	{
 		try
@@ -56,7 +55,6 @@ class ConfigurationFile
 	{
 		return $this->Configurations;
 	}
-
 	function Is_Dev()
 	{
 		if(isset($this->Configurations()['Environment']))
