@@ -53,7 +53,7 @@ class ConfigurationFile
 	 */
 	function Configurations()
 	{
-		return $this->Configurations;
+		return $this->configurations;
 	}
 	function Is_Dev()
 	{
@@ -217,8 +217,8 @@ class ConfigurationFile
 
 	function Add_Or_Update_Config($key, $value)
 	{
-		$this->Configurations[$key] = $value;
-		$this->write_php_ini($this->Configurations,$this->filename);
+		$this->configurations[$key] = $value;
+		$this->write_php_ini($this->configurations,$this->filename);
 	}
 
 	private function write_php_ini($array, $file)
