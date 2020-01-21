@@ -437,7 +437,8 @@ class User_Session
 
     public function Create_Database_Connection()
     {
-        $this->dblink = new \DatabaseLink\MySQLLink($this->configs['database_name']);
+        $cConfigs = new \config\ConfigurationFile();
+        $this->dblink = new \DatabaseLink\MySQLLink($cConfigs->Name_Of_Project_Database());
     }
     
     public function Get_DBLink()

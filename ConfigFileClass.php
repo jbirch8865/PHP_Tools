@@ -5,6 +5,7 @@ class ConfigurationFile
 {
 	private array $configurations;
 	private string $filename;
+	//abstract protected function getValue();
 
 	function __construct(string $filename = "config.local.ini")
 	{
@@ -36,6 +37,7 @@ class ConfigurationFile
 			return false;
 		}
 	}
+
 	private function LoadFile()
 	{
 		try
@@ -47,14 +49,6 @@ class ConfigurationFile
 		}
 	}
 
-
-	/**
-	 * DO NOT USE, as of version 1.4.20 moved this function to Get_Value_If_Enabled('name_of_the_config_you_want')
-	 */
-	function Configurations()
-	{
-		return $this->configurations;
-	}
 	function Is_Dev()
 	{
 		if(isset($this->Configurations()['Environment']))
@@ -115,56 +109,85 @@ class ConfigurationFile
 		}
 	}
 
-	/**
-	 * Please use Get_Name_Of_Project_Database as of version 1.4.20 this function is depricated
-	 */
-	function Name_Of_Project_Database()
+	function Get_Name_Of_Project_Database(string $con_name = "project_database")
 	{
-		if(isset($this->Configurations()['database_name']))
-		{
-			return $this->Configurations()['database_name'];
-		}
+		return $this->Get_Value_If_Enabled($con_name.'_database_name');
 	}
 
-	function Get_Name_Of_Project_Database()
+	function Get_Connection_Username(string $con_name = "project_database")
 	{
-		return $this->Get_Value_If_Enabled('database_name');
+		return $this->Get_Value_If_Enabled($con_name.'_username');
 	}
 
-	function Set_Name_Of_Project_Database(string $name_of_database)
+	function Get_Connection_Password(string $con_name = "project_database")
 	{
-		$this->Add_Or_Update_Config('database_name',$name_of_database);
+		return $this->Get_Value_If_Enabled($con_name.'_password');
+	}
+
+	function Get_Connection_Hostname(string $con_name = "project_database")
+	{
+		return $this->Get_Value_If_Enabled($con_name.'_hostname');
+	}
+
+	function Get_Connection_Listeningport(string $con_name = "project_database")
+	{
+		return $this->Get_Value_If_Enabled($con_name.'_listeningport');
+	}
+
+	function Set_Database_Connection_Preferences(string $hostname,string $username, string $password, string $con_name = "project_database", int $listeningport = 3306)
+	{
+		$this->Add_Or_Update_Config($con_name.'_project_database_name',$con_name);
+		$this->Add_Or_Update_Config($con_name.'_username',$username);
+		$this->Add_Or_Update_Config($con_name.'_password',$password);
+		$this->Add_Or_Update_Config($con_name.'_hostname',$hostname);
+		$this->Add_Or_Update_Config($con_name.'_listeningport',$listeningport);
 	}
 
 	function Get_Images_URL()
 	{
-		if(isset($this->Configurations()['vendor_directory']))
+		if($this->Get_Value_If_Enabled('vendor_directory'))
 		{
-			return $this->Configurations()['vendor_directory']."/images";
+			return $this->Get_Value_If_Enabled('vendor_directory')."/images";
+		}else
+		{
+			return false;
 		}
 	}
 	
 	function Get_Vendor_URL()
 	{
-		if(isset($this->Configurations()['vendor_directory']))
+		if($this->Get_Value_If_Enabled('vendor_directory'))
 		{
-			return $this->Configurations()['vendor_directory']."/vendor";
+			return $this->Get_Value_If_Enabled('vendor_directory');
+		}else
+		{
+			return false;
 		}
+	}
+
+	function Set_Vendor_URL(string $vendor_url)
+	{
+		$this->Add_Or_Update_Config('vendor_directory',$vendor_url);
 	}
 
 	function Get_Base_URL()
 	{
-		if(isset($this->Configurations()['Base_URL']))
+		if($this->Get_Value_If_Enabled('Base_URL'))
 		{
-			return $this->Configurations()['Base_URL'];
+			return $this->Get_Value_If_Enabled('Base_URL');
 		}
+	}
+
+	function Set_Base_URL(string $base_url)
+	{
+		$this->Add_Or_Update_Config('Base_URL',$base_url);
 	}
 
 	function Is_Feature_Enabled($feature)
 	{
-		if(isset($this->Configurations()[$feature]))
+		if(isset($this->configurations[$feature]))
 		{
-			if($this->Configurations()[$feature])
+			if($this->configurations[$feature])
 			{
 				return true;
 			}else
@@ -182,33 +205,6 @@ class ConfigurationFile
 		if($this->Is_Feature_Enabled($configuration_key))
 		{
 			return $this->Configurations()[$configuration_key];
-		}else
-		{
-			return false;
-		}
-	}
-	
-	public function Set_Night_Mode()
-	{
-		$this->Add_Or_Update_Config('after_business_hours','1');
-	}
-
-	public function Set_Day_Mode()
-	{
-		$this->Add_Or_Update_Config('after_business_hours','0');
-	}
-
-	public function Is_Night_Mode_On()
-	{
-		if($this->Is_Feature_Enabled('after_business_hours'))
-		{
-			if($this->Configurations()['after_business_hours'] == '1')
-			{
-				return true;
-			}else
-			{
-				return false;
-			}
 		}else
 		{
 			return false;
