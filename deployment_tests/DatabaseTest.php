@@ -8,10 +8,13 @@ class DatabaseTest extends \PHPUnit\Framework\TestCase
 	{
         try
         {
-            $this->DBLink = new DatabaseLink\MySQLLink('syslog');   
+            $cConfigs = new \config\ConfigurationFile();
+            $this->assertTrue($cConfigs->Get_Value_If_Enabled(dirname(__FILE__)."_username"));
+            $this->DBLink = new DatabaseLink\MySQLLink($cConfigs->Get_Name_Of_Project_Database($cConfigs->Get_Name_Of_Project_Database()));
         }catch(\DatabaseLink\SQLConnectionError $e)
         {
-            throw new \Exception($e->getMessage());
+            $con = mysqli_connect($cConfigs->Get_Value_If_Enabled('root_hostname'),$cConfigs->Get_Value_If_Enabled('root_username'),$cConfigs->Get_Value_If_Enabled('root_password'));
+            mysqli_query($con,"CREATE DATABASE ".$cConfigs->Get_Name_Of_Project_Database());
         }
 	}
 

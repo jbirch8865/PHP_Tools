@@ -5,10 +5,12 @@ class ConfigurationFile
 {
 	private array $configurations;
 	private string $filename;
+	private string $save_environment;
 	//abstract protected function getValue();
 
 	function __construct(string $filename = "config.local.ini")
 	{
+		$this->save_environment = false;
 		if($filename == "config.local.ini" || $filename == "ConfigFileClass.php")
 		{			
 			$this->filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . $filename;
@@ -51,9 +53,9 @@ class ConfigurationFile
 
 	function Is_Dev()
 	{
-		if(isset($this->Configurations()['Environment']))
+		if($this->Get_Value_If_Enabled('Environment'))
 		{
-			if(strtoupper($this->Configurations()['Environment']) == "DEVELOPMENT")
+			if(strtoupper($this->Get_Value_If_Enabled('Environment') == "DEVELOPMENT"))
 			{
 				return true;
 			}else
@@ -68,9 +70,9 @@ class ConfigurationFile
 
 	function Is_Prod()
 	{
-		if(isset($this->Configurations()['Environment']))
+		if($this->Get_Value_If_Enabled('Environment'))
 		{
-			if(strtoupper($this->Configurations()['Environment']) == "PRODUCTION")
+			if(strtoupper($this->Get_Value_If_Enabled('Environment') == "PRODUCTION"))
 			{
 				return true;
 			}else
@@ -93,6 +95,16 @@ class ConfigurationFile
 		$this->Add_Or_Update_Config('Environment','PRODUCTION');
 	}
 
+	function Reset_Environment()
+	{
+		$this->Add_Or_Update_Config('Environment',$this->save_environment);
+	}
+
+	function Save_Environment()
+	{
+		$this->save_environment = $this->Get_Value_If_Enabled('Environment');
+	}
+
 	function Set_End_User_Date_Format(string $date_format)
 	{
 		$this->Add_Or_Update_Config('end_user_date_format',$date_format);
@@ -111,7 +123,12 @@ class ConfigurationFile
 
 	function Get_Name_Of_Project_Database(string $con_name = "project_database")
 	{
-		return $this->Get_Value_If_Enabled($con_name.'_database_name');
+		return $this->Get_Value_If_Enabled($con_name.'_project_database_name');
+	}
+
+	function Set_Name_Of_Project_Database(string $project_name)
+	{
+		$this->Add_Or_Update_Config($project_name.'_project_database_name',$project_name);
 	}
 
 	function Get_Connection_Username(string $con_name = "project_database")
@@ -134,7 +151,7 @@ class ConfigurationFile
 		return $this->Get_Value_If_Enabled($con_name.'_listeningport');
 	}
 
-	function Set_Database_Connection_Preferences(string $hostname,string $username, string $password, string $con_name = "project_database", int $listeningport = 3306)
+	function Set_Database_Connection_Preferences(string $hostname,string $username, string $password, string $con_name = "project_database", string $listeningport = "3306")
 	{
 		$this->Add_Or_Update_Config($con_name.'_project_database_name',$con_name);
 		$this->Add_Or_Update_Config($con_name.'_username',$username);
@@ -183,7 +200,7 @@ class ConfigurationFile
 		$this->Add_Or_Update_Config('Base_URL',$base_url);
 	}
 
-	function Is_Feature_Enabled($feature)
+	function Is_Feature_Enabled(string $feature)
 	{
 		if(isset($this->configurations[$feature]))
 		{
@@ -200,24 +217,30 @@ class ConfigurationFile
 		}
 	}
 
-	public function Get_Value_If_Enabled($configuration_key)
+	public function Get_Value_If_Enabled(string $configuration_key)
 	{
 		if($this->Is_Feature_Enabled($configuration_key))
 		{
-			return $this->Configurations()[$configuration_key];
+			return $this->configurations[$configuration_key];
 		}else
 		{
 			return false;
 		}
 	}
 
-	function Add_Or_Update_Config($key, $value)
+	function Add_Or_Update_Config(string $key, string $value)
 	{
 		$this->configurations[$key] = $value;
 		$this->write_php_ini($this->configurations,$this->filename);
 	}
 
-	private function write_php_ini($array, $file)
+	function Delete_Config_If_Exists(string $key)
+	{
+		unset($this->configurations[$key]);
+		$this->write_php_ini($this->configurations,$this->filename);
+	}
+
+	private function write_php_ini(array $array,string $file)
 	{
 		$res = array();
 		foreach($array as $key => $val)
@@ -232,7 +255,7 @@ class ConfigurationFile
 		$this->safefilerewrite($file, implode("\r\n", $res));
 	}
 	
-	private function safefilerewrite($fileName, $dataToSave)
+	private function safefilerewrite(string $fileName,string $dataToSave)
 	{    if ($fp = fopen($fileName, 'w'))
 		{
 			$startTime = microtime(TRUE);
@@ -251,6 +274,5 @@ class ConfigurationFile
 		}
 	
 	}
-
 }
 ?>
