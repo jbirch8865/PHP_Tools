@@ -6,16 +6,24 @@ class ConfigFileTest extends \PHPUnit\Framework\TestCase
 
 	public function setUp() :void
 	{
-		$filename = explode('/',dirname(__FILE__));
-		$filename = $filename[count($filename) - 4];
+		global $root_folder;
+		$this->filename = $root_folder;
 	}
 	function test_Project_Name()
 	{
 		$cConfigs = new \config\ConfigurationFile();
-		$this->assertFalse($cConfigs->Is_Feature_Enabled('project_name'));
-		$cConfigs->Add_Or_Update_Config('project_name',dirname(__FILE__));
+		$cConfigs->Add_Or_Update_Config('project_name',$this->filename);
 		$this->assertTrue($cConfigs->Is_Feature_Enabled('project_name'));
 		$cConfigs->Set_Name_Of_Project_Database($cConfigs->Get_Value_If_Enabled('project_name'));
+	}
+	function test_Database_Base_Configs()
+	{
+		$cConfigs = new \config\ConfigurationFile();
+		$cConfigs->Set_Database_Connection_Preferences($cConfigs->Get_Connection_Hostname('root'),$this->filename,$cConfigs->Get_Connection_Password('root'),$this->filename,$cConfigs->Get_Connection_Listeningport('root'));
+		$this->assertEquals($this->filename,$cConfigs->Get_Connection_Username($this->filename));
+		$this->assertEquals($cConfigs->Get_Root_Password(),$cConfigs->Get_Connection_Password($this->filename));
+		$this->assertEquals($cConfigs->Get_Root_Hostname(),$cConfigs->Get_Connection_Hostname($this->filename));
+		$this->assertEquals($cConfigs->Get_Root_Listeningport(),$cConfigs->Get_Connection_Listeningport($this->filename));		
 	}
 	function test_Instantiate_Class()
 	{    

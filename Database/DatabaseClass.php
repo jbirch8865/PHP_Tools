@@ -2,36 +2,34 @@
 namespace databaseLink;
 Class MySQLLink
 {
-	
 	private string $username;
 	private string $password;
 	private string $hostname;
 	private string $lastmysqlerror;
 	private int $lastmysqlerrorno;
-	private string $database;
-	private string $lastinsertid;
+	private \ADODB_mysqli $database;
 	private string $listeningport;
 
 	function __construct(string $database_to_connect_to,bool $run_as_root_user = false)
 	{
 		if($run_as_root_user)
 		{
-			$this->LoadRootConfigurationFile();
+			$this->Load_Root_Configuration_File();
 			if(!$this->username)
 			{
 				throw new \Exception("Check config file for database configs.  Root username does not exist.");
 			}
 		}else
 		{
-			$this->LoadConfigurationFile($database_to_connect_to);
+			$this->Load_Configuration_File($database_to_connect_to);
 			if(!$this->username)
 			{
 				throw new \Exception("Check config file for database configs. Username does not exist.");
 			}
 		}
-		$this->EstablishdatabaseLink($database_to_connect_to);
+		$this->Establish_Database_Link($database_to_connect_to);
 	}
-	private function LoadConfigurationFile(string $database_to_connect_to)
+	private function Load_Configuration_File(string $database_to_connect_to)
 	{
 		$cConfigs = new \Config\ConfigurationFile;
 		$this->username = $cConfigs->Get_Value_If_Enabled($database_to_connect_to.'_username');
@@ -39,15 +37,15 @@ Class MySQLLink
 		$this->hostname = $cConfigs->Get_Value_If_Enabled($database_to_connect_to.'_hostname');
 		$this->listeningport = $cConfigs->Get_Value_If_Enabled($database_to_connect_to.'_listeningport');
 	}
-	private function LoadRootConfigurationFile()
+	private function Load_Root_Configuration_File()
 	{
 		$cConfigs = new \Config\ConfigurationFile;
 		$this->username = $cConfigs->Get_Value_If_Enabled('root_username');
 		$this->password = $cConfigs->Get_Value_If_Enabled('root_password');
-		$this->hostname = $cConfigs->Get_Value_If_Enabled('hostname');
-		$this->listeningport = $cConfigs->Get_Value_If_Enabled('listeningport');
+		$this->hostname = $cConfigs->Get_Value_If_Enabled('root_hostname');
+		$this->listeningport = $cConfigs->Get_Value_If_Enabled('root_listeningport');
 	}
-	private function EstablishdatabaseLink(string $database_to_connect_to)
+	private function Establish_Database_Link(string $database_to_connect_to)
 	{
 		$driver = 'mysqli';
  
@@ -56,45 +54,33 @@ Class MySQLLink
 		{
 			throw new SQLConnectionError("Couldn't connect to mysql");
 		}
+		$this->database = $db;
 		
 	}
-	function ExecuteSQLQuery(string $query)
+	function Is_Connected()
 	{
-		$response = $this->QuerySQL($query);
-		$this->lastinsertid = mysqli_insert_id($this->database);
+		return $this->database->isConnected();
+	}
+	function Execute_Any_SQL_Query(string $query)
+	{
+		$response = $this->database->execute($query);
 		return $response;
 	}
-	private function QuerySQL(string $query)
+	function Execute_Any_SQL_Query_With_Caching(string $query)
 	{
-		if(!$response = mysqli_query($this->database, $query))
-		{
-			$this->lastmysqlerror = mysqli_error($this->database);
-			$this->lastmysqlerrorno = mysqli_errno($this->database);
-			if($this->lastmysqlerrorno == '1062')
-			{
-				throw new DuplicatePrimaryKeyRequest("You are trying to create a duplicate entry for the primary key in the DB");
-			}else
-			{
-				throw new SQLQueryError("SQL Server returned error number ".$this->lastmysqlerrorno." - ".mysqli_error($this->database));
-			}
-		}else
-		{
-			return $response;
-		}
+		$ADODB_CACHE_DIR=dirname(__FILE__).'/queries';
+		$response = $this->database->cacheExecute($query);
+		return $response;
 	}
-	function GetCurrentLink()
+	function Get_Last_Insert_ID()
 	{
-		return $this->database;
+		return $this->database->insert_id();
 	}
-	function GetLastInsertID()
-	{
-		return $this->lastinsertid;
-	}
-	function GetLastError()
+	function Get_Last_Error()
 	{
 		return $this->lastmysqlerror;
 	}
-	function GetLastErrorNumber()
+	function Get_Last_Error_Number()
 	{
 		return $this->lastmysqlerrorno;
 	}

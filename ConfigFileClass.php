@@ -151,6 +151,26 @@ class ConfigurationFile
 		return $this->Get_Value_If_Enabled($con_name.'_listeningport');
 	}
 
+	function Get_Root_Username()
+	{
+		return $this->Get_Value_If_Enabled('root_username');
+	}
+
+	function Get_Root_Password()
+	{
+		return $this->Get_Value_If_Enabled('root_password');
+	}
+
+	function Get_Root_Hostname()
+	{
+		return $this->Get_Value_If_Enabled('root_hostname');
+	}
+
+	function Get_Root_Listeningport()
+	{
+		return $this->Get_Value_If_Enabled('root_listeningport');
+	}
+	
 	function Set_Database_Connection_Preferences(string $hostname,string $username, string $password, string $con_name = "project_database", string $listeningport = "3306")
 	{
 		$this->Add_Or_Update_Config($con_name.'_project_database_name',$con_name);
