@@ -1,5 +1,5 @@
 --TEST--
-phpunit --verbose --order-by=reverse ../_files/DependencySuccessTest.php
+phpunit --verbose --order-by=depends,reverse ../execution-order/_files/MultiDependencyTest.php
 --FILE--
 <?php declare(strict_types=1);
 $arguments = [
@@ -7,7 +7,6 @@ $arguments = [
     '--debug',
     '--verbose',
     '--order-by=depends,reverse',
-    'MultiDependencyTest',
     \realpath(__DIR__ . '/../execution-order/_files/MultiDependencyTest.php'),
 ];
 \array_splice($_SERVER['argv'], 1, count($arguments), $arguments);

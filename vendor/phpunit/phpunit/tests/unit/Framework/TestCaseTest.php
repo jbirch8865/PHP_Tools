@@ -10,6 +10,7 @@
 namespace PHPUnit\Framework;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Runner\BaseTestRunner;
 use PHPUnit\Util\Test as TestUtil;
 
@@ -569,13 +570,14 @@ final class TestCaseTest extends TestCase
     /**
      * @backupGlobals enabled
      * @backupStaticAttributes enabled
+     * @depends testGlobalsBackupPost
      *
      * @doesNotPerformAssertions
      */
     public function testStaticAttributesBackupPre(): void
     {
         $GLOBALS['singleton'] = \Singleton::getInstance();
-        $GLOBALS['i']         = 'not reset by backup';
+        $GLOBALS['i']         = 'set by testStaticAttributesBackupPre';
 
         $GLOBALS['j']         = 'reset by backup';
         self::$testStatic     = 123;
@@ -588,7 +590,7 @@ final class TestCaseTest extends TestCase
     {
         // Snapshots made by @backupGlobals
         $this->assertSame(\Singleton::getInstance(), $GLOBALS['singleton']);
-        $this->assertSame('not reset by backup', $GLOBALS['i']);
+        $this->assertSame('set by testStaticAttributesBackupPre', $GLOBALS['i']);
 
         // Reset global
         $this->assertArrayNotHasKey('j', $GLOBALS);
@@ -831,8 +833,23 @@ final class TestCaseTest extends TestCase
 
     public function testCreateMockMocksAllMethods(): void
     {
-        /** @var \Mockable $mock */
         $mock = $this->createMock(\Mockable::class);
+
+        $this->assertNull($mock->mockableMethod());
+        $this->assertNull($mock->anotherMockableMethod());
+    }
+
+    public function testCreateStubFromClassName(): void
+    {
+        $mock = $this->createStub(\Mockable::class);
+
+        $this->assertInstanceOf(\Mockable::class, $mock);
+        $this->assertInstanceOf(Stub::class, $mock);
+    }
+
+    public function testCreateStubStubsAllMethods(): void
+    {
+        $mock = $this->createStub(\Mockable::class);
 
         $this->assertNull($mock->mockableMethod());
         $this->assertNull($mock->anotherMockableMethod());
@@ -856,9 +873,28 @@ final class TestCaseTest extends TestCase
         $this->assertTrue($mock->anotherMockableMethod());
     }
 
+    public function testCreatePartialMockWithFakeMethods(): void
+    {
+        $test = new \TestWithDifferentStatuses('testWithCreatePartialMockWarning');
+
+        $test->run();
+
+        $this->assertSame(BaseTestRunner::STATUS_WARNING, $test->getStatus());
+        $this->assertFalse($test->hasFailed());
+    }
+
+    public function testCreatePartialMockWithRealMethods(): void
+    {
+        $test = new \TestWithDifferentStatuses('testWithCreatePartialMockPassesNoWarning');
+
+        $test->run();
+
+        $this->assertSame(BaseTestRunner::STATUS_PASSED, $test->getStatus());
+        $this->assertFalse($test->hasFailed());
+    }
+
     public function testCreateMockSkipsConstructor(): void
     {
-        /** @var \Mockable $mock */
         $mock = $this->createMock(\Mockable::class);
 
         $this->assertNull($mock->constructorArgs);
@@ -866,8 +902,22 @@ final class TestCaseTest extends TestCase
 
     public function testCreateMockDisablesOriginalClone(): void
     {
-        /** @var \Mockable $mock */
         $mock = $this->createMock(\Mockable::class);
+
+        $cloned = clone $mock;
+        $this->assertNull($cloned->cloned);
+    }
+
+    public function testCreateStubSkipsConstructor(): void
+    {
+        $mock = $this->createStub(\Mockable::class);
+
+        $this->assertNull($mock->constructorArgs);
+    }
+
+    public function testCreateStubDisablesOriginalClone(): void
+    {
+        $mock = $this->createStub(\Mockable::class);
 
         $cloned = clone $mock;
         $this->assertNull($cloned->cloned);
@@ -903,6 +953,7 @@ final class TestCaseTest extends TestCase
             [123],
             ['foo'],
             [$this->createMock(\Mockable::class)],
+            [$this->createStub(\Mockable::class)],
         ];
 
         $test = new \TestAutoreferenced('testJsonEncodeException', [$data]);
@@ -1120,6 +1171,42 @@ final class TestCaseTest extends TestCase
         $test->run();
 
         $this->assertTrue($test->hasOutput());
+    }
+
+    public function testDeprecationCanBeExpected(): void
+    {
+        $this->expectDeprecation();
+        $this->expectDeprecationMessage('foo');
+        $this->expectDeprecationMessageMatches('/foo/');
+
+        \trigger_error('foo', \E_USER_DEPRECATED);
+    }
+
+    public function testNoticeCanBeExpected(): void
+    {
+        $this->expectNotice();
+        $this->expectNoticeMessage('foo');
+        $this->expectNoticeMessageMatches('/foo/');
+
+        \trigger_error('foo', \E_USER_NOTICE);
+    }
+
+    public function testWarningCanBeExpected(): void
+    {
+        $this->expectWarning();
+        $this->expectWarningMessage('foo');
+        $this->expectWarningMessageMatches('/foo/');
+
+        \trigger_error('foo', \E_USER_WARNING);
+    }
+
+    public function testErrorCanBeExpected(): void
+    {
+        $this->expectError();
+        $this->expectErrorMessage('foo');
+        $this->expectErrorMessageMatches('/foo/');
+
+        \trigger_error('foo', \E_USER_ERROR);
     }
 
     /**

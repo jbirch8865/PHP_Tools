@@ -181,7 +181,6 @@ class TestDoxPrinter extends ResultPrinter
     protected function registerTestResult(Test $test, ?\Throwable $t, int $status, float $time, bool $verbose): void
     {
         $testName = TestSuiteSorter::getTestSorterUID($test);
-        $status   = $status ?? BaseTestRunner::STATUS_UNKNOWN;
 
         $result = [
             'className'  => $this->formatClassName($test),
@@ -368,7 +367,7 @@ class TestDoxPrinter extends ResultPrinter
         return \implode(
             \PHP_EOL,
             \array_map(
-                function (string $text) use ($prefix) {
+                static function (string $text) use ($prefix) {
                     return '   ' . $prefix . ($text ? ' ' . $text : '');
                 },
                 \preg_split('/\r\n|\r|\n/', $message)

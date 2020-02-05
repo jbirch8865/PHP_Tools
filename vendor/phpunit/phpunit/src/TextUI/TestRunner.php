@@ -9,9 +9,6 @@
  */
 namespace PHPUnit\TextUI;
 
-use PHPUnit\Framework\Error\Deprecated;
-use PHPUnit\Framework\Error\Notice;
-use PHPUnit\Framework\Error\Warning;
 use PHPUnit\Framework\Exception;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestCase;
@@ -45,7 +42,6 @@ use PHPUnit\Util\TestDox\HtmlResultPrinter;
 use PHPUnit\Util\TestDox\TextResultPrinter;
 use PHPUnit\Util\TestDox\XmlResultPrinter;
 use PHPUnit\Util\XdebugFilterScriptGenerator;
-use ReflectionClass;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Exception as CodeCoverageException;
 use SebastianBergmann\CodeCoverage\Filter as CodeCoverageFilter;
@@ -87,7 +83,7 @@ final class TestRunner extends BaseTestRunner
     private $loader;
 
     /**
-     * @var ResultPrinter
+     * @var Printer&TestListener
      */
     private $printer;
 
@@ -223,20 +219,20 @@ final class TestRunner extends BaseTestRunner
 
         unset($listener, $listenerNeeded);
 
+        if (!$arguments['convertDeprecationsToExceptions']) {
+            $result->convertDeprecationsToExceptions(false);
+        }
+
         if (!$arguments['convertErrorsToExceptions']) {
             $result->convertErrorsToExceptions(false);
         }
 
-        if (!$arguments['convertDeprecationsToExceptions']) {
-            Deprecated::$enabled = false;
-        }
-
         if (!$arguments['convertNoticesToExceptions']) {
-            Notice::$enabled = false;
+            $result->convertNoticesToExceptions(false);
         }
 
         if (!$arguments['convertWarningsToExceptions']) {
-            Warning::$enabled = false;
+            $result->convertWarningsToExceptions(false);
         }
 
         if ($arguments['stopOnError']) {
@@ -273,11 +269,12 @@ final class TestRunner extends BaseTestRunner
 
         if ($this->printer === null) {
             if (isset($arguments['printer'])) {
-                if ($arguments['printer'] instanceof Printer) {
+                if ($arguments['printer'] instanceof Printer && $arguments['printer'] instanceof TestListener) {
                     $this->printer = $arguments['printer'];
                 } elseif (\is_string($arguments['printer']) && \class_exists($arguments['printer'], false)) {
                     try {
-                        $class = new ReflectionClass($arguments['printer']);
+                        new \ReflectionClass($arguments['printer']);
+                        // @codeCoverageIgnoreStart
                     } catch (\ReflectionException $e) {
                         throw new Exception(
                             $e->getMessage(),
@@ -285,8 +282,9 @@ final class TestRunner extends BaseTestRunner
                             $e
                         );
                     }
+                    // @codeCoverageIgnoreEnd
 
-                    if ($class->isSubclassOf(ResultPrinter::class)) {
+                    if (\is_subclass_of($arguments['printer'], ResultPrinter::class)) {
                         $this->printer = $this->createPrinter($arguments['printer'], $arguments);
                     }
                 }
@@ -331,6 +329,10 @@ final class TestRunner extends BaseTestRunner
                     $extension
                 );
             }
+        }
+
+        foreach ($arguments['warnings'] as $warning) {
+            $this->writeMessage('Warning', $warning);
         }
 
         if ($arguments['executionOrder'] === TestSuiteSorter::ORDER_RANDOMIZED) {
@@ -1040,7 +1042,8 @@ final class TestRunner extends BaseTestRunner
                 }
 
                 try {
-                    $extensionClass = new ReflectionClass($extension['class']);
+                    $extensionClass = new \ReflectionClass($extension['class']);
+                    // @codeCoverageIgnoreStart
                 } catch (\ReflectionException $e) {
                     throw new Exception(
                         $e->getMessage(),
@@ -1048,6 +1051,7 @@ final class TestRunner extends BaseTestRunner
                         $e
                     );
                 }
+                // @codeCoverageIgnoreEnd
 
                 if (!$extensionClass->implementsInterface(Hook::class)) {
                     throw new Exception(
@@ -1086,7 +1090,8 @@ final class TestRunner extends BaseTestRunner
                 }
 
                 try {
-                    $listenerClass = new ReflectionClass($listener['class']);
+                    $listenerClass = new \ReflectionClass($listener['class']);
+                    // @codeCoverageIgnoreStart
                 } catch (\ReflectionException $e) {
                     throw new Exception(
                         $e->getMessage(),
@@ -1094,6 +1099,7 @@ final class TestRunner extends BaseTestRunner
                         $e
                     );
                 }
+                // @codeCoverageIgnoreEnd
 
                 if (!$listenerClass->implementsInterface(TestListener::class)) {
                     throw new Exception(
@@ -1258,21 +1264,21 @@ final class TestRunner extends BaseTestRunner
 
         if (!empty($arguments['excludeGroups'])) {
             $filterFactory->addFilter(
-                new ReflectionClass(ExcludeGroupFilterIterator::class),
+                new \ReflectionClass(ExcludeGroupFilterIterator::class),
                 $arguments['excludeGroups']
             );
         }
 
         if (!empty($arguments['groups'])) {
             $filterFactory->addFilter(
-                new ReflectionClass(IncludeGroupFilterIterator::class),
+                new \ReflectionClass(IncludeGroupFilterIterator::class),
                 $arguments['groups']
             );
         }
 
         if ($arguments['filter']) {
             $filterFactory->addFilter(
-                new ReflectionClass(NameFilterIterator::class),
+                new \ReflectionClass(NameFilterIterator::class),
                 $arguments['filter']
             );
         }
@@ -1297,6 +1303,13 @@ final class TestRunner extends BaseTestRunner
         $this->messagePrinted = true;
     }
 
+    /**
+     * @template T as Printer
+     *
+     * @param class-string<T> $class
+     *
+     * @return T
+     */
     private function createPrinter(string $class, array $arguments): Printer
     {
         return new $class(

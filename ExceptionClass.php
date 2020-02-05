@@ -20,6 +20,12 @@ class config_file_missing Extends \exception\CustomException {
 		parent::__construct($message);
 	}
 }
+class file_or_folder_does_not_exist Extends \exception\CustomException {
+	function __construct($message = "")
+	{
+		parent::__construct($message);
+	}
+}
 namespace exception;
 
 class CustomException Extends \Exception {
@@ -131,6 +137,13 @@ class User_Is_Already_Authenticated Extends \exception\CustomException{
 	}	
 }
 namespace DatabaseLink;
+class Table_Does_Not_Exist Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
 class Field_Is_Locked Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
@@ -160,6 +173,13 @@ class Row_Not_Ready_To_Update Extends \exception\CustomException{
 }
 
 class Fields_Are_Not_Set_Properly Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
+class Column_Does_Not_Exist Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
@@ -201,5 +221,14 @@ class Log_Does_Not_Exist Extends \exception\CustomException{
 		parent::__construct($message);
 	}		
 }
+
+namespace project_tags;
+class Tag_Does_Not_Exist Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
 
 ?>

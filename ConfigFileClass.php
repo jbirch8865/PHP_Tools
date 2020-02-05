@@ -26,6 +26,11 @@ class ConfigurationFile
 		{
 			throw new config_file_missing("$filename does not exist");
 		}
+		if(!$this->Get_Name_Of_Project())
+		{
+			global $root_folder;
+			$this->Add_Or_Update_Config('project_name',$root_folder);
+		}
 	}
 	
 	private function DoesFileExist()
@@ -126,6 +131,11 @@ class ConfigurationFile
 		return $this->Get_Value_If_Enabled($con_name.'_project_database_name');
 	}
 
+	function Get_Name_Of_Project()
+	{
+		return $this->Get_Value_If_Enabled('project_name');
+	}
+
 	function Set_Name_Of_Project_Database(string $project_name)
 	{
 		$this->Add_Or_Update_Config($project_name.'_project_database_name',$project_name);
@@ -220,7 +230,7 @@ class ConfigurationFile
 		$this->Add_Or_Update_Config('Base_URL',$base_url);
 	}
 
-	function Is_Feature_Enabled(string $feature)
+	function Is_Config_Set(string $feature)
 	{
 		if(isset($this->configurations[$feature]))
 		{
@@ -239,7 +249,7 @@ class ConfigurationFile
 
 	public function Get_Value_If_Enabled(string $configuration_key)
 	{
-		if($this->Is_Feature_Enabled($configuration_key))
+		if($this->Is_Config_Set($configuration_key))
 		{
 			return $this->configurations[$configuration_key];
 		}else
@@ -294,5 +304,157 @@ class ConfigurationFile
 		}
 	
 	}
+}
+
+class Public_File
+{
+	private string $filename;
+	private string $foldername;
+
+	function __construct(string $filename,string $foldername)
+	{
+		$this->filename = $filename;
+		$this->foldername = $foldername;
+		$this->Error_If_Directory_Does_Not_Exist();
+	}
+
+	private function Does_The_File_Or_Folder_Exists()
+	{
+		return file_exists(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername);
+	}
+
+	private function Does_The_Folder_Exists()
+	{
+		return $this->Does_The_File_Or_Folder_Exists($this->foldername);
+	}
+
+	function Does_The_File_Exists()
+	{
+		return $this->Does_The_File_Or_Folder_Exists($this->filename);
+	}
+
+	private function Error_If_Directory_Does_Not_Exist()
+	{
+		if(!$this->Does_The_Folder_Exists())
+		{
+			throw new file_or_folder_does_not_exist("file_exists(".dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername.") was false.");
+		}
+	}
+
+	function Create_Or_Overwrite_File($data_to_write)
+	{
+		$this->safefilerewrite($data_to_write);
+	}
+
+	private function safefilerewrite(string $dataToSave)
+	{    
+		if($fp = fopen(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername . DIRECTORY_SEPARATOR . $this->filename, 'w'))
+		{
+			$startTime = microtime(TRUE);
+			do
+			{            
+			   $canWrite = flock($fp, LOCK_EX);
+			   // If lock not obtained sleep for 0 - 100 milliseconds, to avoid collision and CPU load
+			   if(!$canWrite) usleep(round(rand(0, 100)*1000));
+			} while ((!$canWrite)and((microtime(TRUE)-$startTime) < 5));
+	
+			//file was locked so now we can store information
+			if ($canWrite)
+			{            fwrite($fp, $dataToSave);
+				flock($fp, LOCK_UN);
+			}
+			fclose($fp);
+		}
+	}
+
+	function Get_File_Contents()
+	{
+		if($this->Does_The_File_Exists())
+		{
+			return file_get_contents(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername . DIRECTORY_SEPARATOR . $this->filename);
+		}else
+		{
+			throw new \config\file_or_folder_does_not_exist("Can't get the contents because the file doesn't exist");
+		}	
+	}
+
+	function Delete_File()
+	{
+		return unlink(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername . DIRECTORY_SEPARATOR . $this->filename);
+	}
+
+}
+
+class Public_Folder
+{
+	private string $foldername;
+
+	function __construct(string $foldername,$create_if_non_existant = false)
+	{
+		$this->foldername = $foldername;
+		if($create_if_non_existant)
+		{
+			$this->Create_Directory_If_Non_Existant();
+		}else
+		{
+			$this->Exit_If_Directory_Is_Non_Existant();
+		}
+	}
+
+	private function Does_The_Folder_Exist()
+	{
+		return file_exists(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername);
+	}
+
+	private function Exit_If_Directory_Is_Non_Existant()
+	{
+		if(!$this->Does_The_Folder_Exist())
+		{
+			throw new file_or_folder_does_not_exist($this->foldername." does not exist");
+		}
+	}
+
+	private function Create_Directory_If_Non_Existant()
+	{
+		if(!$this->Does_The_Folder_Exist())
+		{
+			$this->Create_Public_Directory();
+		}
+	}
+	
+	private function Create_Public_Directory()
+	{
+		return mkdir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername);
+	}
+
+	function Delete_Public_Directory(bool $delete_files = false)
+	{
+		if (is_dir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername))
+		{
+			$dir_handle = opendir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername);
+		}
+		while($file = readdir($dir_handle)) 
+		{
+			if ($file != "." && $file != "..") 
+			{
+				if(!$delete_files)
+				{
+					return false;
+				}
+				if (!is_dir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername . DIRECTORY_SEPARATOR . $file))
+				{
+					unlink(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername . DIRECTORY_SEPARATOR . $file);
+				}else	
+				{
+					$this->Delete_Public_Directory(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername . DIRECTORY_SEPARATOR . $file);
+				}
+			}
+		}
+		closedir($dir_handle);
+		rmdir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername);
+		return true;
+	}
+
+
 }
 ?>

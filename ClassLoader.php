@@ -2,12 +2,17 @@
 date_default_timezone_set('America/Los_Angeles');
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'ExceptionClass.php';
-require dirname(__FILE__) . DIRECTORY_SEPARATOR . "DockerClass.php";
-require dirname(__FILE__) . DIRECTORY_SEPARATOR . "NumberValidator.php";
-require dirname(__FILE__) . DIRECTORY_SEPARATOR . "SendSMS.php";
-require dirname(__FILE__) . DIRECTORY_SEPARATOR . "ConfigFileClass.php";
+require dirname(__FILE__) . DIRECTORY_SEPARATOR . "SendSMS.php"; //Rename to SMSClass eventually
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "StartupVariables.php";
+require dirname(__FILE__) . DIRECTORY_SEPARATOR . "Startup_Functions.php";
+require dirname(__FILE__) . DIRECTORY_SEPARATOR . "ConfigFileClass.php";
+global $cConfigs;
+$cConfigs = new \config\ConfigurationFile();
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "Database/ClassLoader.php";
+global $dblink;
+global $root_dblink;
+$root_dblink = new \DatabaseLink\MySQLLink("",true);
+$dblink = new \DatabaseLink\Database($cConfigs->Get_Name_Of_Project());
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "UserClass.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "TestClass.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "BootstrapHTMLClass.php";

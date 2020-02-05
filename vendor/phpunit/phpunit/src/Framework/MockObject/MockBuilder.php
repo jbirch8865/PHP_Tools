@@ -27,9 +27,14 @@ final class MockBuilder
     private $type;
 
     /**
-     * @var string[]
+     * @var null|string[]
      */
     private $methods = [];
+
+    /**
+     * @var bool
+     */
+    private $emptyMethodsArray = false;
 
     /**
      * @var string
@@ -67,7 +72,7 @@ final class MockBuilder
     private $callOriginalMethods = false;
 
     /**
-     * @var object
+     * @var ?object
      */
     private $proxyTarget;
 
@@ -109,7 +114,7 @@ final class MockBuilder
     {
         $object = $this->generator->getMock(
             $this->type,
-            $this->methods,
+            !$this->emptyMethodsArray ? $this->methods : null,
             $this->constructorArgs,
             $this->mockClassName,
             $this->originalConstructor,
@@ -181,10 +186,104 @@ final class MockBuilder
 
     /**
      * Specifies the subset of methods to mock. Default is to mock none of them.
+     *
+     * @deprecated https://github.com/sebastianbergmann/phpunit/pull/3687
      */
-    public function setMethods(array $methods = null): self
+    public function setMethods(?array $methods = null): self
     {
-        $this->methods = $methods;
+        if ($methods === null) {
+            $this->methods = $methods;
+        } else {
+            $this->methods = \array_merge($this->methods ?? [], $methods);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Specifies the subset of methods to mock, requiring each to exist in the class
+     *
+     * @param string[] $methods
+     *
+     * @throws RuntimeException
+     */
+    public function onlyMethods(array $methods): self
+    {
+        if (empty($methods)) {
+            $this->emptyMethodsArray = true;
+
+            return $this;
+        }
+
+        try {
+            $reflector = new \ReflectionClass($this->type);
+            // @codeCoverageIgnoreStart
+        } catch (\ReflectionException $e) {
+            throw new RuntimeException(
+                $e->getMessage(),
+                (int) $e->getCode(),
+                $e
+            );
+        }
+        // @codeCoverageIgnoreEnd
+
+        foreach ($methods as $method) {
+            if (!$reflector->hasMethod($method)) {
+                throw new RuntimeException(
+                    \sprintf(
+                        'Trying to set mock method "%s" with onlyMethods, but it does not exist in class "%s". Use addMethods() for methods that don\'t exist in the class.',
+                        $method,
+                        $this->type
+                    )
+                );
+            }
+        }
+
+        $this->methods = \array_merge($this->methods ?? [], $methods);
+
+        return $this;
+    }
+
+    /**
+     * Specifies methods that don't exist in the class which you want to mock
+     *
+     * @param string[] $methods
+     *
+     * @throws RuntimeException
+     */
+    public function addMethods(array $methods): self
+    {
+        if (empty($methods)) {
+            $this->emptyMethodsArray = true;
+
+            return $this;
+        }
+
+        try {
+            $reflector = new \ReflectionClass($this->type);
+            // @codeCoverageIgnoreStart
+        } catch (\ReflectionException $e) {
+            throw new RuntimeException(
+                $e->getMessage(),
+                (int) $e->getCode(),
+                $e
+            );
+        }
+        // @codeCoverageIgnoreEnd
+
+        foreach ($methods as $method) {
+            if ($reflector->hasMethod($method)) {
+                throw new RuntimeException(
+                    \sprintf(
+                        'Trying to set mock method "%s" with addMethods(), but it exists in class "%s". Use onlyMethods() for methods that exist in the class.',
+                        $method,
+                        $this->type
+                    )
+                );
+            }
+        }
+
+        $this->methods = \array_merge($this->methods ?? [], $methods);
 
         return $this;
     }

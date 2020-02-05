@@ -13,7 +13,8 @@
         "instasent/sms-counter-php": "^0.5.2",
         "twilio/sdk": "^5.0",
         "mikey179/vfsstream": "^1.6",
-        "adodb/adodb-php": "^5.20"
+        "adodb/adodb-php": "^5.20",
+        "camcima/php-mysql-diff": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "^8"

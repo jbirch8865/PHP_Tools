@@ -3,84 +3,68 @@ namespace User_Session;
 
 class User_Session 
 {
-    private $person_id;
-    private $username;
-    private $password;
-    private $hashed_password_given;
-    private $dblink;
-    private $configs;
-    private $salt;
-    private $is_user_authenticated;
-    private $session_expires;
-    private $number_of_authentication_attempts;
+    private \config\ConfigurationFile $cConfigs;
+    private int $person_id;
+    private string $username;
+    private string $hashed_password_given;
+    private string $hashed_password_from_db;
+    private \DatabaseLink\MySQLLink $dblink;
+    private string $salt;
+    private bool $is_user_authenticated;
+    private \DateTime $session_expires;
+    private int $number_of_failed_authentication_attempts;
 
-    function __construct()
+    function __construct(string $username)
     {
-        $this->LoadConfigurationFile();
+        global $cConfigs;
+        $this->cConfigs = $cConfigs;
+        $this->username = $username;
         $this->Create_Database_Connection();
-        $this->username = "";
-        $this->password = "";
-        $this->person_id = "";
-        $this->number_of_authentication_attempts = 0;
-        $this->hashed_password_given = "";    
-        $this->session_expires = date('Y-m-d H:i:s');
+        $this->Load_Username($username);
+        
     }
-
-    function Set_Username($username)
+    private function Create_Database_Connection()
     {
-        $this->username = str_replace(" ","_",$username);
+        $this->dblink = new \DatabaseLink\MySQLLink($this->cConfigs->Name_Of_Project_Database());
+    }
+    private function Load_Username(string $username)
+    {
         if($this->Does_User_Exist())
         {
-            $this->Set_User_ID_From_Username();
-            $this->Get_Salt_From_DB();
-            return true;
+            $this->Populate_Current_User_Properties();
         }else
         {
-            return false;
+            $this->Populate_New_User_Properties();
         }
     }
 
-    function Set_Password($password)
+    function Set_Password(string $given_password)
     {
-        if($this->Get_Username() == "")
-        {
-            throw new User_Does_Not_Exist("You need to set a username before you configure a password");
-        }
-        $this->password = $password;
-        $this->Hash_Password_Given();
-    }
-
-    function Set_User_ID($id)
-    {
-        $this->person_id = $id;
+        $this->Hash_Password_Given($given_password);
     }
 
     function Authenticate_User()
     {
-        $this->number_of_authentication_attempts = $this->number_of_authentication_attempts + 1;
         if($this->Am_I_Currently_Authenticated())
         {
             return true;
         }
-        if($this->username == "" || $this->password == "")
+        if($this->hashed_password_given == "")
         {
-            throw new User_Is_Not_Authenticated("You can't authenticate a user until you set the username and password");
+            throw new User_Is_Not_Authenticated("You can't authenticate a user until you set the password");
         }
-        $this->password = "";  //This is just to be safe and get rid of plain text passwords asap
         if(!$this->Does_User_Exist())
         {
             throw new User_Does_Not_Exist("You can't authenticate a user that doesn't exist");
         }
-        if($this->hashed_password_given == $this->Get_Hashed_Password_From_DB())
+        if($this->hashed_password_given == $this->hashed_password_from_db)
         {
             $this->is_user_authenticated = true;
         }else
         {
             $this->is_user_authenticated = false;
-            throw new User_Is_Not_Authenticated("password given is incorrect");
         }
-        $this->session_expires = date('Y-m-d H:i:s',strtotime('+'.$this->configs['Session_Time_Limit_In_Minutes'].' minutes'));
-        
+        $this->session_expires = new \DateTime(date('Y-m-d H:i:s',strtotime('+'.$this->cPreferences->Get_User_Session_Time_Limit().' minutes')));        
         return $this->is_user_authenticated;
     }
     /**
@@ -404,43 +388,7 @@ class User_Session
         {
             throw new \Exception($e->getMessage());
         }        
-    }
-
-    private function LoadConfigurationFile()
-	{
-		try 
-		{
-            $configs = new \Config\ConfigurationFile;
-            if($this->Do_Configs_Exist($configs->Configurations()))
-            {
-                $this->configs = $configs->Configurations();
-            }else
-            {
-                throw new \Exception("Configs are invalid");
-            }
-		} catch (\Exception $e)
-		{
-			throw new \Exception($e->getMessage());
-		}
-	}
-
-    private function Do_Configs_Exist($configs)
-    {
-        if(!isset($configs['database_name'])||!isset($configs['user_table_name']))
-        {
-            return false;
-        }else
-        {
-            return true;
-        }
-    }
-
-    public function Create_Database_Connection()
-    {
-        $cConfigs = new \config\ConfigurationFile();
-        $this->dblink = new \DatabaseLink\MySQLLink($cConfigs->Name_Of_Project_Database());
-    }
-    
+    }    
     public function Get_DBLink()
     {
         return $this->dblink;

@@ -21,7 +21,6 @@ use PHPUnit\Framework\Warning;
 use PHPUnit\TextUI\ResultPrinter;
 use PHPUnit\Util\Exception;
 use PHPUnit\Util\Filter;
-use ReflectionClass;
 use SebastianBergmann\Comparator\ComparisonFailure;
 
 /**
@@ -203,7 +202,7 @@ final class TeamCity extends ResultPrinter
         } else {
             $split = \explode('::', $suiteName);
 
-            if (\count($split) === 2 && \method_exists($split[0], $split[1])) {
+            if (\count($split) === 2 && \class_exists($split[0]) && \method_exists($split[0], $split[1])) {
                 $fileName                   = self::getFileName($split[0]);
                 $parameters['locationHint'] = "php_qn://$fileName::\\$suiteName";
                 $parameters['name']         = $split[1];
@@ -229,7 +228,7 @@ final class TeamCity extends ResultPrinter
         if (!\class_exists($suiteName, false)) {
             $split = \explode('::', $suiteName);
 
-            if (\count($split) === 2 && \method_exists($split[0], $split[1])) {
+            if (\count($split) === 2 && \class_exists($split[0]) && \method_exists($split[0], $split[1])) {
                 $parameters['name'] = $split[1];
             }
         }
@@ -357,7 +356,8 @@ final class TeamCity extends ResultPrinter
     private static function getFileName($className): string
     {
         try {
-            return (new ReflectionClass($className))->getFileName();
+            return (new \ReflectionClass($className))->getFileName();
+            // @codeCoverageIgnoreStart
         } catch (\ReflectionException $e) {
             throw new Exception(
                 $e->getMessage(),
@@ -365,6 +365,7 @@ final class TeamCity extends ResultPrinter
                 $e
             );
         }
+        // @codeCoverageIgnoreEnd
     }
 
     /**
