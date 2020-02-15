@@ -128,6 +128,10 @@ class ConfigurationFile
 
 	function Get_Name_Of_Project_Database(string $con_name = "project_database")
 	{
+		if($con_name == "project_database")
+		{
+			$con_name = $this->Get_Name_Of_Project();
+		}
 		return $this->Get_Value_If_Enabled($con_name.'_project_database_name');
 	}
 
@@ -181,9 +185,17 @@ class ConfigurationFile
 		return $this->Get_Value_If_Enabled('root_listeningport');
 	}
 	
-	function Set_Database_Connection_Preferences(string $hostname,string $username, string $password, string $con_name = "project_database", string $listeningport = "3306")
+	function Set_Database_Connection_Preferences(string $hostname,string $username, string $password, string $con_name = "project_database", string $listeningport = "3306", bool $read_only = false)
 	{
-		$this->Add_Or_Update_Config($con_name.'_project_database_name',$con_name);
+
+		if($read_only)
+		{
+			$this->Add_Or_Update_Config('read_only_'.$con_name.'_project_database_name',$con_name);
+			$con_name = 'read_only_'.$con_name;
+		}else
+		{
+			$this->Add_Or_Update_Config($con_name.'_project_database_name',$con_name);
+		}
 		$this->Add_Or_Update_Config($con_name.'_username',$username);
 		$this->Add_Or_Update_Config($con_name.'_password',$password);
 		$this->Add_Or_Update_Config($con_name.'_hostname',$hostname);

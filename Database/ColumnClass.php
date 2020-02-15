@@ -1,43 +1,294 @@
-<?php
-namespace DatabaseLink;
-class Column_Row {
-    private $dblink;
-    private $required;
-    private $table_name;
-    private $column_name; 
+<?php declare(strict_types=1);
+namespace databaseLink;
+use DatabaseLink\Column_Does_Not_Exist;
+use DatabaseLink\SQLQueryError;
 
-    function __construct($dblink, $column_name, $table_name)
-    {
-        $table_name = $table_name;
-        $column_name = $column_name;
-        $this->dblink = $dblink;
-        $this->Load_Column_Parameters();
-    }
 
-    private function Load_Column_Parameters()
-    {
-        try
-        {
-            $column_comments = $this->Query_For_Column_Comments();
-            $this->required = $column_comments['required'];
-        } catch (\Exception $e)
-        {
-            throw new \Exception($e->getMessage());
-        }
-    }
+class Column
+{
+	public Table $table_dblink;
+	private \config\ConfigurationFile $cConfigs;
+	private ?string $verified_column_name = NULL;
+	private string $data_type = "INT(11)";
+	private ?int $data_length = 11;
+	private ?string $default_value = NULL;
+	private string $auto_increment = "auto_increment";
+	private bool $is_nullable = false;
+	private string $column_key = "PRI";
+	private $field_value = NULL;
 
-    private function Query_For_Column_Comments()
-    {
-        try 
-        {
-            $query_information_schema = $this->dblink->ExecuteSQLQuery("SELECT COLUMN_COMMENT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '".$this->table_name."' AND COLUMN_NAME = '".$this->column_name."'");
-            $query_information_schema = mysqli_fetch_assoc($query_information_schema);
-            $query_information_schema = json_decode($query_information_schema['COLUMN_COMMENT']);
-            return $query_information_schema;
-        } catch (\Exception $e)
-        {
-            throw new \Exception($e->getMessage());
-        }
-    }
+	/**
+	 * @param array $default_values {not caps sensative} 
+	 * array("COLUMN_TYPE" = valid mysql columntype string,
+	 * 	"CHARACTER_MAXIMUM_LENGTH" = valid type int or NULL int must match COLUMN_TYPE,
+	 * 	"COLUMN_DEFAULT" = ["NULL"{will make column nullable},
+	 * 			"string"{in absence of value this will be used, for blank values must have a string value of ''},
+	 * 			null{no default, value will be required}],
+	 * 	"is_nullable" = bool,"column_key" = ["","PRI","UNI"],
+	 *  "EXTRA" = "auto_increment") 
+	 * if is_nullable = true and default_value is NULL then the default will be NULL if is_nullable = false and default_value = NULL
+	 * then there will be no default
+	 */
+	function __construct(string $unverified_column_name,Table &$table_dblink,array $default_values = array())
+	{
+		global $cConfigs;
+		$this->cConfigs = $cConfigs;
+		$this->table_dblink = $table_dblink;
+		if((count($default_values) != 6 && !$this->Does_Column_Exist($unverified_column_name)) && (count($default_values) == 0 && $this->Does_Column_Exist($unverified_column_name)))
+		{
+			throw new \Exception('sorry I can\'t create the column unless you supply all the default values');
+		}else
+		{
+			$this->Set_Default_Values_From_Array($default_values);
+		}
+		$this->If_Does_Not_Exist_Create_Column($unverified_column_name);
+	}
+	private function If_Does_Not_Exist_Create_Column(string $unverified_column_name)
+	{
+		if($this->Does_Column_Exist($unverified_column_name))
+		{
+			$this->verified_column_name = $unverified_column_name;
+		}else
+		{
+			$this->Create_Column($unverified_column_name);
+		}
+	}
+	private function Does_Column_Exist(string $unverified_column_name)
+	{
+		if($this->table_dblink->database_dblink->dblink->Does_This_Return_A_Count_Of_More_Than_Zero('information_schema.columns','table_schema = \''.$this->table_dblink->database_dblink->Get_Database_Name().'\' AND column_name = \''.$unverified_column_name.'\' AND table_name = \''.$this->table_dblink->Get_Table_Name().'\''))
+		{
+			return true;
+		}else
+		{
+			return false;
+		}
+	}
+	private function Create_Column(string $unverified_column_name)
+	{
+		$AUTO_INCREMENT = "";
+		$default_value = "";
+		if(strtolower($this->column_key) == 'pri')
+		{
+			$PRIMARY_KEY = ", ADD PRIMARY KEY(`".$unverified_column_name."`)";
+		}elseif(strtolower($this->column_key) == 'uni')
+		{
+			$PRIMARY_KEY = ", ADD UNIQUE KEY(`".$unverified_column_name."`)";
+		}else
+		{
+			$PRIMARY_KEY = "";
+		}
+		if($this->is_nullable)
+		{
+			$NULL = " NULL";
+		}else
+		{
+			$NULL = " NOT NULL";
+		}
+		if(is_null($this->default_value))
+		{
+			$default_values = "";
+		}elseif(strtolower($this->default_value) == 'null')
+		{
+			$NULL = " NULL";
+			$default_value = " DEFAULT NULL";
+		}else
+		{
+			$default_value = " DEFAULT '".$this->default_value."'";
+		}	
+		if(strtolower($this->auto_increment) == "auto_increment")
+		{
+			$NULL = " NOT NULL";
+			$AUTO_INCREMENT = " AUTO_INCREMENT";
+		}
+		try
+		{
+			$this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("ALTER TABLE ".$this->table_dblink->Get_Table_Name()." ADD 
+			".$unverified_column_name." ".$this->data_type."$NULL$default_value$AUTO_INCREMENT$PRIMARY_KEY");	
+		} catch (SQLQueryError $e)
+		{
+			if($this->table_dblink->database_dblink->dblink->Get_Last_Error_Number() == 1060)
+			{
+				$this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("ALTER TABLE ".$this->table_dblink->Get_Table_Name()." MODIFY 
+				".$unverified_column_name." ".$this->data_type."$NULL$default_value$AUTO_INCREMENT$PRIMARY_KEY");						
+			}else
+			{
+				throw new SQLQueryError($e->getMessage());
+			}
+		}
+		if($this->Does_Column_Exist($unverified_column_name))
+		{
+			$this->verified_column_name = $unverified_column_name;
+			$this->table_dblink->Load_Columns();
+		}else
+		{
+			throw new SQLQueryError("Column did not appear to create.  Last Error - ".$this->table_dblink->database_dblink->dblink->Get_Last_Error());
+		}
+	}
+	function Delete_Column():void
+	{
+		$this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query('ALTER TABLE `'.$this->table_dblink->Get_Table_Name().'` DROP `'.$this->verified_column_name.'`');
+
+	}
+	function Set_Data_Type(string $data_type,bool $alter_table = true)
+	{
+		$this->data_type = $data_type;
+		if($alter_table)
+		{
+			$this->Create_Column($this->verified_column_name);
+		}
+	}
+	function Set_Data_Length(?int $data_length,bool $alter_table = true)
+	{
+		$this->data_length = $data_length;
+		if($alter_table)
+		{
+			$this->Create_Column($this->verified_column_name);
+		}
+	}
+	function Set_Default_Value(?string $default_value,bool $alter_table = true)
+	{
+		$this->default_value = $default_value;
+		if($alter_table)
+		{
+			$this->Create_Column($this->verified_column_name);
+		}
+	}
+	function Set_Column_Key(string $column_key = "",bool $alter_table = true)
+	{
+		$this->column_key = $column_key;
+		if($alter_table)
+		{
+			$this->Create_Column($this->verified_column_name);
+		}
+	}
+	function Set_Field_Value($value,bool $alter_table = true)
+	{
+		$this->field_value = $value;
+		if($alter_table)
+		{
+			$this->Create_Column($this->verified_column_name);
+		}
+	}
+	function Get_Data_Type()
+	{
+		return $this->data_type;
+	}
+	function Get_Data_Length()
+	{
+		return $this->data_length;
+	}
+	function Get_Default_Value()
+	{
+		return $this->default_value;
+	}
+	function Get_Column_Name()
+	{
+		return $this->verified_column_name;
+	}
+	function Column_Is_Nullable(bool $alter_table = true)
+	{
+		$this->is_nullable = true;
+		if($alter_table)
+		{
+			$this->Create_Column($this->verified_column_name);
+		}
+	}
+	function Column_Is_Not_Nullable(bool $alter_table = true)
+	{
+		$this->is_nullable = false;
+		if($alter_table)
+		{
+			$this->Create_Column($this->verified_column_name);
+		}
+	}
+	function Column_Auto_Increments(bool $alter_table = true)
+	{
+		$this->auto_increment = "auto_increment";
+		if($alter_table)
+		{
+			$this->Create_Column($this->verified_column_name);
+		}
+	}
+	function Column_Does_Not_Auto_Increments(bool $alter_table = true)
+	{
+		$this->auto_increment = "";
+		if($alter_table)
+		{
+			$this->Create_Column($this->verified_column_name);
+		}
+	}
+	function Is_Column_Nullable()
+	{
+		return $this->is_nullable;
+	}
+	function Get_Column_Key()
+	{
+		return $this->column_key;
+	}
+	function Get_Field_Value()
+	{
+		return $this->field_value;
+	}
+	function Does_Auto_Increment()
+	{
+		if($this->auto_increment == 'auto_increment')
+		{
+			return true;
+		}else
+		{
+			return false;
+		}
+	}
+
+	//Messy code that I don't know how to clean up
+	private function Set_Default_Values_From_Array(array $default_values)
+	{
+		ForEach($default_values as $value_name => $value_to_set)
+		{
+			if(strtolower($value_name) == "column_type")
+			{
+				$this->Set_Data_Type($value_to_set,false);
+			}elseif(strtolower($value_name) == "character_maximum_length")
+			{
+				$value_to_set = (int) $value_to_set;
+				$this->Set_Data_Length($value_to_set,false);
+			}elseif(strtolower($value_name) == "column_default")
+			{
+				if(is_string($value_to_set))
+				{
+					if($value_to_set == "''''")
+					{
+						$value_to_set = "";
+					}else
+					{
+						$value_to_set = trim($value_to_set,"'");					
+					}
+				}
+				$this->Set_Default_Value($value_to_set,false);
+			}elseif(strtolower($value_name) == "is_nullable")
+			{
+				if($value_to_set == "YES")
+				{
+					$this->Column_Is_Nullable(false);
+				}else
+				{
+					$this->Column_Is_Not_Nullable(false);
+				}
+			}elseif(strtolower($value_name) == "column_key")
+			{
+				$this->Set_Column_Key($value_to_set,false);
+			}elseif(strtolower($value_name) == "extra")
+			{
+				if($value_to_set == "auto_increment")
+				{
+					$this->Column_Auto_Increments(false);
+				}else
+				{
+					$this->Column_Does_Not_Auto_Increments(false);
+				}
+			}
+		}
+	}
+
 }
 ?>
