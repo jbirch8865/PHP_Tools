@@ -45,28 +45,28 @@ Class MySQLLink
 		}
 		$this->Establish_Database_Link($database_to_connect_to);
 	}
-	private function Load_Configuration_File(string $database_to_connect_to)
+	private function Load_Configuration_File(string $database_to_connect_to) : void
 	{
 		$this->username = $this->cConfigs->Get_Value_If_Enabled($database_to_connect_to.'_username');
 		$this->password = $this->cConfigs->Get_Value_If_Enabled($database_to_connect_to.'_password');
 		$this->hostname = $this->cConfigs->Get_Value_If_Enabled($database_to_connect_to.'_hostname');
 		$this->listeningport = $this->cConfigs->Get_Value_If_Enabled($database_to_connect_to.'_listeningport');
 	}
-	private function Load_Root_Configuration_File()
+	private function Load_Root_Configuration_File() : void
 	{
 		$this->username = $this->cConfigs->Get_Value_If_Enabled('root_username');
 		$this->password = $this->cConfigs->Get_Value_If_Enabled('root_password');
 		$this->hostname = $this->cConfigs->Get_Value_If_Enabled('root_hostname');
 		$this->listeningport = $this->cConfigs->Get_Value_If_Enabled('root_listeningport');
 	}
-	private function Load_Read_Only_Configuration_File(string $database_to_connect_to)
+	private function Load_Read_Only_Configuration_File(string $database_to_connect_to) : void
 	{
 		$this->username = $this->cConfigs->Get_Value_If_Enabled('read_only_'.$database_to_connect_to.'_username');
 		$this->password = $this->cConfigs->Get_Value_If_Enabled('read_only_'.$database_to_connect_to.'_password');
 		$this->hostname = $this->cConfigs->Get_Value_If_Enabled('read_only_'.$database_to_connect_to.'_hostname');
 		$this->listeningport = $this->cConfigs->Get_Value_If_Enabled('read_only_'.$database_to_connect_to.'_listeningport');
 	}
-	private function Establish_Database_Link(string $database_to_connect_to)
+	private function Establish_Database_Link(string $database_to_connect_to) : void
 	{
 		$driver = 'mysqli';
  
@@ -87,11 +87,11 @@ Class MySQLLink
 		$this->database = $db;
 		
 	}
-	function Is_Connected()
+	function Is_Connected() : bool
 	{
 		return $this->database->isConnected();
 	}
-	function Execute_Any_SQL_Query(string $query)
+	function Execute_Any_SQL_Query(string $query) : ?bool
 	{
 		if($run = $this->database->execute($query))
 		{
@@ -105,7 +105,7 @@ Class MySQLLink
 			}
 		}else
 		{
-			throw new SQLQueryError($query.' did not successfully execute with error message - '.$this->Get_Last_Error());
+			throw new SQLQueryError($query.' did not successfully execute with error message - '.$this->Get_Last_Error().' error number - '.$this->Get_Last_Error_Number());
 		}
 	}
 	/**
@@ -117,7 +117,7 @@ Class MySQLLink
 	 * false if you just want to send the update the constructed statement could be substantially longer than only changed elements
 	 * @param bool $protect_against_sql_injection true to escape quotes false to submit as given
 	 */
-	function Execute_Insert_Or_Update_SQL_Query(string $table, array $query_parameters,bool $update = false,string $where_clause = "",bool $only_changed_values = false,bool $protect_against_sql_injection = true)
+	function Execute_Insert_Or_Update_SQL_Query(string $table, array $query_parameters,bool $update = false,string $where_clause = "",bool $only_changed_values = false,bool $protect_against_sql_injection = true) : void
 	{
 		if($update)
 		{
@@ -127,25 +127,29 @@ Class MySQLLink
 			$this->database->autoExecute($table,$query_parameters,'INSERT',false,!$only_changed_values,!$protect_against_sql_injection);
 		}
 	}
-	function Get_Last_Insert_ID()
+	function Get_Last_Insert_ID() : ?int
 	{
 		return $this->database->insert_id();
 	}
-	function Get_Last_Error()
+	function Get_Last_Error() : string
 	{
 		return $this->database->errorMsg();
 	}
-	function Get_Last_Error_Number()
+	function Get_Last_Error_Number() : ?int
 	{
 		return $this->database->errorNo();
 	}
-	private function Get_Row_Results()
+	private function Get_Row_Results() : array
 	{
 		$return_array = array();
 		$this->results->fetchInto($return_array);
 		return $return_array;
 	}
-	function Get_Results()
+	function Get_Number_Of_Affected_Rows() : ?int
+	{
+		return $this->database->affected_rows();
+	}
+	function Get_Results() : array
 	{
 		$results = array();	
 		While(!$this->results->EOF)
@@ -163,11 +167,11 @@ Class MySQLLink
 		}
 		return $results;
 	}
-	function Get_Num_Of_Rows()
+	function Get_Num_Of_Rows() : int
 	{
 		return $this->results->numRows();
 	}
-	function Get_First_Row($use_cached_result = false)
+	function Get_First_Row($use_cached_result = false) : ?array
 	{
 		if($use_cached_result)
 		{
@@ -177,7 +181,7 @@ Class MySQLLink
 		{
 			if(!$this->results->moveFirst())
 			{
-				return false;
+				return null;
 			}else
 			{
 				return $this->results->fetchRow();	
@@ -189,7 +193,7 @@ Class MySQLLink
 	 * @param string $where This is the WHERE statement
 	 * the query is written as SELECT count(*) FROM $from $where
 	 */
-	function Does_This_Return_A_Count_Of_More_Than_Zero(string $from, string $where)
+	function Does_This_Return_A_Count_Of_More_Than_Zero(string $from, string $where) : bool
 	{
 		$this->Execute_Any_SQL_Query("SELECT COUNT(*) FROM $from WHERE $where");
 		$row = $this->Get_First_Row();
@@ -201,7 +205,7 @@ Class MySQLLink
 			return true;
 		}	
 	}
-	function Get_Results_Current_EOF_Status()
+	function Get_Results_Current_EOF_Status() : bool
 	{
 		return $this->results->EOF;
 	}

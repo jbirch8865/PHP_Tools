@@ -28,7 +28,7 @@ class Database
 		$array_object = new ArrayObject($this->tables);
 		$this->table_iterator = $array_object->getIterator();
 	}
-	private function If_Does_Not_Exist_Create_Database_And_Issue_Credentials(string $unverified_database_name)
+	private function If_Does_Not_Exist_Create_Database_And_Issue_Credentials(string $unverified_database_name) : void
 	{
 		if($this->Does_Database_Exist($unverified_database_name))
 		{
@@ -38,7 +38,7 @@ class Database
 			$this->Create_Database_And_Issue_Credentials($unverified_database_name);
 		}
 	}
-	private function Does_Database_Exist(string $unverified_database_name)
+	private function Does_Database_Exist(string $unverified_database_name) : bool
 	{
 		if($this->root_dblink->Does_This_Return_A_Count_Of_More_Than_Zero("INFORMATION_SCHEMA.SCHEMATA","SCHEMA_NAME = '".$unverified_database_name."'"))
 		{
@@ -48,13 +48,13 @@ class Database
 			return false;
 		}
 	}
-	private function Create_Database_And_Issue_Credentials(string $unverified_database_name)
+	private function Create_Database_And_Issue_Credentials(string $unverified_database_name) : void
 	{
 		$this->Create_Database($unverified_database_name);
 		$this->Create_Full_Database_User();
 		$this->Create_Read_Only_Database_User();
 	}
-	private function Create_Database(string $unverified_database_name)
+	private function Create_Database(string $unverified_database_name) : void
 	{
 		$this->root_dblink->Execute_Any_SQL_Query("CREATE DATABASE ".$unverified_database_name);
 		if($this->Does_Database_Exist($unverified_database_name))
@@ -65,7 +65,7 @@ class Database
 			throw new SQLQueryError("Database did not appear to create.  Last Error - ".$this->root_dblink->Get_Last_Error());
 		}
 	}
-	private function Create_Full_Database_User()
+	private function Create_Full_Database_User() : void
 	{
 		$password = Generate_CSPRNG(14,'D&hFl@gg1ng');
 		$this->root_dblink->Execute_Any_SQL_Query("
@@ -75,7 +75,7 @@ class Database
 		'".$this->verified_database_name."'@'%';");
 		$this->root_dblink->cConfigs->Set_Database_Connection_Preferences('localhost',$this->verified_database_name,$password,$this->verified_database_name);
 	}
-	private function Create_Read_Only_Database_User()
+	private function Create_Read_Only_Database_User() : void
 	{
 		$password = Generate_CSPRNG(14,'D&hFl@gg1ng');
 		$this->root_dblink->Execute_Any_SQL_Query("
@@ -91,7 +91,7 @@ class Database
 	 * @param string $password since this is such a destructive public function you need to enter "destroy" as the password in order for this to execute
 	 * This will also destroy all properties belonging to this class.  Recommended that you unset after you run this command
 	 */
-	function Drop_Database_And_User(string $password)
+	function Drop_Database_And_User(string $password) : void
 	{
 		if($password != "destroy")
 		{
@@ -112,12 +112,12 @@ class Database
 		}
 	}
 
-	function Get_Database_Name()
+	function Get_Database_Name() : string
 	{
 		return $this->verified_database_name;
 	}
 
-	private function Load_Tables()
+	private function Load_Tables() : void
 	{
 		$tables = $this->root_dblink->Execute_Any_SQL_Query("SELECT TABLE_NAME FROM `information_schema`.`tables` WHERE `TABLE_SCHEMA` = '".$this->Get_Database_Name()."'");
 		$tables = $this->root_dblink->Get_Results();
@@ -131,7 +131,7 @@ class Database
 	 * this function will return the current table in the table array and advance the index to the next table
 	 * use function Reset_Tables() to reset the pointer back to the beginning
 	 */
-	function Get_Table()
+	function Get_Table() : ?Table
 	{
 		while($this->table_iterator->valid())
 		{
@@ -139,14 +139,28 @@ class Database
 			$this->table_iterator->Next();
 			return $table;
 		}
+		return null;
 	}
-	function Reset_Tables()
+	function Reset_Tables() : void
 	{
 		$this->table_iterator->rewind();
 	}
-	function Get_Number_Of_Tables()
+	function Get_Number_Of_Tables() : int
 	{
 		return count($this->tables);
+	}
+	function Does_Table_Exist(string $table_name) : bool
+	{
+		While($table = $this->Get_Table())
+		{
+			if($table->Get_Table_Name() == $table_name)
+			{
+				$this->Reset_Tables();
+				return true;
+			}
+		}
+		$this->Reset_Tables();
+		return false;
 	}
 }
 ?>

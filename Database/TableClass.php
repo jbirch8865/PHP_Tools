@@ -26,7 +26,7 @@ class Table
 		$this->If_Does_Not_Exist_Create_Table($unverified_table_name);
 		$this->Load_Columns();
 	}
-	private function If_Does_Not_Exist_Create_Table(string $unverified_table_name)
+	private function If_Does_Not_Exist_Create_Table(string $unverified_table_name) : void
 	{
 		if($this->Does_Table_Exist($unverified_table_name))
 		{
@@ -36,7 +36,7 @@ class Table
 			$this->Create_Table($unverified_table_name);
 		}
 	}
-	private function Does_Table_Exist(string $unverified_table_name)
+	private function Does_Table_Exist(string $unverified_table_name) : bool
 	{
 		if($this->database_dblink->dblink->Does_This_Return_A_Count_Of_More_Than_Zero('information_schema.tables','table_schema = \''.$this->database_dblink->Get_Database_Name().'\' AND table_name = \''.$unverified_table_name.'\''))
 		{
@@ -61,16 +61,16 @@ class Table
 			throw new SQLQueryError("Table did not appear to create.  Last Error - ".$this->database_dblink->dblink->Get_Last_Error());
 		}
 	}
-	function Get_Table_Name()
+	function Get_Table_Name() : string
 	{
 		return $this->verified_table_name;
 	}
-	function Get_Number_Of_Rows_In_Table()
+	function Get_Number_Of_Rows_In_Table() : int
 	{
 		$this->Load_Table();
 		return $this->number_of_table_rows;
 	}
-	function Load_Columns()
+	function Load_Columns() : void
 	{
 		$this->columns = array();
 		$this->database_dblink->dblink->Execute_Any_SQL_Query("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '".$this->database_dblink->Get_Database_Name()."' AND TABLE_NAME = '".$this->Get_Table_Name()."'");
@@ -82,7 +82,7 @@ class Table
 		$arrayObject = new \ArrayObject($this->columns);
 		$this->column_iterator = $arrayObject->getIterator();
 	}
-	private function Load_Table()
+	private function Load_Table() : void
 	{
 		$this->database_dblink->dblink->Execute_Any_SQL_Query("SELECT *	FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".$this->database_dblink->Get_Database_Name()."' AND TABLE_NAME = '".$this->Get_Table_Name()."'");
 		$results = $this->database_dblink->dblink->Get_Results();
@@ -95,7 +95,7 @@ class Table
 	/**
 	 * @param array $INSERT_DATA array("column_name" => "value")
 	 */
-	function Insert_Row(array $INSERT_DATA)
+	function Insert_Row(array $INSERT_DATA) : void
 	{
 		ForEach($INSERT_DATA as $column_name => $value)
 		{
@@ -116,7 +116,7 @@ class Table
 	/**
 	 * @param array $INSERT_DATA array("column_name" => "value")
 	 */
-	function Update_Row(array $INSERT_DATA,string $WHERE = "")
+	function Update_Row(array $INSERT_DATA,string $WHERE = "") : void
 	{
 		ForEach($INSERT_DATA as $column_name => $value)
 		{
@@ -132,7 +132,7 @@ class Table
 	 * @param bool $select_all_data if true will ignore select_data
 	 * @param string $where = "WHERE `column_name` = 'red'"
 	 */
-	function Query_Single_Table(array $select_data = array(),bool $select_all_data = false,string $where = "")
+	function Query_Single_Table(array $select_data = array(),bool $select_all_data = false,string $where = "") : void
 	{
 		if(!$where == "")
 		{
@@ -150,7 +150,7 @@ class Table
 		$arrayObject = new \ArrayObject($rows);
 		$this->row_iterator = $arrayObject->getIterator();
 	}
-	function Get_Queried_Data()
+	function Get_Queried_Data() : ?array
 	{
 		while($this->row_iterator->valid())
 		{
@@ -158,6 +158,7 @@ class Table
 			$this->row_iterator->Next();
 			return $return_value;	
 		}
+		return null;
 	}
 	function Get_Columns():?Column
 	{
@@ -179,20 +180,21 @@ class Table
 				return $column;
 			}
 		}
+		return null;
 	}
-	function Get_Number_Of_Columns()
+	function Get_Number_Of_Columns() : int
 	{
 		return count($this->columns);
 	}
-	function Reset_Queried_Data()
+	function Reset_Queried_Data() : void
 	{
 		$this->row_iterator->rewind();
 	}
-	function Reset_Columns()
+	function Reset_Columns() : void
 	{
 		$this->column_iterator->rewind();
 	}
-	function Get_Number_Of_Rows_In_Query()
+	function Get_Number_Of_Rows_In_Query() : int
 	{
 		$count = iterator_count($this->row_iterator);
 		$this->Reset_Queried_Data();
@@ -202,7 +204,7 @@ class Table
 	 * @param string $where = "WHERE `id` = '3'"
 	 * @param bool $delete_all_data must be true if you want to delete all data, $where will be ignored if true
 	 */
-	function Delete_Row(string $where = "",bool $delete_all_data = false)
+	function Delete_Row(string $where = "",bool $delete_all_data = false) : void
 	{
 		if(!$delete_all_data && $where == "")
 		{
@@ -221,7 +223,7 @@ class Table
 	 * @param string $password since this is such a destructive public function you need to enter "destroy" as the password in order for this to execute
 	 * This will also destroy all properties belonging to this class.  Recommended that you unset after you run this command
 	 */
-	function Drop_Table($password)
+	function Drop_Table($password) : bool
 	{
 		if(!$password == "destroy")
 		{
@@ -230,18 +232,18 @@ class Table
 		$this->database_dblink->dblink->Execute_Any_SQL_Query("DROP TABLE `".$this->verified_table_name."`;");
 		if(!$this->Does_Table_Exist($this->verified_table_name))
 		{
+			ForEach($this as $key => $value)
+			{
+	
+				unset($this->$key);
+			}
 			return true;
 		}else
 		{
 			throw new SQLQueryError("Table did not appear to deleted.  Last Error - ".$this->database_dblink->dblink->Get_Last_Error());
 		}
-		ForEach($this as $key => $value)
-		{
-
-			unset($this->$key);
-		}
 	}
-	function Delete_Column(string $name)
+	function Delete_Column(string $name) : void
 	{
 		While($column = $this->Get_Columns())
 		{
@@ -255,7 +257,6 @@ class Table
 	/**
 	 * @param array $default_values {not caps sensative} 
 	 * array("COLUMN_TYPE" = valid mysql columntype string,
-	 * 	"CHARACTER_MAXIMUM_LENGTH" = valid type int or NULL int must match COLUMN_TYPE,
 	 * 	"COLUMN_DEFAULT" = ["NULL"{will make column nullable},
 	 * 			"string"{in absence of value this will be used, for blank values must have a string value of ''},
 	 * 			null{no default, value will be required}],
@@ -264,9 +265,26 @@ class Table
 	 * if is_nullable = true and default_value is NULL then the default will be NULL if is_nullable = false and default_value = NULL
 	 * then there will be no default
 	 */
-	function Create_Column(string $unverified_column_name,array $default_values = array())
+	function Create_Column(string $unverified_column_name,array $default_values = array()) : void
 	{
 		$column = new Column($unverified_column_name,$this,$default_values);
+	}
+	/**
+	 * @param array $columns_to_be_unique = array('column1','column2')
+	 */
+	function Add_Unique_Columns(array $columns_to_be_unique) : void
+	{
+		$columns = implode(",",Wrap_Array_Values_With_String("`",$columns_to_be_unique));
+		try
+		{
+			$this->database_dblink->dblink->Execute_Any_SQL_Query('ALTER TABLE `'.$this->Get_Table_Name().'` ADD UNIQUE `'.implode(",",$columns_to_be_unique).'` ('.$columns.')');
+		} catch (\DatabaseLink\SQLQueryError $e)
+		{
+			if(!$this->database_dblink->dblink->Get_Last_Error_Number() == 1061)
+			{
+				throw new \DatabaseLink\SQLQueryError($e->getMessage());
+			}
+		}
 	}
 }
 ?>

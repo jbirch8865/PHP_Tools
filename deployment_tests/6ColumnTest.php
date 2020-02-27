@@ -70,6 +70,19 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
         $column->Set_Default_Value('new_default');
         $test_column = $this->table_dblink->Get_Column('new_column');
         $this->assertEquals('new_default',$test_column->Get_Default_Value());
+        $column->Set_Default_Value("null");
+        $test_column = $this->table_dblink->Get_Column('new_column');
+        $this->assertEquals("NULL",$test_column->Get_Default_Value());
+        $this->table_dblink->Delete_Row("",true);
+        $column->Set_Default_Value(null);
+        $column->Set_Data_Type('INT(11)');
+        $this->assertEquals("INT(11)",$column->Get_Data_Type());
+        $new_table = new \DatabaseLink\Table('new_table',$this->table_dblink->database_dblink);
+        $new_table->Create_Column('new_column',array('COLUMN_TYPE' => 'varchar(35)','COLUMN_DEFAULT' => 'something_to_default','is_nullable' => true,"column_key" => "","EXTRA" => ""));
+        $new_table->Delete_Column('id');
+        $column = $new_table->Get_Column('new_column');
+        $column->Set_Column_Key('UNI');
+        $this->assertTrue(true);
     }
     function test_Clean_Up()
     {

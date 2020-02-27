@@ -10,7 +10,7 @@ class Column
 	private \config\ConfigurationFile $cConfigs;
 	private ?string $verified_column_name = NULL;
 	private string $data_type = "INT(11)";
-	private ?int $data_length = 11;
+	private ?int $data_length = null;
 	private ?string $default_value = NULL;
 	private string $auto_increment = "auto_increment";
 	private bool $is_nullable = false;
@@ -20,12 +20,12 @@ class Column
 	/**
 	 * @param array $default_values {not caps sensative} 
 	 * array("COLUMN_TYPE" = valid mysql columntype string,
-	 * 	"CHARACTER_MAXIMUM_LENGTH" = valid type int or NULL int must match COLUMN_TYPE,
 	 * 	"COLUMN_DEFAULT" = ["NULL"{will make column nullable},
-	 * 			"string"{in absence of value this will be used, for blank values must have a string value of ''},
+	 * 			"string"{in absence of value this will be used},
 	 * 			null{no default, value will be required}],
 	 * 	"is_nullable" = bool,"column_key" = ["","PRI","UNI"],
-	 *  "EXTRA" = "auto_increment") 
+	 *  "EXTRA" = "auto_increment",
+	 *  "CHARACTER_MAXIMUM_LENGTH" = "64") 
 	 * if is_nullable = true and default_value is NULL then the default will be NULL if is_nullable = false and default_value = NULL
 	 * then there will be no default
 	 */
@@ -43,7 +43,7 @@ class Column
 		}
 		$this->If_Does_Not_Exist_Create_Column($unverified_column_name);
 	}
-	private function If_Does_Not_Exist_Create_Column(string $unverified_column_name)
+	private function If_Does_Not_Exist_Create_Column(string $unverified_column_name) : void
 	{
 		if($this->Does_Column_Exist($unverified_column_name))
 		{
@@ -53,7 +53,7 @@ class Column
 			$this->Create_Column($unverified_column_name);
 		}
 	}
-	private function Does_Column_Exist(string $unverified_column_name)
+	private function Does_Column_Exist(string $unverified_column_name) : bool
 	{
 		if($this->table_dblink->database_dblink->dblink->Does_This_Return_A_Count_Of_More_Than_Zero('information_schema.columns','table_schema = \''.$this->table_dblink->database_dblink->Get_Database_Name().'\' AND column_name = \''.$unverified_column_name.'\' AND table_name = \''.$this->table_dblink->Get_Table_Name().'\''))
 		{
@@ -63,7 +63,7 @@ class Column
 			return false;
 		}
 	}
-	private function Create_Column(string $unverified_column_name)
+	private function Create_Column(string $unverified_column_name) : void
 	{
 		$AUTO_INCREMENT = "";
 		$default_value = "";
@@ -72,7 +72,7 @@ class Column
 			$PRIMARY_KEY = ", ADD PRIMARY KEY(`".$unverified_column_name."`)";
 		}elseif(strtolower($this->column_key) == 'uni')
 		{
-			$PRIMARY_KEY = ", ADD UNIQUE KEY(`".$unverified_column_name."`)";
+			$PRIMARY_KEY = ", ADD CONSTRAINT ".$unverified_column_name." UNIQUE IF NOT EXISTS (`".$unverified_column_name."`)";
 		}else
 		{
 			$PRIMARY_KEY = "";
@@ -114,6 +114,9 @@ class Column
 			{
 				throw new SQLQueryError($e->getMessage());
 			}
+		} catch (\Exception $e)
+		{
+			throw new \Exception('did i catch it?'.$e->getMessage());
 		}
 		if($this->Does_Column_Exist($unverified_column_name))
 		{
@@ -124,12 +127,31 @@ class Column
 			throw new SQLQueryError("Column did not appear to create.  Last Error - ".$this->table_dblink->database_dblink->dblink->Get_Last_Error());
 		}
 	}
+	function Add_Constraint_If_Does_Not_Exist(Column $column_to_relate,bool $cascade = true):void
+	{
+		if($cascade)
+		{
+			$this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("ALTER TABLE `".$this->table_dblink->Get_Table_Name()."`
+			ADD CONSTRAINT `".$this->table_dblink->Get_Table_Name()."_".$this->Get_Column_Name()."_ibfk_1` FOREIGN KEY IF NOT EXISTS (`".$this->Get_Column_Name()."`) REFERENCES 
+			`".$column_to_relate->table_dblink->Get_Table_Name()."`(`".$column_to_relate->Get_Column_Name()."`) ON DELETE CASCADE ON UPDATE CASCADE;");
+		}else
+		{
+			$this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("ALTER TABLE `".$this->table_dblink->Get_Table_Name()."`
+			ADD CONSTRAINT `".$this->table_dblink->Get_Table_Name()."_".$this->Get_Column_Name()."_ibfk_1` FOREIGN KEY IF NOT EXISTS (`".$this->Get_Column_Name()."`) REFERENCES 
+			`".$column_to_relate->table_dblink->Get_Table_Name()."`(`".$column_to_relate->Get_Column_Name()."`);");
+		}
+
+	}
+	function Update_Column() : void
+	{
+		$this->Create_Column($this->Get_Column_Name());
+	}
 	function Delete_Column():void
 	{
 		$this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query('ALTER TABLE `'.$this->table_dblink->Get_Table_Name().'` DROP `'.$this->verified_column_name.'`');
 
 	}
-	function Set_Data_Type(string $data_type,bool $alter_table = true)
+	function Set_Data_Type(string $data_type,bool $alter_table = true):void
 	{
 		$this->data_type = $data_type;
 		if($alter_table)
@@ -137,15 +159,7 @@ class Column
 			$this->Create_Column($this->verified_column_name);
 		}
 	}
-	function Set_Data_Length(?int $data_length,bool $alter_table = true)
-	{
-		$this->data_length = $data_length;
-		if($alter_table)
-		{
-			$this->Create_Column($this->verified_column_name);
-		}
-	}
-	function Set_Default_Value(?string $default_value,bool $alter_table = true)
+	function Set_Default_Value(?string $default_value,bool $alter_table = true):void
 	{
 		$this->default_value = $default_value;
 		if($alter_table)
@@ -153,7 +167,7 @@ class Column
 			$this->Create_Column($this->verified_column_name);
 		}
 	}
-	function Set_Column_Key(string $column_key = "",bool $alter_table = true)
+	function Set_Column_Key(string $column_key = "",bool $alter_table = true):void
 	{
 		$this->column_key = $column_key;
 		if($alter_table)
@@ -161,7 +175,15 @@ class Column
 			$this->Create_Column($this->verified_column_name);
 		}
 	}
-	function Set_Field_Value($value,bool $alter_table = true)
+	function Set_Data_Length(int $data_length, bool $alter_table = true) : void
+	{
+		$this->data_length = $data_length;
+		if($alter_table)
+		{
+			$this->Create_Column($this->verified_column_name);
+		}
+	}
+	function Set_Field_Value($value,bool $alter_table = true):void
 	{
 		$this->field_value = $value;
 		if($alter_table)
@@ -169,23 +191,23 @@ class Column
 			$this->Create_Column($this->verified_column_name);
 		}
 	}
-	function Get_Data_Type()
-	{
-		return $this->data_type;
-	}
-	function Get_Data_Length()
+	function Get_Data_Length() : ?int
 	{
 		return $this->data_length;
 	}
-	function Get_Default_Value()
+	function Get_Data_Type() : string
+	{
+		return $this->data_type;
+	}
+	function Get_Default_Value() : ?string
 	{
 		return $this->default_value;
 	}
-	function Get_Column_Name()
+	function Get_Column_Name() : string
 	{
 		return $this->verified_column_name;
 	}
-	function Column_Is_Nullable(bool $alter_table = true)
+	function Column_Is_Nullable(bool $alter_table = true) :void
 	{
 		$this->is_nullable = true;
 		if($alter_table)
@@ -193,7 +215,7 @@ class Column
 			$this->Create_Column($this->verified_column_name);
 		}
 	}
-	function Column_Is_Not_Nullable(bool $alter_table = true)
+	function Column_Is_Not_Nullable(bool $alter_table = true) :void
 	{
 		$this->is_nullable = false;
 		if($alter_table)
@@ -201,7 +223,7 @@ class Column
 			$this->Create_Column($this->verified_column_name);
 		}
 	}
-	function Column_Auto_Increments(bool $alter_table = true)
+	function Column_Auto_Increments(bool $alter_table = true) : void
 	{
 		$this->auto_increment = "auto_increment";
 		if($alter_table)
@@ -209,7 +231,7 @@ class Column
 			$this->Create_Column($this->verified_column_name);
 		}
 	}
-	function Column_Does_Not_Auto_Increments(bool $alter_table = true)
+	function Column_Does_Not_Auto_Increments(bool $alter_table = true) : void
 	{
 		$this->auto_increment = "";
 		if($alter_table)
@@ -217,19 +239,19 @@ class Column
 			$this->Create_Column($this->verified_column_name);
 		}
 	}
-	function Is_Column_Nullable()
+	function Is_Column_Nullable() : bool
 	{
 		return $this->is_nullable;
 	}
-	function Get_Column_Key()
+	function Get_Column_Key() : string
 	{
 		return $this->column_key;
 	}
-	function Get_Field_Value()
+	function Get_Field_Value() : string
 	{
 		return $this->field_value;
 	}
-	function Does_Auto_Increment()
+	function Does_Auto_Increment() : bool
 	{
 		if($this->auto_increment == 'auto_increment')
 		{
@@ -241,7 +263,7 @@ class Column
 	}
 
 	//Messy code that I don't know how to clean up
-	private function Set_Default_Values_From_Array(array $default_values)
+	private function Set_Default_Values_From_Array(array $default_values) : void
 	{
 		ForEach($default_values as $value_name => $value_to_set)
 		{
@@ -286,6 +308,9 @@ class Column
 				{
 					$this->Column_Does_Not_Auto_Increments(false);
 				}
+			}elseif(strtolower($value_name) == "character_maximum_length")
+			{
+				$this->Set_Data_Length($value_to_set,false);
 			}
 		}
 	}

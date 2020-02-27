@@ -78,4 +78,25 @@ function Generate_CSPRNG(int $length,string $keyspace = '0123456789abcdefghijklm
     }
     return $str;
 }
+function Wrap_Array_Values_With_String(string $string_to_add,array $array_to_modify)
+{
+    ForEach($array_to_modify as $key => $value)
+    {
+        $array_to_modify[$key] = $string_to_add.$value.$string_to_add;
+    }
+    return $array_to_modify;
+}
+
+function is_connected()
+{
+    $connected = @fsockopen("www.google.com", 80); 
+                                        //website, port  (try 80 or 443)
+    if ($connected){
+        $is_conn = true; //action when connected
+        fclose($connected);
+    }else{
+        $is_conn = false; //action in connection failure
+    }
+    return $is_conn;
+}
 ?>
