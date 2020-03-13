@@ -155,4 +155,26 @@ Class UpdateFailed Extends \exception\CustomException{
 	}
 }
 
+Class Active_Record_Object_Failed_To_Load Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}
+}
+
+Class Varchar_Too_Long_To_Set Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}
+}
+
+Class Object_Is_Already_Loaded Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}
+}
+
+
 ?>

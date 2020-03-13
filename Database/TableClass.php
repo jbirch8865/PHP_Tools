@@ -160,6 +160,10 @@ class Table
 		}
 		return null;
 	}
+	/**
+	 * will return the column the index is at and increment the iterator to the next column
+	 * appropriate use while($column = $table_class->Get_Columns())
+	 */
 	function Get_Columns():?Column
 	{
 		while($this->column_iterator->valid())
@@ -181,6 +185,19 @@ class Table
 			}
 		}
 		return null;
+	}
+	function Does_Column_Exist(string $column_name):bool
+	{
+		While($column = $this->Get_Columns())
+		{
+			if($column->Get_Column_Name() == $column_name)
+			{
+				$this->Reset_Columns();
+				return true;
+			}
+		}
+		return false;
+
 	}
 	function Get_Number_Of_Columns() : int
 	{

@@ -1,62 +1,17 @@
 <?php declare(strict_types=1);
 namespace Company;
 
-use Active_Record_Object;
-use ADODB_Active_Record;
-class Company extends ADODB_Active_Record implements Active_Record_Object
+use Active_Record\Active_Record;
+class Company extends Active_Record
 {
-    private \config\ConfigurationFile $cConfigs;
-    public \DatabaseLink\Table $table_dblink;
-    private string $table_name = "Companies";
-    var $_table = "Companies";
-
-    function __construct(?int $unverified_id = null)
+    function __construct(string $table_name)
     {
-        parent::__construct();
-        global $cConfigs;
-        $this->cConfigs = $cConfigs;
-        global $dblink;
-        $this->table_dblink = new \DatabaseLink\Table($this->table_name,$dblink);
-        if (!empty($unverified_id)) 
-        {
-            $this->Load_Properties($unverified_id);
-        }
-    }
-    private function Load_Properties(?int $id_to_verify) : void
-    {
-        if(!empty($id_to_verify))
-        {
-            if(!$this->Fill_Properties_If_Company_Exists($id_to_verify))
-            {
-                throw new \Company\CompanyDoesNotExist($id_to_verify." is not a valid company");
-            }    
-        }
-    }
-    /**
-     * @param ?int $id_to_verify the id to look for, make null for name search
-     * @param string $name_to_search the name to look for instead
-     * @return bool will return false if not found and true after loading properties
-     */
-    private function Fill_Properties_If_Company_Exists(?int $id_to_verify) : bool
-    {
-        if(!empty($id_to_verify))
-        {
-            return $this->load('`id`=\''.$id_to_verify."'");
-        }
-    }
-    public function Get_Verified_ID() : ?int
-    {
-        return $this->id;
+        parent::__construct($table_name);
     }
 
     public function Get_Company_Name() : string
     {
         return $this->company_name;
-    }
-
-    public function Get_Table_Name() : string
-    {
-        return $this->table_name;
     }
 
     public function Set_Company_Name(string $company_name,bool $trim_if_too_long = true,bool $update_immediately = true) : void
@@ -78,44 +33,9 @@ class Company extends ADODB_Active_Record implements Active_Record_Object
             $this->Update_Object();
         }
     }
-    public function Set_Object_Active() : void
+    public function Change_Primary_Key(int $new_key,int $old_key) : void
     {
-        $this->active_status = 1;
-    }
-    public function Set_Object_Inactive() : void
-    {
-        $this->active_status = 0;
-    }
-    public function Is_Object_Active() : bool
-    {  
-        return $this->Get_Active_Status();
-    }
-    private function Get_Active_Status() : bool
-    {
-        return $this->active_status;
-    }
-    public function Create_Object() : void
-    {
-        $this->Update_Object();
-    }
-    public function Update_Object() : void
-    {
-        if(!$this->save())
-        {
-            throw new \Active_Record\UpdateFailed($this->Get_Company_Name().' failed to create or update with error '.$this->ErrorMsg());
-        }
-    }
-    public function Delete_Object(string $password) : void
-    {
-        if($password != "destroy")
-        {
-            throw new \Exception("destroy password not set.");
-        }
-        $this->Delete();
-    }
-    public function Change_Primary_Key(int $new_key) : void
-    {
-        $this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("UPDATE `".$this->table_name."` SET `id` = '$new_key' WHERE `company_name` = '".$this->Get_Company_Name()."'");
+        parent::Change_Primary_Key($new_key,$old_key);
     }
     public function Load_Company_By_Name(string $name_to_search) : bool
     {

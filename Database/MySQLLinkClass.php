@@ -91,9 +91,15 @@ Class MySQLLink
 	{
 		return $this->database->isConnected();
 	}
-	function Execute_Any_SQL_Query(string $query) : ?bool
+	/**
+	 * @throws SQLQueryError
+	 * @return null if no recordset returned
+	 * @param array|null $bind_variables if set will prevent sql injection by replacing '?' 
+	 * found in your query with the values in the array in the order they are given
+	 */
+	function Execute_Any_SQL_Query(string $query,?array $bind_variables = null) : ?bool
 	{
-		if($run = $this->database->execute($query))
+		if($run = $this->database->execute($query,$bind_variables))
 		{
 			if($run instanceof \ADORecordSet_mysqli)
 			{
