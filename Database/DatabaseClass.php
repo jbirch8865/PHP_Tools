@@ -85,19 +85,19 @@ Class MySQLLink
 		{
 			$Response = $this->QuerySQL($Query);
 			$this->LastInsertID = mysqli_insert_id($this->Database);
-			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
+//			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
 			return $Response;
 		} catch (SQLQueryError $e)
 		{
-			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
+//			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
 			throw new SQLQueryError($e->getMessage());
 		} catch (DuplicatePrimaryKeyRequest $e)
 		{
-			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
+//			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
 			throw new DuplicatePrimaryKeyRequest($e->getMessage());
 		} catch (\Exception $e)
 		{
-			$this->AddToSyslog($Query, "unknown error running this SQL query", $Type,$Ignore_Log_Error);		
+//			$this->AddToSyslog($Query, "unknown error running this SQL query", $Type,$Ignore_Log_Error);		
 			throw new \Exception($e->getMessage());
 		}
 	}
