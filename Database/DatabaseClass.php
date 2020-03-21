@@ -81,7 +81,7 @@ Class MySQLLink
 	
 	function ExecuteSQLQuery( $Query, $Type = '10', $Ignore_Log_Error = true)
 	{
-		Try
+		try
 		{
 			$Response = $this->QuerySQL($Query);
 			$this->LastInsertID = mysqli_insert_id($this->Database);
