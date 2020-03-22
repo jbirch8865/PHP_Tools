@@ -8,7 +8,6 @@ class ComposerStaticInitc2935df2adf74ab54bb5ed9101a60e07
 {
     public static $files = array (
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
-        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
         'bf9f5270ae66ac6fa0290b4bf47867b7' => __DIR__ . '/..' . '/adodb/adodb-php/adodb.inc.php',
     );
@@ -17,6 +16,14 @@ class ComposerStaticInitc2935df2adf74ab54bb5ed9101a60e07
         'p' => 
         array (
             'phpDocumentor\\Reflection\\' => 25,
+        ),
+        'o' => 
+        array (
+            'org\\bovigo\\vfs\\' => 15,
+        ),
+        'b' => 
+        array (
+            'bovigo\\vfs\\' => 11,
         ),
         'W' => 
         array (
@@ -28,14 +35,10 @@ class ComposerStaticInitc2935df2adf74ab54bb5ed9101a60e07
         ),
         'S' => 
         array (
-            'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Polyfill\\Ctype\\' => 23,
-            'Symfony\\Component\\Debug\\' => 24,
-            'Symfony\\Component\\Console\\' => 26,
         ),
         'P' => 
         array (
-            'Psr\\Log\\' => 8,
             'Prophecy\\' => 9,
         ),
         'I' => 
@@ -47,10 +50,6 @@ class ComposerStaticInitc2935df2adf74ab54bb5ed9101a60e07
             'Doctrine\\Instantiator\\' => 22,
             'DeepCopy\\' => 9,
         ),
-        'C' => 
-        array (
-            'Camcima\\MySqlDiff\\' => 18,
-        ),
     );
 
     public static $prefixDirsPsr4 = array (
@@ -60,6 +59,14 @@ class ComposerStaticInitc2935df2adf74ab54bb5ed9101a60e07
             1 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
             2 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
         ),
+        'org\\bovigo\\vfs\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mikey179/vfsstream/org/bovigo/vfs',
+        ),
+        'bovigo\\vfs\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mikey179/vfsstream/src',
+        ),
         'Webmozart\\Assert\\' => 
         array (
             0 => __DIR__ . '/..' . '/webmozart/assert/src',
@@ -68,25 +75,9 @@ class ComposerStaticInitc2935df2adf74ab54bb5ed9101a60e07
         array (
             0 => __DIR__ . '/..' . '/twilio/sdk/src/Twilio',
         ),
-        'Symfony\\Polyfill\\Mbstring\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
-        ),
         'Symfony\\Polyfill\\Ctype\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-ctype',
-        ),
-        'Symfony\\Component\\Debug\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/symfony/debug',
-        ),
-        'Symfony\\Component\\Console\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/symfony/console',
-        ),
-        'Psr\\Log\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
         ),
         'Prophecy\\' => 
         array (
@@ -103,20 +94,6 @@ class ComposerStaticInitc2935df2adf74ab54bb5ed9101a60e07
         'DeepCopy\\' => 
         array (
             0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
-        ),
-        'Camcima\\MySqlDiff\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/camcima/php-mysql-diff/src',
-        ),
-    );
-
-    public static $prefixesPsr0 = array (
-        'o' => 
-        array (
-            'org\\bovigo\\vfs\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/mikey179/vfsstream/src/main/php',
-            ),
         ),
     );
 
@@ -333,6 +310,7 @@ class ComposerStaticInitc2935df2adf74ab54bb5ed9101a60e07
         'PHPUnit\\Util\\TestDox\\XmlResultPrinter' => __DIR__ . '/..' . '/phpunit/phpunit/src/Util/TestDox/XmlResultPrinter.php',
         'PHPUnit\\Util\\TextTestListRenderer' => __DIR__ . '/..' . '/phpunit/phpunit/src/Util/TextTestListRenderer.php',
         'PHPUnit\\Util\\Type' => __DIR__ . '/..' . '/phpunit/phpunit/src/Util/Type.php',
+        'PHPUnit\\Util\\VersionComparisonOperator' => __DIR__ . '/..' . '/phpunit/phpunit/src/Util/VersionComparisonOperator.php',
         'PHPUnit\\Util\\XdebugFilterScriptGenerator' => __DIR__ . '/..' . '/phpunit/phpunit/src/Util/XdebugFilterScriptGenerator.php',
         'PHPUnit\\Util\\Xml' => __DIR__ . '/..' . '/phpunit/phpunit/src/Util/Xml.php',
         'PHPUnit\\Util\\XmlTestListRenderer' => __DIR__ . '/..' . '/phpunit/phpunit/src/Util/XmlTestListRenderer.php',
@@ -528,7 +506,6 @@ class ComposerStaticInitc2935df2adf74ab54bb5ed9101a60e07
         'PharIo\\Manifest\\CopyrightElement' => __DIR__ . '/..' . '/phar-io/manifest/src/xml/CopyrightElement.php',
         'PharIo\\Manifest\\CopyrightInformation' => __DIR__ . '/..' . '/phar-io/manifest/src/values/CopyrightInformation.php',
         'PharIo\\Manifest\\ElementCollection' => __DIR__ . '/..' . '/phar-io/manifest/src/xml/ElementCollection.php',
-        'PharIo\\Manifest\\ElementCollectionException' => __DIR__ . '/..' . '/phar-io/manifest/src/exceptions/ElementCollectionException.php',
         'PharIo\\Manifest\\Email' => __DIR__ . '/..' . '/phar-io/manifest/src/values/Email.php',
         'PharIo\\Manifest\\Exception' => __DIR__ . '/..' . '/phar-io/manifest/src/exceptions/Exception.php',
         'PharIo\\Manifest\\ExtElement' => __DIR__ . '/..' . '/phar-io/manifest/src/xml/ExtElement.php',
@@ -544,7 +521,6 @@ class ComposerStaticInitc2935df2adf74ab54bb5ed9101a60e07
         'PharIo\\Manifest\\Manifest' => __DIR__ . '/..' . '/phar-io/manifest/src/values/Manifest.php',
         'PharIo\\Manifest\\ManifestDocument' => __DIR__ . '/..' . '/phar-io/manifest/src/xml/ManifestDocument.php',
         'PharIo\\Manifest\\ManifestDocumentException' => __DIR__ . '/..' . '/phar-io/manifest/src/exceptions/ManifestDocumentException.php',
-        'PharIo\\Manifest\\ManifestDocumentLoadingException' => __DIR__ . '/..' . '/phar-io/manifest/src/exceptions/ManifestDocumentLoadingException.php',
         'PharIo\\Manifest\\ManifestDocumentMapper' => __DIR__ . '/..' . '/phar-io/manifest/src/ManifestDocumentMapper.php',
         'PharIo\\Manifest\\ManifestDocumentMapperException' => __DIR__ . '/..' . '/phar-io/manifest/src/exceptions/ManifestDocumentMapperException.php',
         'PharIo\\Manifest\\ManifestElement' => __DIR__ . '/..' . '/phar-io/manifest/src/xml/ManifestElement.php',
@@ -707,7 +683,6 @@ class ComposerStaticInitc2935df2adf74ab54bb5ed9101a60e07
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInitc2935df2adf74ab54bb5ed9101a60e07::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInitc2935df2adf74ab54bb5ed9101a60e07::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInitc2935df2adf74ab54bb5ed9101a60e07::$prefixesPsr0;
             $loader->classMap = ComposerStaticInitc2935df2adf74ab54bb5ed9101a60e07::$classMap;
 
         }, null, ClassLoader::class);
