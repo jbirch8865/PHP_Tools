@@ -1,6 +1,5 @@
 <?php
-require 'SchemaChanges.php';
-require 'Company.php';
-require 'CompanyConfigs.php';
-require 'Authentication.php';
+require '1Pre_Scripts.php';
+require '2Database_Schema/Loader.php';
+require '3Post_Scripts.php';
 ?>

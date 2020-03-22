@@ -6,8 +6,10 @@ class ConfigurationFile
 	private array $configurations;
 	private string $filename;
 	private string $save_environment;
-	//abstract protected function getValue();
-
+	/**
+	 * @param string $filename if config.local.ini || ConfigFileClass.php looks at project_folder/vendor/jbirch8865/php_tools/$filename
+	 * if any other string value will simply look at your string value with no additional context
+	 */
 	function __construct(string $filename = "config.local.ini")
 	{
 		$this->save_environment = false;
@@ -28,14 +30,13 @@ class ConfigurationFile
 		}
 		if(!$this->Get_Name_Of_Project())
 		{
-			global $root_folder;
-			$this->Add_Or_Update_Config('project_name',$root_folder);
+			global $project_folder_name;
+			$this->Add_Or_Update_Config('project_name',$project_folder_name);
 		}
 	}
 	
 	private function DoesFileExist()
 	{
-
 		if(file_exists($this->filename))
 		{
 			return true;
@@ -55,139 +56,273 @@ class ConfigurationFile
 			throw new \Exception("Error loading this ini configuration file");
 		}
 	}
-
-	function Is_Dev()
+	/**
+	 * @throws Config_Missing
+	 */
+	function Is_Dev() : bool
 	{
-		if($this->Get_Value_If_Enabled('Environment'))
+		$this->Throw_Error_If_Config_Does_Not_Exist('Environment');
+		if(strtoupper($this->Get_Value_If_Enabled('Environment') == "DEVELOPMENT"))
 		{
-			if(strtoupper($this->Get_Value_If_Enabled('Environment') == "DEVELOPMENT"))
-			{
-				return true;
-			}else
-			{
-				return false;
-			}
+			return true;
+		}else
+		{
+			return false;
+		}
+	}
+	/**
+	 * @throws Config_Missing
+	 */
+	function Is_Prod() : bool
+	{
+		$this->Throw_Error_If_Config_Does_Not_Exist('Environment');
+		if(strtoupper($this->Get_Value_If_Enabled('Environment') == "PRODUCTION"))
+		{
+			return true;
 		}else
 		{
 			return false;
 		}
 	}
 
-	function Is_Prod()
-	{
-		if($this->Get_Value_If_Enabled('Environment'))
-		{
-			if(strtoupper($this->Get_Value_If_Enabled('Environment') == "PRODUCTION"))
-			{
-				return true;
-			}else
-			{
-				return false;
-			}
-		}else
-		{
-			return false;
-		}
-	}
-
-	function Set_Dev_Environment()
+	function Set_Dev_Environment() : void
 	{
 		$this->Add_Or_Update_Config('Environment','DEVELOPMENT');
 	}
 
-	function Set_Prod_Environment()
+	function Set_Prod_Environment() : void
 	{
 		$this->Add_Or_Update_Config('Environment','PRODUCTION');
 	}
-
-	function Reset_Environment()
+	/**
+	 * @throws Exception if $->Save_Environment() has not been previously called
+	 */
+	function Reset_Environment() : void
 	{
-		$this->Add_Or_Update_Config('Environment',$this->save_environment);
+		if(!is_null($this->save_environment))
+		{
+			$this->Add_Or_Update_Config('Environment',$this->save_environment);
+		}else
+		{
+			throw new \Exception("Must call $->Save_Environment before you can reset.");
+		}
 	}
-
-	function Save_Environment()
+	/**
+	 * @throws Config_Missing
+	 */
+	function Save_Environment() : void
 	{
+		$this->Throw_Error_If_Config_Does_Not_Exist('Environment');
 		$this->save_environment = $this->Get_Value_If_Enabled('Environment');
 	}
 
-	function Set_End_User_Date_Format(string $date_format)
+	/**
+	 * @param string $date_format follow php date recognized character format
+	 * @link https://www.php.net/manual/en/function.date.php
+	 */
+	function Set_System_Date_Format(string $date_format) : void
 	{
-		$this->Add_Or_Update_Config('end_user_date_format',$date_format);
+		$this->Add_Or_Update_Config('system_date_format',$date_format);
 	}
-
-	function Get_End_User_Date_Format()
+	/**
+	 * @return string If not set will return Y-m-d
+	 */
+	function Get_System_Date_Format() : string
 	{
-		if($this->Get_Value_If_Enabled('end_user_date_format'))
+		if($this->Get_Value_If_Enabled('system_date_format'))
 		{
-			return $this->Get_Value_If_Enabled('end_user_date_format');
+			return $this->Get_Value_If_Enabled('system_date_format');
 		}else
 		{
 			return 'Y-m-d';
 		}
 	}
 
-	function Get_Name_Of_Project_Database(string $con_name = "project_database")
+	/**
+	 * @param string $date_and_time_format follow php date recognized character format
+	 * @link https://www.php.net/manual/en/function.date.php
+	 */
+	function Set_System_Date_And_Time_Format(string $date_and_time_format) : void
 	{
-		if($con_name == "project_database")
+		$this->Add_Or_Update_Config('system_date_and_time_format',$date_and_time_format);
+	}
+	/**
+	 * @return string If not set will return Y-m-d H:i:s
+	 */
+	function Get_System_Date_And_Time_Format() : string
+	{
+		if($this->Get_Value_If_Enabled('system_date_and_time_format'))
+		{
+			return $this->Get_Value_If_Enabled('system_date_and_time_format');
+		}else
+		{
+			return 'Y-m-d H:i:s';
+		}
+	}
+	
+	/**
+	 * @param string $date_format follow php date recognized character format
+	 * @link https://www.php.net/manual/en/function.date.php
+	 */
+	function Set_System_Time_Format(string $date_format) : void
+	{
+		$this->Add_Or_Update_Config('system_time_format',$date_format);
+	}
+	/**
+	 * @return string If not set will return H:i:s
+	 */
+	function Get_System_Time_Format() : string
+	{
+		if($this->Get_Value_If_Enabled('system_time_format'))
+		{
+			return $this->Get_Value_If_Enabled('system_time_format');
+		}else
+		{
+			return 'H:i:s';
+		}
+	}
+	/**
+	 * @param string $con_name leave blank to default to the name of the current project
+	 * @throws Config_Missing
+	 */
+	function Get_Name_Of_Project_Database(string $con_name = "") : string
+	{
+		if($con_name == "")
 		{
 			$con_name = $this->Get_Name_Of_Project();
 		}
+		$this->Throw_Error_If_Config_Does_Not_Exist($con_name.'_project_database_name');
 		return $this->Get_Value_If_Enabled($con_name.'_project_database_name');
 	}
 
-	function Get_Name_Of_Project()
+	function Get_Name_Of_Project() : ?string
 	{
 		return $this->Get_Value_If_Enabled('project_name');
 	}
 
-	function Set_Name_Of_Project_Database(string $project_name)
+	function Set_Name_Of_Project_Database(string $project_name) : void
 	{
 		$this->Add_Or_Update_Config($project_name.'_project_database_name',$project_name);
 	}
 
-	function Get_Connection_Username(string $con_name = "project_database")
+	/**
+	 * @throws Config_Missing
+	 * @param string $con_name leave blank to default to project name
+	 */
+	function Get_Connection_Username(string $con_name = "",bool $read_only = false) : string
 	{
+		if($con_name == "")
+		{
+			$con_name = $this->Get_Name_Of_Project();
+		}
+		if($read_only)
+		{
+			$con_name = 'read_only_'.$con_name;
+		}
+		$this->Throw_Error_If_Config_Does_Not_Exist($con_name.'_username');
 		return $this->Get_Value_If_Enabled($con_name.'_username');
 	}
 
-	function Get_Connection_Password(string $con_name = "project_database")
+	/**
+	 * @throws Config_Missing
+	 * @param string $con_name leave blank to default to project name
+	 */
+	function Get_Connection_Password(string $con_name = "",bool $read_only = false) : string
 	{
+		if($con_name == "")
+		{
+			$con_name = $this->Get_Name_Of_Project();
+		}
+		if($read_only)
+		{
+			$con_name = 'read_only_'.$con_name;
+		}
+		$this->Throw_Error_If_Config_Does_Not_Exist($con_name.'_password');
 		return $this->Get_Value_If_Enabled($con_name.'_password');
 	}
 
-	function Get_Connection_Hostname(string $con_name = "project_database")
+	/**
+	 * @throws Config_Missing
+	 * @param string $con_name leave blank to default to project name
+	 */
+	function Get_Connection_Hostname(string $con_name = "",bool $read_only = false) : string
 	{
+		if($con_name == "")
+		{
+			$con_name = $this->Get_Name_Of_Project();
+		}
+		if($read_only)
+		{
+			$con_name = 'read_only_'.$con_name;
+		}
+		$this->Throw_Error_If_Config_Does_Not_Exist($con_name.'_hostname');
 		return $this->Get_Value_If_Enabled($con_name.'_hostname');
 	}
 
-	function Get_Connection_Listeningport(string $con_name = "project_database")
+	/**
+	 * @throws Config_Missing
+	 * @param string $con_name leave blank to default to project name
+	 */
+	function Get_Connection_Listeningport(string $con_name = "",bool $read_only = false) : string
 	{
+		if($con_name == "")
+		{
+			$con_name = $this->Get_Name_Of_Project();
+		}
+		if($read_only)
+		{
+			$con_name = 'read_only_'.$con_name;
+		}
+		$this->Throw_Error_If_Config_Does_Not_Exist($con_name.'_listeningport');
 		return $this->Get_Value_If_Enabled($con_name.'_listeningport');
 	}
 
-	function Get_Root_Username()
+	/**
+	 * @throws Config_Missing
+	 */
+	function Get_Root_Username() : string
 	{
+		$this->Throw_Error_If_Config_Does_Not_Exist('root_username');
 		return $this->Get_Value_If_Enabled('root_username');
 	}
 
-	function Get_Root_Password()
+	/**
+	 * @throws Config_Missing
+	 */
+	function Get_Root_Password() : string
 	{
+		$this->Throw_Error_If_Config_Does_Not_Exist('root_password');
 		return $this->Get_Value_If_Enabled('root_password');
 	}
 
-	function Get_Root_Hostname()
+	/**
+	 * @throws Config_Missing
+	 */
+	function Get_Root_Hostname() : string
 	{
+		$this->Throw_Error_If_Config_Does_Not_Exist('root_hostname');
 		return $this->Get_Value_If_Enabled('root_hostname');
 	}
 
-	function Get_Root_Listeningport()
+	/**
+	 * @throws Config_Missing
+	 */
+	function Get_Root_Listeningport() : string
 	{
+		$this->Throw_Error_If_Config_Does_Not_Exist('root_listeningport');
 		return $this->Get_Value_If_Enabled('root_listeningport');
 	}
-	
-	function Set_Database_Connection_Preferences(string $hostname,string $username, string $password, string $con_name = "project_database", string $listeningport = "3306", bool $read_only = false)
-	{
 
+	/**
+	 * @param string $con_name leave blank to default to the name of the project
+	 * @param bool $read_only are these credentials that are only granted select privileages
+	 */
+	function Set_Database_Connection_Preferences(string $hostname,string $username, string $password, string $con_name = "", string $listeningport = "3306", bool $read_only = false) : void
+	{
+		if($con_name == "")
+		{
+			$con_name = $this->Get_Name_Of_Project();
+		}
 		if($read_only)
 		{
 			$this->Add_Or_Update_Config('read_only_'.$con_name.'_project_database_name',$con_name);
@@ -202,47 +337,7 @@ class ConfigurationFile
 		$this->Add_Or_Update_Config($con_name.'_listeningport',$listeningport);
 	}
 
-	function Get_Images_URL()
-	{
-		if($this->Get_Value_If_Enabled('vendor_directory'))
-		{
-			return $this->Get_Value_If_Enabled('vendor_directory')."/images";
-		}else
-		{
-			return false;
-		}
-	}
-	
-	function Get_Vendor_URL()
-	{
-		if($this->Get_Value_If_Enabled('vendor_directory'))
-		{
-			return $this->Get_Value_If_Enabled('vendor_directory');
-		}else
-		{
-			return false;
-		}
-	}
-
-	function Set_Vendor_URL(string $vendor_url)
-	{
-		$this->Add_Or_Update_Config('vendor_directory',$vendor_url);
-	}
-
-	function Get_Base_URL()
-	{
-		if($this->Get_Value_If_Enabled('Base_URL'))
-		{
-			return $this->Get_Value_If_Enabled('Base_URL');
-		}
-	}
-
-	function Set_Base_URL(string $base_url)
-	{
-		$this->Add_Or_Update_Config('Base_URL',$base_url);
-	}
-
-	function Is_Config_Set(string $feature)
+	function Is_Config_Set(string $feature) : bool
 	{
 		if(isset($this->configurations[$feature]))
 		{
@@ -259,24 +354,40 @@ class ConfigurationFile
 		}
 	}
 
-	public function Get_Value_If_Enabled(string $configuration_key)
+	/**
+	 * @throws Config_Missing
+	 */
+	function Throw_Error_If_Config_Does_Not_Exist(string $config_name) : void
+	{
+		if(!$this->Is_Config_Set($config_name))
+		{
+			throw new Config_Missing($config_name." is missing from the config file");
+		}
+	}
+	protected function Get_Value_If_Enabled(string $configuration_key) : ?string
 	{
 		if($this->Is_Config_Set($configuration_key))
 		{
 			return $this->configurations[$configuration_key];
 		}else
 		{
-			return false;
+			return null;
 		}
 	}
 
-	function Add_Or_Update_Config(string $key, string $value)
+	/**
+	 * Physically updates file
+	 */
+	protected function Add_Or_Update_Config(string $key, string $value) : void
 	{
 		$this->configurations[$key] = $value;
 		$this->write_php_ini($this->configurations,$this->filename);
 	}
 
-	function Delete_Config_If_Exists(string $key)
+	/**
+	 * Physically updates file
+	 */
+	protected function Delete_Config_If_Exists(string $key) : void
 	{
 		unset($this->configurations[$key]);
 		$this->write_php_ini($this->configurations,$this->filename);
@@ -298,7 +409,7 @@ class ConfigurationFile
 	}
 	
 	private function safefilerewrite(string $fileName,string $dataToSave)
-	{    if ($fp = fopen($fileName, 'w'))
+	{   if ($fp = fopen($fileName, 'w'))
 		{
 			$startTime = microtime(TRUE);
 			do
@@ -309,7 +420,8 @@ class ConfigurationFile
 	
 			//file was locked so now we can store information
 			if ($canWrite)
-			{            fwrite($fp, $dataToSave);
+			{            
+				fwrite($fp, $dataToSave);
 				flock($fp, LOCK_UN);
 			}
 			fclose($fp);
@@ -318,6 +430,7 @@ class ConfigurationFile
 	}
 }
 
+/*
 class Public_File
 {
 	private string $filename;
@@ -466,7 +579,6 @@ class Public_Folder
 		rmdir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername);
 		return true;
 	}
-
-
 }
+*/
 ?>

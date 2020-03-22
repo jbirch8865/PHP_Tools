@@ -5,12 +5,13 @@ use DatabaseLink\SQLQueryError;
 class ColumnTest extends \PHPUnit\Framework\TestCase
 {
     private \DatabaseLink\Table $table_dblink;
-    private \config\ConfigurationFile $cConfigs;
+    public \config\ConfigurationFile $cConfigs;
 
 	public function setUp() :void
 	{
         global $cConfigs;
-        $this->cConfigs = $cConfigs;
+        $this->cConfigs = new \config\ConfigurationFile();
+$this->cConfigs = &$cConfigs;
         $database_dblink = new \DatabaseLink\Database('not_a_real_database');
         $this->table_dblink = new \DatabaseLink\Table('auto_increment_table',$database_dblink);
     }

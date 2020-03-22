@@ -4,16 +4,19 @@ namespace Company;
 use Active_Record\Active_Record;
 class Company extends Active_Record
 {
-    function __construct(string $table_name)
-    {
-        parent::__construct($table_name);
-    }
+    public $_table = "Companies";
 
+    function __construct()
+    {
+        parent::__construct();
+    }
     public function Get_Company_Name() : string
     {
         return $this->company_name;
     }
-
+    /**
+     * @throws Exception if string too long and trim is false
+     */
     public function Set_Company_Name(string $company_name,bool $trim_if_too_long = true,bool $update_immediately = true) : void
     {
         if(strlen($company_name) > $this->table_dblink->Get_Column('company_name')->Get_Data_Length())
@@ -33,41 +36,54 @@ class Company extends Active_Record
             $this->Update_Object();
         }
     }
+    /**
+     * @throws SQLQueryError
+     */
     public function Change_Primary_Key(int $new_key,int $old_key) : void
     {
         parent::Change_Primary_Key($new_key,$old_key);
     }
-    public function Load_Company_By_Name(string $name_to_search) : bool
+    /**
+     * @throws Exception if object already loaded
+     * @throws CompanyDoesNotExist
+     */
+    public function Load_Company_By_Name(string $name_to_search) : void
     {
-        if(!empty($this->id))
-        {
-            throw new \Exception("sorry ".$this->Get_Company_Name()." company has already been loaded.  You need to create an empty Company object.");
-        }
-        if($this->load('`company_name`=\''.$name_to_search."'"))
-        {
-            return true;
-        }else
-        {
-            throw new CompanyDoesNotExist($name_to_search." does not exist");
-        }
+        $this->Load_From_Varchar('company_name',$name_to_search);
     }
-
+    /**
+     * @throws Exception if object already loaded
+     * @throws CompanyDoesNotExist
+     */
+    public function Load_Company_By_ID(int $id_to_search) : void
+    {
+        $this->Load_From_Int('id',$id_to_search);
+    }
     public function Get_Session_Time_Limit() : ?string
     {
         return $this->Get_Config_Value_By_Name('session_time_limit');
     }
-
-    public function Set_Session_Time_Limit(string $time_in_minutes) : void
+    /**
+     * @throws UpdateFailed
+     * @throws User_Not_Set
+     */
+    public function Set_Session_Time_Limit(string $time_in_minutes,bool $company_has_no_users = false) : void
     {
-        $this->Create_Or_Update_Config('session_time_limit',$time_in_minutes);
+        $config = new \Company\Config();
+        $config->Load_Config_By_Name('session_time_limit');
+        $this->Create_Or_Update_Config($config->Get_Verified_ID(),$time_in_minutes,$company_has_no_users);
     }
-
-    public function Set_Time_Zone(string $timezone) : void
+    /**
+     * @throws UpdateFailed
+     * @throws User_Not_Set
+     */
+    public function Set_Time_Zone(string $timezone,bool $company_has_no_users = false) : void
     {
         $timezone_verify = new \DateTimeZone($timezone);
-        $this->Create_Or_Update_Config('company_time_zone',$timezone);
+        $config = new \Company\Config();
+        $config->Load_Config_By_Name('company_time_zone');
+        $this->Create_Or_Update_Config($config->Get_Verified_ID(),$timezone,$company_has_no_users);
     }
-
     public function Get_Time_Zone() : ?\DateTimeZone
     {
         try
@@ -78,12 +94,27 @@ class Company extends Active_Record
             return null;
         }
     }
-    public function Set_Default_Configs() : void
+    /**
+     * @throws UpdateFailed
+     * @throws User_Not_Set
+     */
+    public function Create_Object(): void
     {
-        $this->Set_Session_Time_Limit('300');
-        $this->Set_Time_Zone('America/Los_Angeles');
+        parent::Create_Object();
+        $this->Set_Default_Configs();
     }
-
+    /**
+     * Can't be called after a user has been created
+     */
+    private function Set_Default_Configs() : void
+    {
+        $time_limit = new \Company\Config();
+        $time_limit->Load_Config_By_Name('session_time_limit');
+        $time_zone = new \Company\Config();
+        $time_zone->Load_Config_By_Name('company_time_zone');        
+        $this->Set_Session_Time_Limit($time_limit->Get_Default_Config_Value(),true);
+        $this->Set_Time_Zone($time_zone->Get_Default_Config_Value(),true);
+    }
     private function Get_Config_Value_By_Name(string $config_name) : ?string
     {
         ForEach($this->Company_Configs as $index => $company_config)
@@ -95,11 +126,20 @@ class Company extends Active_Record
         }
         return null;
     }
-
-    private function Create_Or_Update_Config(string $config_name,string $config_value) : void
+    /**
+     * @throws UpdateFailed
+     * @throws User_Not_Set
+     */
+    private function Create_Or_Update_Config(int $config_id,string $config_value,bool $company_has_no_users = false) : void
     {
         $config = new \Company\Company_Config();
-        $config->Create_Or_Update_Config($config_name,$config_value);
+        if($company_has_no_users)
+        {
+            $config->Create_Config_For_Company_With_No_Users($config_id,$config_value,$this->Get_Verified_ID());
+        }else
+        {
+            $config->Create_Or_Update_Config($config_id,$config_value);
+        }
         $this->LoadRelations('Company_Configs');
     }
 }

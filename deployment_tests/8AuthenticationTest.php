@@ -6,12 +6,13 @@ use DatabaseLink\SQLQueryError;
 class AuthenticationTest extends \PHPUnit\Framework\TestCase
 {
     private \DatabaseLink\Table $table_dblink;
-    private \config\ConfigurationFile $cConfigs;
+    public \config\ConfigurationFile $cConfigs;
 
 	public function setUp() :void
 	{
         global $cConfigs;
-        $this->cConfigs = $cConfigs;
+        $this->cConfigs = new \config\ConfigurationFile();
+$this->cConfigs = &$cConfigs;
         global $dblink;
         $this->table_dblink = new \DatabaseLink\Table('Users',$dblink);
     }

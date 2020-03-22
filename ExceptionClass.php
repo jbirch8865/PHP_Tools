@@ -35,6 +35,13 @@ class file_or_folder_does_not_exist Extends \exception\CustomException {
 	}
 }
 
+class Config_Missing Extends \exception\CustomException {
+	function __construct($message = "")
+	{
+		parent::__construct($message);
+	}
+}
+
 namespace Authentication;
 class User_Session_Expired Extends \exception\CustomException{
 	function __contruct($message = Null)
@@ -111,6 +118,13 @@ class Column_Does_Not_Exist Extends \exception\CustomException{
 	}		
 }
 
+class Column_Is_Required Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
 class SQL_Search_Returned_Null Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
@@ -133,14 +147,6 @@ Class SQLQueryError Extends \exception\CustomException{
 }
 
 Class DuplicatePrimaryKeyRequest Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}		
-}
-
-namespace Company;
-Class CompanyDoesNotExist Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
@@ -176,5 +182,13 @@ Class Object_Is_Already_Loaded Extends \exception\CustomException{
 	}
 }
 
+namespace api;
+
+Class User_Not_Set Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}
+}
 
 ?>

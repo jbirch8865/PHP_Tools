@@ -6,12 +6,13 @@ class DatabaseTest extends \PHPUnit\Framework\TestCase
 {
     private \DatabaseLink\Database $dblink;
     private \DatabaseLink\MySQLLink $root_dblink;
-    private \config\ConfigurationFile $cConfigs;
+    public \config\ConfigurationFile $cConfigs;
 
 	public function setUp() :void
 	{
         global $cConfigs;
-        $this->cConfigs = $cConfigs;
+        $this->cConfigs = new \config\ConfigurationFile();
+$this->cConfigs = &$cConfigs;
         global $dblink;
         $this->dblink = $dblink;
         global $root_dblink;

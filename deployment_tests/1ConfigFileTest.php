@@ -3,14 +3,15 @@
 class ConfigFileTest extends \PHPUnit\Framework\TestCase
 {
 	private string $filename;
-    private \config\ConfigurationFile $cConfigs;
+    public \config\ConfigurationFile $cConfigs;
 
 	public function setUp() :void
 	{
-		global $root_folder;
+		global $project_folder_name;
 		global $cConfigs;
-		$this->cConfigs = $cConfigs;
-		$this->filename = $root_folder;
+		$this->cConfigs = new \config\ConfigurationFile();
+$this->cConfigs = &$cConfigs;
+		$this->filename = $project_folder_name;
 	}
 	function test_Project_Name()
 	{

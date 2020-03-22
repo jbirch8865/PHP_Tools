@@ -7,7 +7,6 @@ use DatabaseLink\SQLQueryError;
 class Column
 {
 	public Table $table_dblink;
-	private \config\ConfigurationFile $cConfigs;
 	private ?string $verified_column_name = NULL;
 	private string $data_type = "INT(11)";
 	private ?int $data_length = null;
@@ -28,12 +27,13 @@ class Column
 	 *  "CHARACTER_MAXIMUM_LENGTH" = "64") 
 	 * if is_nullable = true and default_value is NULL then the default will be NULL if is_nullable = false and default_value = NULL
 	 * then there will be no default
+	 * @throws Exception if default values are not all set
+	 * @throws SQLQueryError
 	 */
 	function __construct(string $unverified_column_name,Table &$table_dblink,array $default_values = array())
 	{
-		global $cConfigs;
-		$this->cConfigs = $cConfigs;
 		$this->table_dblink = $table_dblink;
+		$unverified_column_name = $this->table_dblink->database_dblink->dblink->Escape_String($unverified_column_name);
 		if((count($default_values) != 6 && !$this->Does_Column_Exist($unverified_column_name)) && (count($default_values) == 0 && $this->Does_Column_Exist($unverified_column_name)))
 		{
 			throw new \Exception('sorry I can\'t create the column unless you supply all the default values');
@@ -55,7 +55,7 @@ class Column
 	}
 	private function Does_Column_Exist(string $unverified_column_name) : bool
 	{
-		if($this->table_dblink->database_dblink->dblink->Does_This_Return_A_Count_Of_More_Than_Zero('information_schema.columns','table_schema = \''.$this->table_dblink->database_dblink->Get_Database_Name().'\' AND column_name = \''.$unverified_column_name.'\' AND table_name = \''.$this->table_dblink->Get_Table_Name().'\''))
+		if($this->table_dblink->database_dblink->dblink->Does_This_Return_A_Count_Of_More_Than_Zero('information_schema.columns','table_schema = \''.$this->table_dblink->database_dblink->Get_Database_Name().'\' AND column_name = \''.$unverified_column_name.'\' AND table_name = \''.$this->table_dblink->Get_Table_Name().'\'','understood'))
 		{
 			return true;
 		}else
@@ -63,6 +63,9 @@ class Column
 			return false;
 		}
 	}
+	/**
+	 * @throws SQLQueryError
+	 */
 	private function Create_Column(string $unverified_column_name) : void
 	{
 		$AUTO_INCREMENT = "";
@@ -127,6 +130,9 @@ class Column
 			throw new SQLQueryError("Column did not appear to create.  Last Error - ".$this->table_dblink->database_dblink->dblink->Get_Last_Error());
 		}
 	}
+	/**
+	 * @throws SQLQueryError
+	 */
 	function Add_Constraint_If_Does_Not_Exist(Column $column_to_relate,bool $cascade = true):void
 	{
 		if($cascade)
@@ -142,51 +148,78 @@ class Column
 		}
 
 	}
+	/**
+	 * @throws SQLQueryError
+	 */
 	function Update_Column() : void
 	{
 		$this->Create_Column($this->Get_Column_Name());
 	}
-	function Delete_Column():void
+	/**
+	 * @param string $password due to the destructive nature please pass 'destroy' to ensure you ware wanting to delete this column from the database
+	 * @throws Exception if you don't use the password
+	 * @throws SQLQueryError
+	 */
+	function Delete_Column(string $password):void
 	{
+		if($password != 'destroy')
+		{
+			throw new \Exception("sorry you need to pass 'destroy' as the password to delete a column");
+		}
 		$this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query('ALTER TABLE `'.$this->table_dblink->Get_Table_Name().'` DROP `'.$this->verified_column_name.'`');
 
 	}
-	function Set_Data_Type(string $data_type,bool $alter_table = true):void
+	/**
+	 * @throws SQLQueryError
+	 */
+	function Set_Data_Type(string $data_type,bool $update_now = true):void
 	{
 		$this->data_type = $data_type;
-		if($alter_table)
+		if($update_now)
 		{
 			$this->Create_Column($this->verified_column_name);
 		}
 	}
-	function Set_Default_Value(?string $default_value,bool $alter_table = true):void
+	/**
+	 * @throws SQLQueryError
+	 */
+	function Set_Default_Value(?string $default_value,bool $update_now = true):void
 	{
 		$this->default_value = $default_value;
-		if($alter_table)
+		if($update_now)
 		{
 			$this->Create_Column($this->verified_column_name);
 		}
 	}
-	function Set_Column_Key(string $column_key = "",bool $alter_table = true):void
+	/**
+	 * @throws SQLQueryError
+	 */
+	function Set_Column_Key(string $column_key = "",bool $update_now = true):void
 	{
 		$this->column_key = $column_key;
-		if($alter_table)
+		if($update_now)
 		{
 			$this->Create_Column($this->verified_column_name);
 		}
 	}
-	function Set_Data_Length(int $data_length, bool $alter_table = true) : void
+	/**
+	 * @throws SQLQueryError
+	 */
+	function Set_Data_Length(int $data_length, bool $update_now = true) : void
 	{
 		$this->data_length = $data_length;
-		if($alter_table)
+		if($update_now)
 		{
 			$this->Create_Column($this->verified_column_name);
 		}
 	}
-	function Set_Field_Value($value,bool $alter_table = true):void
+	/**
+	 * @throws SQLQueryError
+	 */
+	function Set_Field_Value($value,bool $update_now = true):void
 	{
 		$this->field_value = $value;
-		if($alter_table)
+		if($update_now)
 		{
 			$this->Create_Column($this->verified_column_name);
 		}
@@ -207,34 +240,48 @@ class Column
 	{
 		return $this->verified_column_name;
 	}
-	function Column_Is_Nullable(bool $alter_table = true) :void
+	/**
+	 * @throws SQLQueryError
+	 */
+	function Column_Is_Nullable(bool $update_now = true) :void
 	{
 		$this->is_nullable = true;
-		if($alter_table)
+		if($update_now)
 		{
 			$this->Create_Column($this->verified_column_name);
 		}
 	}
-	function Column_Is_Not_Nullable(bool $alter_table = true) :void
+	/**
+	 * @throws SQLQueryError
+	 */
+	function Column_Is_Not_Nullable(bool $update_now = true) :void
 	{
 		$this->is_nullable = false;
-		if($alter_table)
+		if($update_now)
 		{
 			$this->Create_Column($this->verified_column_name);
 		}
 	}
-	function Column_Auto_Increments(bool $alter_table = true) : void
+	/**
+	 * @throws SQLQueryError
+	 */
+
+	function Column_Auto_Increments(bool $update_now = true) : void
 	{
 		$this->auto_increment = "auto_increment";
-		if($alter_table)
+		if($update_now)
 		{
 			$this->Create_Column($this->verified_column_name);
 		}
 	}
-	function Column_Does_Not_Auto_Increments(bool $alter_table = true) : void
+	/**
+	 * @throws SQLQueryError
+	 */
+
+	function Column_Does_Not_Auto_Increments(bool $update_now = true) : void
 	{
 		$this->auto_increment = "";
-		if($alter_table)
+		if($update_now)
 		{
 			$this->Create_Column($this->verified_column_name);
 		}

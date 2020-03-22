@@ -1,97 +1,70 @@
 <?php declare(strict_types=1);
 namespace Company;
 
-use Active_Record_Object;
-use ADODB_Active_Record;
-class Company_Config extends ADODB_Active_Record implements Active_Record_Object
+use Active_Record\Active_Record;
+class Company_Config extends Active_Record
 {
-    private \config\ConfigurationFile $cConfigs;
-    public \DatabaseLink\Table $table_dblink;
-    public $_where = "";
     public $_table = "Company_Configs";
-    private $table_name = "Company_Configs";
 
-    function __construct(?string $unverified_config_id = null)
+    function __construct()
     {
         parent::__construct();
-        global $cConfigs;
-        $this->cConfigs = $cConfigs;
-        global $dblink;
-        $this->table_dblink = new \DatabaseLink\Table($this->table_name,$dblink);
-        $this->_where = "`id`='".$unverified_config_id."' AND `company_id`='".$_SESSION['company_id']."'";
-        if(!empty($unverified_config_id))
-        {
-            $this->Does_Config_Exist($unverified_config_id);
-        }
     }
-    private function Does_Config_Exist(string $unverified_config_id) : bool
+    /**
+     * @throws User_Not_Set
+     * @throws UpdateFailed
+     */
+    public function Create_Or_Update_Config(int $config_id,string $config_value) : void
     {
-        if(!$this->load())
+        try
         {
-            throw new \Exception($unverified_config_id." is not a valid config id or it does not belong to ".$_SESSION['company_id']);
+            global $user;
+            $company_id = $user->Company->Get_Company_ID();
+        }catch(\Exception $e)
+        {
+            throw new \api\User_Not_Set('Looks like the user was not properly set when making this request');
         }
-        return true;
-    }
-    public function Create_Or_Update_Config(string $config_name,$config_value) : void
-    {
         if(!$this->_saved)
         {
-            $this->load('config_name=? AND company_id=?',array($config_name,$_SESSION['company_id']));
+            if(!$this->load('config_id=? AND company_id=?',array($config_id,$company_id)))
+            {
+                throw new \Active_Record\Active_Record_Object_Failed_To_Load($config_id." with value ".$config_value." failed to load with error ".$this->ErrorMsg()." and error number ".$this->ErrorNo());
+            }
         }
-        $this->config_name = $config_name;
+        $this->config_id = $config_id;
         $this->config_value = $config_value;
-        $this->company_id = $_SESSION['company_id'];
-        $this->Set_Object_Active();
-        $this->Update_Object();    
+        $this->company_id = $company_id;
+        $this->Create_Object();    
     }
-    public function Get_Config_Name()
+    public function Get_Config_ID()
     {
-        return $this->config_name;
+        return $this->config_id;
     }
     public function Get_Config_Value()
     {
         return $this->config_value;
     }
-    public function Get_Table_Name() : string
+    /**
+     * @throws Exception if users currently exist for company
+     * @throws UpdateFailed
+     */
+    public function Create_Config_For_Company_With_No_Users(int $config_id,string $config_value,int $company_id) : void
     {
-        return $this->table_name;
-    }
-    public function Update_Object() : void
-    {
-        if(!$this->save())
+        if($this->_saved)
         {
-            throw new \Active_Record\UpdateFailed($this->config_name.' failed to create or update with error '.$this->ErrorMsg());
+            throw new \Active_Record\Object_Is_Already_Loaded('Sorry this instance of Company_Config is already loaded');
         }
-    }
-    public function Create_Object() : void
-    {
-        $this->Update_Object();
-    }
-    public function Delete_Object(string $password) : void
-    {
-        if($password != "destroy")
+        $company = new \Company\Company();
+        $company->Load_Company_By_ID($company_id);
+        if(count($company->Users))
         {
-            throw new \Exception("destroy password not set.");
+            throw new \Exception("Sorry you can't use this function if the company has users.");
         }
-        $this->Delete();
+        $this->config_id = $config_id;
+        $this->config_value = $config_value;
+        $this->company_id = $company_id;
+        $this->Create_Object();
     }
-    public function Set_Object_Active() : void
-    {
-        $this->active_status = 1;
-    }
-    public function Set_Object_Inactive() : void
-    {
-        $this->active_status = 0;
-    }
-    public function Is_Object_Active() : bool
-    {  
-        return $this->Get_Active_Status();
-    }
-    private function Get_Active_Status() : bool
-    {
-        return $this->active_status;
-    }
-
 
 }
 

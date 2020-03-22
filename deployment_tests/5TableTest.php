@@ -5,12 +5,13 @@ use DatabaseLink\SQLQueryError;
 class TableTest extends \PHPUnit\Framework\TestCase
 {
     private \DatabaseLink\Database $database_dblink;
-    private \config\ConfigurationFile $cConfigs;
+    public \config\ConfigurationFile $cConfigs;
 
 	public function setUp() :void
 	{
         global $cConfigs;
-        $this->cConfigs = $cConfigs;
+        $this->cConfigs = new \config\ConfigurationFile();
+$this->cConfigs = &$cConfigs;
         $this->database_dblink = new \DatabaseLink\Database('not_a_real_database');
     }
     

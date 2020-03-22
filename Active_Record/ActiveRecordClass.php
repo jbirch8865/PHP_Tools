@@ -5,14 +5,15 @@ use Active_Record_Object;
 use ADODB_Active_Record;
 abstract class Active_Record extends ADODB_Active_Record
 {
-    protected \config\ConfigurationFile $cConfigs;
+    public \config\ConfigurationFile $cConfigs;
     protected \DatabaseLink\Table $table_dblink;
 
-    function __construct(string $table_name)
+    function __construct()
     {
-        parent::__construct($table_name);
+        parent::__construct();
         global $cConfigs;
-        $this->cConfigs = $cConfigs;
+        $this->cConfigs = new \config\ConfigurationFile();
+        $this->cConfigs = &$cConfigs;
         global $dblink;
         $this->table_dblink = new \DatabaseLink\Table($this->Get_Table_Name(),$dblink);
     }
@@ -51,20 +52,21 @@ abstract class Active_Record extends ADODB_Active_Record
     }
     private function Is_Loaded():bool
     {
-        if(is_null($this->Get_Verified_ID()))
-        {
-            return false;
-        }else
+        if($this->_saved)
         {
             return true;
+        }else
+        {
+            return false;
         }
     }
     /**
      * @throws \DatabaseLink\Column_Does_Not_Exist if column id isn't present
      */
-    public function Get_Verified_ID() : ?string
+    public function Get_Verified_ID() : ?int
     {
-        return $this->Get_Value_From_Name('id');
+        $id = (int) $this->Get_Value_From_Name('id');
+        return $id;
     }
     /**
      * @throws \DatabaseLink\Column_Does_Not_Exist
@@ -73,7 +75,8 @@ abstract class Active_Record extends ADODB_Active_Record
     {
         if($this->table_dblink->Does_Column_Exist($column_name))
         {
-            return $this->$column_name;
+            $column_name = (string) $this->column_name;
+            return $column_name;
         }else
         {
             throw new \DatabaseLink\Column_Does_Not_Exist("Table ".$this->Get_Table_Name()." does not contain ".$column_name." column. Check schema to see primary key column");
@@ -94,7 +97,10 @@ abstract class Active_Record extends ADODB_Active_Record
             $value_to_set = substr($value_to_set,0,$this->table_dblink->Get_Column($column_name)->Get_Data_Length());
         }else
         {
-            throw new Varchar_Too_Long_To_Set($value_to_set." is too long of a string for column ".$column_name." in table ".$this->Get_Table_Name());
+            if(strlen($value_to_set) > $this->table_dblink->Get_Column($column_name)->Get_Data_Length())
+            {
+                throw new Varchar_Too_Long_To_Set($value_to_set." is too long of a string for column ".$column_name." in table ".$this->Get_Table_Name());
+            }
         }
         $this->$column_name = $value_to_set;
         if($update_immediately)

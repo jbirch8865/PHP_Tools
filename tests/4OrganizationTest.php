@@ -8,8 +8,8 @@ class OrganizationTest extends \PHPUnit\Framework\TestCase
 	{
         try
         {
-            global $root_folder;
-            $this->folder_name = $root_folder;
+            global $project_folder_name;
+            $this->folder_name = $project_folder_name;
             global $cConfigs;
             $this->dblink = new DatabaseLink\MySQLLink($cConfigs->Get_Name_Of_Project_Database($this->folder_name));
         }catch(\DatabaseLink\SQLConnectionError $e)
