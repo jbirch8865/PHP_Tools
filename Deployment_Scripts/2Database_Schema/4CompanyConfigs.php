@@ -6,6 +6,8 @@ company_config_Validate_Company_ID_Column($company_config_table);
 company_config_Validate_Config_ID($company_config_table);
 company_config_Validate_Config_Value($company_config_table);
 company_config_Validate_Active_Status_Column($company_config_table);
+ADODB_Active_Record::TableHasMany('Companies','Company_Configs','company_id','\Company\Company_Config');
+ADODB_Active_Record::TableHasMany('Company_Configs','Configs','config_id','\Company\Config');
 function company_config_Validate_ID_Column(\DatabaseLink\Table $company_config_table)
 {
     if($column = $company_config_table->Get_Column('id'))

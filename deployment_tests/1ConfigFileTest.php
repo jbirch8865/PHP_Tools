@@ -10,12 +10,12 @@ class ConfigFileTest extends \PHPUnit\Framework\TestCase
 		global $project_folder_name;
 		global $cConfigs;
 		$this->cConfigs = new \config\ConfigurationFile();
-$this->cConfigs = &$cConfigs;
+		$this->cConfigs = &$cConfigs;
 		$this->filename = $project_folder_name;
 	}
 	function test_Project_Name()
 	{
-		$this->cConfigs->Add_Or_Update_Config('project_name',$this->filename);
+		\Test_Tools\invokeMethod($this->cConfigs,'Add_Or_Update_Config',array('project_name',$this->filename));
 		$this->assertTrue($this->cConfigs->Is_Config_Set('project_name'));
 		$this->cConfigs->Set_Name_Of_Project_Database($this->cConfigs->Get_Value_If_Enabled('project_name'));
 		$this->assertEquals($this->cConfigs->Get_Value_If_Enabled('project_name'),$this->cConfigs->Get_Name_Of_Project_Database($this->cConfigs->Get_Value_If_Enabled('project_name')));

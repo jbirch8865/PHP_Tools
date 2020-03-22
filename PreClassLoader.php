@@ -25,10 +25,6 @@ require dirname(__FILE__) . DIRECTORY_SEPARATOR . "Company/ConfigClass.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "Company/CompanyConfigClass.php";
 $db = NewADOConnection('mysqli://'.$cConfigs->Get_Connection_Username().':'.$cConfigs->Get_Connection_Password().'@'.$cConfigs->Get_Connection_Hostname().'/'.$cConfigs->Get_Name_Of_Project_Database());
 ADOdb_Active_Record::SetDatabaseAdapter($db);
-ADODB_Active_Record::TableHasMany('Companies','Company_Configs','company_id','\Company\Company_Config');
-ADODB_Active_Record::TableHasMany('Company_Configs','Configs','config_id','\Company\Config');
-ADODB_Active_Record::TableKeyBelongsTo('Companies','id','Users','company_id','\Company\Company');
-ADODB_Active_Record::TableKeyHasMany('Companies','id','Users','company_id','\Company\Company');
 
 /*
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "TestClass.php";

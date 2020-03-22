@@ -1,5 +1,5 @@
 <?php
-namespace Test_User;
+namespace Test_Tools;
 /**
  * Call protected/private method of a class.
  *

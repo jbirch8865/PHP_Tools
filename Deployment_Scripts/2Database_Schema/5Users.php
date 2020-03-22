@@ -8,6 +8,9 @@ user_Validate_Project_Name_Column($user_table);
 user_Validate_CSPRING_Column($user_table);
 user_Validate_User_Active_Status_Column($user_table);
 user_Validate_Password_Column($user_table);
+ADODB_Active_Record::TableKeyBelongsTo('Companies','id','Users','company_id','\Company\Company');
+ADODB_Active_Record::TableKeyHasMany('Companies','id','Users','company_id','\Company\Company');
+
 function user_Validate_ID_Column(\DatabaseLink\Table $user_table)
 {
     if($column = $user_table->Get_Column('id'))

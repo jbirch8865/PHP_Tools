@@ -75,7 +75,7 @@ abstract class Active_Record extends ADODB_Active_Record
     {
         if($this->table_dblink->Does_Column_Exist($column_name))
         {
-            $column_name = (string) $this->column_name;
+            $column_name = (string) $this->$column_name;
             return $column_name;
         }else
         {
