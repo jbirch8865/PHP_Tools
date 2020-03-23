@@ -80,9 +80,9 @@ function programs_have_sessions_Validate_Access_Token_Column(\DatabaseLink\Table
 {
     if($column = $programs_have_sessions_table->Get_Column('access_token'))
     {
-        if($column->Get_Column_Key() != "")
+        if($column->Get_Column_Key() != "UNI")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("UNI"); 
         }
         if($column->Get_Data_Type() != "varchar(45)")
         {
@@ -107,7 +107,7 @@ function programs_have_sessions_Validate_Access_Token_Column(\DatabaseLink\Table
             'COLUMN_TYPE' => 'varchar(45)',
             'COLUMN_DEFAULT' => null,
             'is_nullable' => false,
-            'column_key' => "",
+            'column_key' => "UNI",
             'EXTRA' => "")
         );
     }
@@ -120,9 +120,9 @@ function programs_have_sessions_Validate_User_ID_Column(\DatabaseLink\Table $pro
         {
             $column->Set_Column_Key(""); 
         }
-        if($column->Get_Data_Type() != "varchar(64)")
+        if($column->Get_Data_Type() != "int(11)")
         {
-            $column->Set_Data_Type("varchar(64)");
+            $column->Set_Data_Type("int(11)");
         }
         if($column->Get_Default_Value() != null)
         {
@@ -139,8 +139,8 @@ function programs_have_sessions_Validate_User_ID_Column(\DatabaseLink\Table $pro
         $column->Update_Column();
     }else
     {
-        $column = new \DatabaseLink\Column('client_id',$programs_have_sessions_table,array(
-            'COLUMN_TYPE' => 'varchar(64)',
+        $column = new \DatabaseLink\Column('user_id',$programs_have_sessions_table,array(
+            'COLUMN_TYPE' => 'int(11)',
             'COLUMN_DEFAULT' => null,
             'is_nullable' => false,
             'column_key' => "",
