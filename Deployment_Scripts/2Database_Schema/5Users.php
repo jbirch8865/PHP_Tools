@@ -1,13 +1,12 @@
 <?php declare(strict_types=1);
-global $user_table;
-$user_table = new \DatabaseLink\Table('Users',$dblink);
-user_Validate_ID_Column($user_table);
-user_Validate_Username_Column($user_table);
-user_Validate_Company_ID_Column($user_table);
-user_Validate_Project_Name_Column($user_table);
-user_Validate_CSPRING_Column($user_table);
-user_Validate_User_Active_Status_Column($user_table);
-user_Validate_Password_Column($user_table);
+$toolbelt->Users = new \DatabaseLink\Table('Users',$toolbelt->dblink);
+user_Validate_ID_Column($toolbelt->Users);
+user_Validate_Username_Column($toolbelt->Users);
+user_Validate_Company_ID_Column($toolbelt->Users);
+user_Validate_Project_Name_Column($toolbelt->Users);
+user_Validate_CSPRING_Column($toolbelt->Users);
+user_Validate_User_Active_Status_Column($toolbelt->Users);
+user_Validate_Password_Column($toolbelt->Users);
 ADODB_Active_Record::TableKeyBelongsTo('Companies','id','Users','company_id','\Company\Company');
 ADODB_Active_Record::TableKeyHasMany('Companies','id','Users','company_id','\Company\Company');
 

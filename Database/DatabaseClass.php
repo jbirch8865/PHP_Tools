@@ -10,7 +10,6 @@ use phpDocumentor\Reflection\Types\Integer;
 class Database
 {
 	public ?MySQLLink $dblink = NULL;
-	public ?MySQLLink $read_only_dblink = NULL;
 	private string $verified_database_name;
 	private MySQLLink $root_dblink;
 	private array $tables = array();
@@ -22,8 +21,8 @@ class Database
 	 */
 	function __construct(string $unverified_database_name,bool $full_rights = true)
 	{
-		global $root_dblink;
-		$this->root_dblink = $root_dblink;
+		global $toolbelt;
+		$this->root_dblink = $toolbelt->root_dblink;
 		$unverified_database_name = $this->root_dblink->Escape_String($unverified_database_name);
 		$this->If_Does_Not_Exist_Create_Database_And_Issue_Credentials($unverified_database_name);
 		$user_to_use = (int) $full_rights;
@@ -106,14 +105,9 @@ class Database
 		$this->root_dblink->Execute_Any_SQL_Query("DROP DATABASE `".$this->verified_database_name."`");
 		$this->root_dblink->Execute_Any_SQL_Query("DROP USER '".$this->verified_database_name."'@'%'");
 		$this->root_dblink->Execute_Any_SQL_Query("DROP USER 'read_only_".$this->verified_database_name."'@'%'");
-		$this->root_dblink->cConfigs->Delete_Config_If_Exists($this->verified_database_name.'_username');
-		$this->root_dblink->cConfigs->Delete_Config_If_Exists($this->verified_database_name.'_project_database_name');
-		$this->root_dblink->cConfigs->Delete_Config_If_Exists($this->verified_database_name.'_password');
-		$this->root_dblink->cConfigs->Delete_Config_If_Exists($this->verified_database_name.'_hostname');
-		$this->root_dblink->cConfigs->Delete_Config_If_Exists($this->verified_database_name.'_listeningport');
+		$this->root_dblink->cConfigs->Delete_Database_Configs($this->verified_database_name);
 		ForEach($this as $key => $value)
 		{
-
 			unset($this->$key);
 		}
 	}

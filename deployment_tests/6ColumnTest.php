@@ -9,9 +9,8 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
 
 	public function setUp() :void
 	{
-        global $cConfigs;
-        $this->cConfigs = new \config\ConfigurationFile();
-$this->cConfigs = &$cConfigs;
+        global $toolbelt;
+        $this->cConfigs = $toolbelt->cConfigs;
         $database_dblink = new \DatabaseLink\Database('not_a_real_database');
         $this->table_dblink = new \DatabaseLink\Table('auto_increment_table',$database_dblink);
     }

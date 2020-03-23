@@ -1,11 +1,10 @@
 <?php declare(strict_types=1);
-global $program_table;
-$program_table = new \DatabaseLink\Table('Programs',$dblink);
-program_Validate_ID_Column($program_table);
-program_Validate_Project_Name_Column($program_table);
-program_Validate_Secret_Column($program_table);
-program_Validate_Client_ID_Column($program_table);
-program_Validate_Active_Status_Column($company_table);
+$toolbelt->Programs = new \DatabaseLink\Table('Programs',$toolbelt->dblink);
+program_Validate_ID_Column($toolbelt->Programs);
+program_Validate_Project_Name_Column($toolbelt->Programs);
+program_Validate_Secret_Column($toolbelt->Programs);
+program_Validate_Client_ID_Column($toolbelt->Programs);
+program_Validate_Active_Status_Column($toolbelt->Companies);
 function program_Validate_ID_Column(\DatabaseLink\Table $program_table)
 {
     if($column = $program_table->Get_Column('id'))

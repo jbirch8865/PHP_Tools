@@ -5,11 +5,13 @@ use DatabaseLink\SQLQueryError;
 class CompanyTest extends \PHPUnit\Framework\TestCase
 {
     private \DatabaseLink\Table $table_dblink;
+    public \Test_Tools\toolbelt $toolbelt;
 
 	public function setUp() :void
 	{
-        $company = new \Company\Company();
-        $this->table_dblink = $company->table_dblink;
+        global $toolbelt;
+        $this->table_dblink = $toolbelt->Companies;
+        $this->toolbelt = $toolbelt;
     }
     
     public function tearDown() :void
@@ -23,21 +25,21 @@ class CompanyTest extends \PHPUnit\Framework\TestCase
         try
         {
             $company->Load_Company_By_Name('test_System');
-            $company->Delete_Object('destroy');
+            $this->toolbelt->invokeMethod($company,'Delete_Object',array('destroy'));
             unset($company);
         } catch (\Exception $e)
         {
-            echo $e->getMessage();
+//            echo $e->getMessage();
         }
         $company = new \Company\Company();
         try
         {
             $company->Load_Company_By_Name('System_test');
-            $company->Delete_Object('destroy');
+            $this->toolbelt->invokeMethod($company,'Delete_Object',array('destroy'));
             unset($company);
         } catch (\Exception $e)
         {
-            echo $e->getMessage();
+//            echo $e->getMessage();
         }
 
     }
@@ -48,7 +50,8 @@ class CompanyTest extends \PHPUnit\Framework\TestCase
         $company->Set_Company_Name('test_System');
         unset($company);
         $company = new \Company\Company();
-        $this->assertTrue($company->Load_Company_By_Name('test_System'));
+        $company->Load_Company_By_Name('test_System');
+        $this->addToAssertionCount(1);
     }
     function test_Change_Company_Name()
     {
@@ -57,15 +60,8 @@ class CompanyTest extends \PHPUnit\Framework\TestCase
         $company->Set_Company_Name('System_test');
         unset($company);
         $company = new \Company\Company();
-        $this->expectException(\Company\CompanyDoesNotExist::class);
-        try
-        {
-            $company->Load_Company_By_Name('test_System');
-        } catch (\Company\CompanyDoesNotExist $e)
-        {
-            $this->assertTrue($company->Load_Company_By_Name('System_test'));
-            throw new \Company\CompanyDoesNotExist($e->getMessage());
-        }
+        $this->expectException(\Active_Record\Active_Record_Object_Failed_To_Load::class);
+        $company->Load_Company_By_Name('test_System');
     }
     function test_Fail_On_Duplicate_Name()
     {
@@ -75,9 +71,9 @@ class CompanyTest extends \PHPUnit\Framework\TestCase
     }
     function test_Clean_Up()
     {
-        $company = new \Company\Company();
+        $company = new \Company\Company();        
         $company->Load_Company_By_Name('System_test');
-        $company->Delete_Object('destroy');
+        $this->toolbelt->invokeMethod($company,'Delete_Object',array('destroy'));
         $this->addToAssertionCount(1);
     }
 

@@ -9,9 +9,8 @@ class TableTest extends \PHPUnit\Framework\TestCase
 
 	public function setUp() :void
 	{
-        global $cConfigs;
-        $this->cConfigs = new \config\ConfigurationFile();
-$this->cConfigs = &$cConfigs;
+        global $toolbelt;
+        $this->cConfigs = $toolbelt->cConfigs;
         $this->database_dblink = new \DatabaseLink\Database('not_a_real_database');
     }
     

@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
-global $company_table;
-$company_table = new \DatabaseLink\Table('Companies',$dblink);
-company_Validate_ID_Column($company_table);
-company_Validate_Company_Name_Column($company_table);
-company_Validate_Company_Active_Status_Column($company_table);
+$toolbelt->Companies = new \DatabaseLink\Table('Companies',$toolbelt->dblink);
+company_Validate_ID_Column($toolbelt->Companies);
+company_Validate_Company_Name_Column($toolbelt->Companies);
+company_Validate_Company_Active_Status_Column($toolbelt->Companies);
 function company_Validate_ID_Column(\DatabaseLink\Table $company_table)
 {
     if($column = $company_table->Get_Column('id'))

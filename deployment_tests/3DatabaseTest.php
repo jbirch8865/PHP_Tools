@@ -10,13 +10,10 @@ class DatabaseTest extends \PHPUnit\Framework\TestCase
 
 	public function setUp() :void
 	{
-        global $cConfigs;
-        $this->cConfigs = new \config\ConfigurationFile();
-$this->cConfigs = &$cConfigs;
-        global $dblink;
-        $this->dblink = $dblink;
-        global $root_dblink;
-        $this->root_dblink = $root_dblink;
+        global $toolbelt;
+        $this->cConfigs = $toolbelt->cConfigs;
+        $this->dblink = $toolbelt->dblink;
+        $this->root_dblink = $toolbelt->root_dblink;
     }
     
     public function tearDown() :void
@@ -64,7 +61,7 @@ $this->cConfigs = &$cConfigs;
     function test_Get_Tables_From_Database_Connection()
     {
         $new_database = new \DatabaseLink\Database('not_a_real_database',false);
-        While($table = $new_database->Get_Table())
+        While($table = $new_database->Get_Tables())
         {
             $this->assertIsString($table->Get_Table_Name());
         }
@@ -72,12 +69,12 @@ $this->cConfigs = &$cConfigs;
     function test_Reset_Tables()
     {
         $new_database = new \DatabaseLink\Database('not_a_real_database',false);
-        While($table = $new_database->Get_Table())
+        While($table = $new_database->Get_Tables())
         {
             $this->assertIsString($table->Get_Table_Name());
         }
         $new_database->Reset_Tables();
-        $table = $new_database->Get_Table();
+        $table = $new_database->Get_Tables();
         $this->assertEquals('not_a_real_table',$table->Get_Table_Name());
     }
     function test_Clean_Up()

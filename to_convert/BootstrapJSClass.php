@@ -1,16 +1,17 @@
 <?php
 namespace bootstrap_js;
+
 /**
  * @param string $tbody_id this is a unique id given to the bootstrap tbody element that this context menu will be active inside
- * @param string $context_menu this is the id for the context menu 
+ * @param string $context_menu this is the id for the context menu
  * WARNING THIS CLASS DEPENDS ON A JAVASCRIPT FUNCTION CALLED Show_Element_If_True(element to hide/show,true = show[css_display=block] false = hidden[css_display=none])
  */
 class Context_Menu
 {
-  function __construct(string $tbody_id,string $context_menu)
-  {
-    global $html_checkmark;
-    echo "<script>
+    public function __construct(string $tbody_id, string $context_menu)
+    {
+        global $html_checkmark;
+        echo "<script>
     $('#".$tbody_id." tr').on('contextmenu', function (e) {
             tbl_name = '".$tbody_id."';
             var user_clicked = this;
@@ -53,7 +54,5 @@ class Context_Menu
             Show_Element_If_True(cm,false);
         });
     </script>";
-  }
+    }
 }
-
-?>

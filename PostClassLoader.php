@@ -1,4 +1,2 @@
 <?php
-
-require 'TestClass.php';
 ?>

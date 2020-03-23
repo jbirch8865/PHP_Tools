@@ -146,6 +146,15 @@ class ConfigurationFile
 	{
 		$this->Add_Or_Update_Config('system_date_and_time_format',$date_and_time_format);
 	}
+	function Delete_Database_Configs($project_name) :void
+	{
+		$this->Delete_Config_If_Exists($project_name.'_username');
+		$this->Delete_Config_If_Exists($project_name.'_project_database_name');
+		$this->Delete_Config_If_Exists($project_name.'_password');
+		$this->Delete_Config_If_Exists($project_name.'_hostname');
+		$this->Delete_Config_If_Exists($project_name.'_listeningport');
+
+	}
 	/**
 	 * @return string If not set will return Y-m-d H:i:s
 	 */

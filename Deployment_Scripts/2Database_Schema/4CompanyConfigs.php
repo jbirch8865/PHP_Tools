@@ -1,11 +1,10 @@
 <?php declare(strict_types=1);
-global $company_config_table;
-$company_config_table = new \DatabaseLink\Table('Company_Configs',$dblink);
-company_config_Validate_ID_Column($company_config_table);
-company_config_Validate_Company_ID_Column($company_config_table);
-company_config_Validate_Config_ID($company_config_table);
-company_config_Validate_Config_Value($company_config_table);
-company_config_Validate_Active_Status_Column($company_config_table);
+$toolbelt->Company_Configs = new \DatabaseLink\Table('Company_Configs',$toolbelt->dblink);
+company_config_Validate_ID_Column($toolbelt->Company_Configs);
+company_config_Validate_Company_ID_Column($toolbelt->Company_Configs);
+company_config_Validate_Config_ID($toolbelt->Company_Configs);
+company_config_Validate_Config_Value($toolbelt->Company_Configs);
+company_config_Validate_Active_Status_Column($toolbelt->Company_Configs);
 ADODB_Active_Record::TableHasMany('Companies','Company_Configs','company_id','\Company\Company_Config');
 ADODB_Active_Record::TableHasMany('Company_Configs','Configs','config_id','\Company\Config');
 function company_config_Validate_ID_Column(\DatabaseLink\Table $company_config_table)

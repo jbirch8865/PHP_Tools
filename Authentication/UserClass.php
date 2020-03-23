@@ -18,11 +18,9 @@ class User extends Active_Record
     function __construct(string $unverified_username,string $unverified_password,int $company_id,bool $create_user = false)
     {
         parent::__construct();
-        global $cConfigs;
-        $this->cConfigs = new \config\ConfigurationFile();
-        $this->cConfigs = &$cConfigs;
-        global $dblink;
-        $this->table_dblink = new \DatabaseLink\Table($this->_table,$dblink);
+        global $toolbelt;
+        $this->cConfigs = $toolbelt->cConfigs;
+        $this->table_dblink = new \DatabaseLink\Table($this->_table,$toolbelt->dblink);
         $this->company_id = $company_id;
         $this->username = $unverified_username;
         $this->password = $unverified_password;

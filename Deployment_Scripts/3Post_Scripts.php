@@ -1,13 +1,19 @@
 <?php
-$company_config_table->Add_Unique_Columns(array('company_id','config_name'));
-Add_Column_Constraint($company_config_table->Get_Column('company_id'),$company_table->Get_Column('id'));
-Add_Column_Constraint($company_config_table->Get_Column('config_id'),$config_table->Get_Column('id'));
+$toolbelt->Company_Configs->Add_Unique_Columns(array('company_id','config_name'));
+Add_Column_Constraint($toolbelt->Company_Configs->Get_Column('company_id'),$toolbelt->Companies->Get_Column('id'));
+Add_Column_Constraint($toolbelt->Company_Configs->Get_Column('config_id'),$toolbelt->Configs->Get_Column('id'));
 Create_Configs();
-company_Create_System_If_Not_Already($company_table);
-Create_Backend_User_If_Not_Already($cConfigs);
-$column = new \DatabaseLink\Column('company_id',$user_table);
-$column->Add_Constraint_If_Does_Not_Exist(new \DatabaseLink\Column('id',$company_table));
-
+company_Create_System_If_Not_Already($toolbelt->Companies);
+Create_Backend_User_If_Not_Already($toolbelt->cConfigs);
+$column = new \DatabaseLink\Column('company_id',$toolbelt->Users);
+$column->Add_Constraint_If_Does_Not_Exist(new \DatabaseLink\Column('id',$toolbelt->Companies));
+try
+{
+    $toolbelt->cConfigs->Save_Environment();
+} catch (\config\Config_Missing $e)
+{
+    $toolbelt->cConfigs->Set_Dev_Environment();
+}
 function company_Create_System_If_Not_Already()
 {
     try

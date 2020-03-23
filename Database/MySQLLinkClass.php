@@ -25,9 +25,8 @@ Class MySQLLink
 	{
 		$this->database_name = $database_to_connect_to;
 		$this->which_user = $which_user;
-		global $cConfigs;
-		$this->cConfigs = new \config\ConfigurationFile();
-$this->cConfigs = &$cConfigs;
+		global $toolbelt;
+		$this->cConfigs = $toolbelt->cConfigs;
 		if($database_to_connect_to == "" && $which_user != 2)
 		{
 			$database_to_connect_to = $this->cConfigs->Get_Name_Of_Project();
@@ -127,7 +126,7 @@ $this->cConfigs = &$cConfigs;
 	 * false if you just want to send the update the constructed statement could be substantially longer than only changed elements
 	 * @param bool $protect_against_sql_injection true to escape quotes false to submit as given
 	 */
-	protected function Execute_Insert_Or_Update_SQL_Query(string $table_name, array $query_parameters,bool $update_instead_of_insert_requires_where = false,string $where_clause = "",bool $only_changed_values = false,bool $protect_against_sql_injection = true) : void
+	public function Execute_Insert_Or_Update_SQL_Query(string $table_name, array $query_parameters,bool $update_instead_of_insert_requires_where = false,string $where_clause = "",bool $only_changed_values = false,bool $protect_against_sql_injection = true) : void
 	{
 		if($update_instead_of_insert_requires_where)
 		{

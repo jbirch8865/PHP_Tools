@@ -1,18 +1,16 @@
 <?php
 namespace logging;
+
 class Log_To_Console
 {
-    function __construct($message,$log_only_in_dev = true)
+    public function __construct($message, $log_only_in_dev = true)
     {
         $cConfigs = new \config\ConfigurationFile();
-        if($log_only_in_dev)
-        {
-            if($cConfigs->Is_Dev())
-            {
+        if ($log_only_in_dev) {
+            if ($cConfigs->Is_Dev()) {
                 echo '<script>console.log("'.$message.'");</script>';
             }
-        }else
-        {
+        } else {
             echo '<script>console.log("'.$message.'");</script>';
         }
     }
@@ -27,7 +25,7 @@ class Log_To_DB
     private $log_type;
     private $dblink;
 
-    function __construct($unverified_log_id = null)
+    public function __construct($unverified_log_id = null)
     {
         $this->verified_log_id = null;
         $this->person_id = null;
@@ -39,22 +37,18 @@ class Log_To_DB
 
     private function Load_Log($unverified_log_id)
     {
-        if($this->Verify_Log_ID($unverified_log_id))
-        {
+        if ($this->Verify_Log_ID($unverified_log_id)) {
             $this->Populate_Log_Properties();
-        }else
-        {
+        } else {
             throw new Log_Does_Not_Exist("Log does not exist.");
         }
     }
     private function Verify_Log_ID($id_to_verify)
     {
-        if($this->Does_Log_Exist($id_to_verify))
-        {
+        if ($this->Does_Log_Exist($id_to_verify)) {
             $this->verified_log_id = $id_to_verify;
             return true;
-        }else
-        {
+        } else {
             $this->verified_log_id = null;
             return false;
         }
@@ -63,20 +57,17 @@ class Log_To_DB
     private function Does_Log_Exist($unverified_log_id)
     {
         $results = $this->dblink->ExecuteSQLQuery("SELECT * FROM `Log` WHERE `log_id` = '".$unverified_log_id."'");
-        if(mysqli_num_rows($results) == 1)
-        {
+        if (mysqli_num_rows($results) == 1) {
             return true;
-        }else
-        {
+        } else {
             return false;
-        }          
+        }
     }
 
     private function Populate_Log_Properties()
     {
         $results = $this->dblink->ExecuteSQLQuery("SELECT * FROM `Log` WHERE `log_id` = '".$this->verified_log_id."'");
-        while($row = mysqli_fetch_assoc($results))
-        {
+        while ($row = mysqli_fetch_assoc($results)) {
             $this->timestamp = $row['timestamp'];
             $this->person_id = $row['person_id'];
             $this->log_entry = $row['log_entry'];
@@ -87,9 +78,8 @@ class Log_To_DB
     public function Set_Person_ID($user_id = null)
     {
         $current_user = new \User_Session\Current_User;
-        $this->person_id = $current_user->Get_User_ID();    
-        if($this->person_id == '')
-        {
+        $this->person_id = $current_user->Get_User_ID();
+        if ($this->person_id == '') {
             $this->person_id = '1';
         }
     }
@@ -132,19 +122,14 @@ class Log_To_DB
     public function Create_Log()
     {
         $this->Set_Person_ID();
-        if(is_null($this->verified_log_id))
-        {
-            $log_entry = mysqli_real_escape_string($this->dblink->GetCurrentLink(),$this->Get_Log_Entry());
-            if($results = $this->dblink->ExecuteSQLQuery("INSERT INTO `Log` SET `person_id` = '".$this->Get_Person_ID()."', `log_entry` = '".$log_entry."', `log_type` = '".$this->Get_Log_Type()."'"))
-            {
+        if (is_null($this->verified_log_id)) {
+            $log_entry = mysqli_real_escape_string($this->dblink->GetCurrentLink(), $this->Get_Log_Entry());
+            if ($results = $this->dblink->ExecuteSQLQuery("INSERT INTO `Log` SET `person_id` = '".$this->Get_Person_ID()."', `log_entry` = '".$log_entry."', `log_type` = '".$this->Get_Log_Type()."'")) {
                 return $this->Verify_Log_ID($this->dblink->GetLastInsertID());
-            }else
-            {
+            } else {
                 return false;
             }
-            
-        }else
-        {
+        } else {
             return false;
         }
     }
@@ -152,94 +137,80 @@ class Log_To_DB
 
 class Logfile
 {
-	private $file_content;
-	private $filename;
+    private $file_content;
+    private $filename;
 
-	function __construct($filename,$filelocation = "logs/")
-	{		
+    public function __construct($filename, $filelocation = "logs/")
+    {
         $this->filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . $filelocation.$filename;
-		if($this->IsThisAString($this->filename))
-		{
-			if($this->DoesFileExist())
-			{
-				$this->file_content = $this->LoadFile();
-			}else
-			{
-				$this->file_content = "";
-			}
-		}else
-		{
-			throw new \Exception("This is not a valid filename");
-		}
-	}
-	
-	private function DoesFileExist()
-	{
-		if($this->IsThisAString($this->filename))
-		{
-			if(file_exists($this->filename))
-			{
-				return true;
-			}else
-			{
-				return false;
-			}
-		}else
-		{
-			return false;
-		}
-	}
-	private function IsThisAString($string)
-	{
-		try
-		{
-			$string = (string) $string;
-			return true;
-		}catch (\Exception $e)
-		{
-			return false;
-		}
-	}
-	private function LoadFile()
-	{
-		try
-		{
-            return file_get_contents($this->filename);
-		} catch (\Exception $e)
-		{
-			throw new \Exception("Error loading this log file");
-		}
-	}
-    function Get_File_Contents()
-	{
-		return $this->file_content;
+        if ($this->IsThisAString($this->filename)) {
+            if ($this->DoesFileExist()) {
+                $this->file_content = $this->LoadFile();
+            } else {
+                $this->file_content = "";
+            }
+        } else {
+            throw new \Exception("This is not a valid filename");
+        }
     }
     
-	function Set_File_Contents($file_contents)
-	{
-		$this->safefilerewrite($file_contents);
-	}
-	
-	private function safefilerewrite($dataToSave)
-	{    if ($fp = fopen($this->filename, 'w'))
-		{
-			$startTime = microtime(TRUE);
-			do
-			{            $canWrite = flock($fp, LOCK_EX);
-			   // If lock not obtained sleep for 0 - 100 milliseconds, to avoid collision and CPU load
-			   if(!$canWrite) usleep(round(rand(0, 100)*1000));
-			} while ((!$canWrite)and((microtime(TRUE)-$startTime) < 5));
-	
-			//file was locked so now we can store information
-			if ($canWrite)
-			{            fwrite($fp, $dataToSave);
-				flock($fp, LOCK_UN);
-			}
-			fclose($fp);
-		}
-	
-	}	
+    private function DoesFileExist()
+    {
+        if ($this->IsThisAString($this->filename)) {
+            if (file_exists($this->filename)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+    private function IsThisAString($string)
+    {
+        try {
+            $string = (string) $string;
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+    private function LoadFile()
+    {
+        try {
+            return file_get_contents($this->filename);
+        } catch (\Exception $e) {
+            throw new \Exception("Error loading this log file");
+        }
+    }
+    public function Get_File_Contents()
+    {
+        return $this->file_content;
+    }
+    
+    public function Set_File_Contents($file_contents)
+    {
+        $this->safefilerewrite($file_contents);
+    }
+    
+    private function safefilerewrite($dataToSave)
+    {
+        if ($fp = fopen($this->filename, 'w')) {
+            $startTime = microtime(true);
+            do {
+                $canWrite = flock($fp, LOCK_EX);
+                // If lock not obtained sleep for 0 - 100 milliseconds, to avoid collision and CPU load
+                if (!$canWrite) {
+                    usleep(round(rand(0, 100)*1000));
+                }
+            } while ((!$canWrite)and((microtime(true)-$startTime) < 5));
+    
+            //file was locked so now we can store information
+            if ($canWrite) {
+                fwrite($fp, $dataToSave);
+                flock($fp, LOCK_UN);
+            }
+            fclose($fp);
+        }
+    }
 }
-
-
-?>

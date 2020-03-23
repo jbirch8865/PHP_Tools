@@ -11,11 +11,10 @@ abstract class Active_Record extends ADODB_Active_Record
     function __construct()
     {
         parent::__construct();
-        global $cConfigs;
-        $this->cConfigs = new \config\ConfigurationFile();
-        $this->cConfigs = &$cConfigs;
-        global $dblink;
-        $this->table_dblink = new \DatabaseLink\Table($this->Get_Table_Name(),$dblink);
+        global $toolbelt;
+        $this->cConfigs = $toolbelt->cConfigs;
+        $table_name = $this->_table;
+        $this->table_dblink = $toolbelt->$table_name;
     }
     /**
      * @throws Object_Is_Already_Loaded
@@ -133,7 +132,7 @@ abstract class Active_Record extends ADODB_Active_Record
     /**
      * @throws UpdateFailed if adodb->save method fails
      */
-    public function Create_Object() : void
+    protected function Create_Object() : void
     {
         $this->Set_Object_Active();
         $this->Update_Object();
@@ -141,9 +140,9 @@ abstract class Active_Record extends ADODB_Active_Record
     /**
      * @throws UpdateFailed if adodb->save method fails
      */
-    public function Update_Object() : void
+    protected function Update_Object() : void
     {
-        if(!$this->save())
+        if(!parent::save())
         {
             throw new \Active_Record\UpdateFailed('Object for table '.$this->Get_Table_Name().' failed to create or update with error '.$this->ErrorMsg());
         }
@@ -170,6 +169,15 @@ abstract class Active_Record extends ADODB_Active_Record
     public function Delete() : void
     {
         throw new \Exception('Must use the protected function Delete_Object in order to delete the active record object.');
+    }
+    /**
+     * blocks the child public method delete from being called outside of the protected Update_Object or Create_Object function
+     * this method is just an empty shell
+     * @throws \Exception
+     */
+    public function save() : void
+    {
+        throw new \Exception('Must use the protected function Update_Object or Create_Object in order to update the active record object.');
     }
     /**
      * @throws \DatabaseLink\SQLQueryError

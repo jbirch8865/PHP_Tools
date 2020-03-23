@@ -1,10 +1,9 @@
 <?php declare(strict_types=1);
-global $config_table;
-$config_table = new \DatabaseLink\Table('Configs',$dblink);
-config_Validate_ID_Column($config_table);
-config_Validate_Active_Status_Column($config_table);
-config_Validate_Config_Name_Column($config_table);
-config_Validate_Default_Value_Column($config_table);
+$toolbelt->Configs = new \DatabaseLink\Table('Configs',$toolbelt->dblink);
+config_Validate_ID_Column($toolbelt->Configs);
+config_Validate_Active_Status_Column($toolbelt->Configs);
+config_Validate_Config_Name_Column($toolbelt->Configs);
+config_Validate_Default_Value_Column($toolbelt->Configs);
 function config_Validate_ID_Column(\DatabaseLink\Table $config_table)
 {
     if($column = $config_table->Get_Column('id'))
