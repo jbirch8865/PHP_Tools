@@ -34,6 +34,7 @@ function Create_System_If_Not_Already()
             $company = new \Company\Company();
             $company->Set_Company_Name('System',true,false);
             $company->Create_Object();
+            $company->Change_Primary_Key(1,$company->Get_Verified_ID());
         }
     }
 }
