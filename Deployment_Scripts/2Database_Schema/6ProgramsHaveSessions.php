@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
-$toolbelt->Programs_Have_Sessions = new \DatabaseLink\Table('Programs_Have_Sessions',$toolbelt->dblink);
-programs_have_sessions_Validate_ID_Column($toolbelt->Programs_Have_Sessions);
-programs_have_sessions_Validate_Client_ID_Column($toolbelt->Programs_Have_Sessions);
-programs_have_sessions_Validate_Access_Token_Column($toolbelt->Programs_Have_Sessions);
-programs_have_sessions_Validate_User_ID_Column($toolbelt->Programs_Have_Sessions);
-programs_have_sessions_Validate_Experation_Timestamp_Column($toolbelt->Programs_Have_Sessions);
+$toolbelt_base->Programs_Have_Sessions = new \DatabaseLink\Table('Programs_Have_Sessions',$toolbelt_base->dblink);
+programs_have_sessions_Validate_ID_Column($toolbelt_base->Programs_Have_Sessions);
+programs_have_sessions_Validate_Client_ID_Column($toolbelt_base->Programs_Have_Sessions);
+programs_have_sessions_Validate_Access_Token_Column($toolbelt_base->Programs_Have_Sessions);
+programs_have_sessions_Validate_User_ID_Column($toolbelt_base->Programs_Have_Sessions);
+programs_have_sessions_Validate_Experation_Timestamp_Column($toolbelt_base->Programs_Have_Sessions);
+$toolbelt_base->Programs_Have_Sessions->Load_Columns();
 function programs_have_sessions_Validate_ID_Column(\DatabaseLink\Table $programs_have_sessions_table)
 {
     if($column = $programs_have_sessions_table->Get_Column('id'))

@@ -1,16 +1,18 @@
 <?php
 Add_All_Constraints();
+Add_All_Multi_Column_Unique_Indexes();
 Create_Configs();
-company_Create_System_If_Not_Already($toolbelt->Companies);
-Create_Backend_User_If_Not_Already($toolbelt->cConfigs);
+Create_System_If_Not_Already();
+Create_Backend_User_If_Not_Already($toolbelt_base->cConfigs);
+Create_Backend_Program_For_API($toolbelt_base);
 try
 {
-    $toolbelt->cConfigs->Save_Environment();
+    $toolbelt_base->cConfigs->Save_Environment();
 } catch (\config\Config_Missing $e)
 {
-    $toolbelt->cConfigs->Set_Dev_Environment();
+    $toolbelt_base->cConfigs->Set_Dev_Environment();
 }
-function company_Create_System_If_Not_Already()
+function Create_System_If_Not_Already()
 {
     try
     {
@@ -35,6 +37,32 @@ function company_Create_System_If_Not_Already()
         }
     }
 }
+function Create_Backend_Program_For_API(\Test_Tools\toolbelt_base $toolbelt_base)
+{
+    try
+    {
+        $program = new \API\Program();
+        $program->Load_Program_By_ID(1);
+        if(!$program->Get_Program_Name() == 'Front_End')
+        {
+            $program->Get_Program_Name('Front_End');
+        }
+    } catch (\Active_Record\Active_Record_Object_Failed_To_Load $e)
+    {
+        try
+        {
+            $program = new \API\Program();
+            $program->Load_Program_By_Name('Front_End');
+            $program->Change_Primary_Key(1,$program->Get_Verified_ID());
+        } catch (\Active_Record\Active_Record_Object_Failed_To_Load $e)
+        {
+            $program = new \API\Program();
+            $program->Create_Project('Front_End');
+        }
+    }
+    $toolbelt_base->cConfigs->Set_Client_ID($program->Get_Client_ID());
+    $toolbelt_base->cConfigs->Set_Secret_ID($program->Get_Secret());
+}
 function Add_Column_Constraint(\DatabaseLink\Column $from_column,\DatabaseLink\Column $to_column):void
 {
     $from_column->Add_Constraint_If_Does_Not_Exist($to_column);
@@ -53,7 +81,7 @@ function Create_Backend_User_If_Not_Already(\config\ConfigurationFile $cConfigs)
 }
 function Add_All_Constraints()
 {
-    global $toolbelt;
+    global $toolbelt_base;
     $from_to_columns = array(
         array(array('Users','company_id'),array('Companies','id')),
         array(array('Programs_Have_Sessions','user_id'),array('Users','id')),        
@@ -64,14 +92,20 @@ function Add_All_Constraints()
 
     ForEach($from_to_columns as $index => $value)
     {
-        $from_column = new \DatabaseLink\Column($value[0][1],$toolbelt->$value[0][0]);
-        $to_column = new \DatabaseLink\Column($value[1][1],$toolbelt->$value[1][0]);
+        $from_column_name = $value[0][1];
+        $from_table_name = $value[0][0];
+        $to_column_name = $value[1][1];
+        $to_table_name = $value[1][0];
+        $from_column = new \DatabaseLink\Column($from_column_name,$toolbelt_base->$from_table_name);
+        $to_column = new \DatabaseLink\Column($to_column_name,$toolbelt_base->$to_table_name);
         Add_Column_Constraint($from_column,$to_column);            
     }    
 }
 function Add_All_Multi_Column_Unique_Indexes()
 {
-    global $toolbelt;
-    $toolbelt->Company_Configs->Add_Unique_Columns(array('company_id','config_name'));
+    global $toolbelt_base;
+    $toolbelt_base->Company_Configs->Add_Unique_Columns(array('company_id','config_id'));
+    $toolbelt_base->Programs_Have_Sessions->Add_Unique_Columns(array('client_id','user_id'));
+    
 }
 ?>

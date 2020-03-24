@@ -10,7 +10,7 @@ class DatabaseTest extends \PHPUnit\Framework\TestCase
 
 	public function setUp() :void
 	{
-        global $toolbelt;
+        $toolbelt = new \Test_Tools\toolbelt();;
         $this->cConfigs = $toolbelt->cConfigs;
         $this->dblink = $toolbelt->dblink;
         $this->root_dblink = $toolbelt->root_dblink;

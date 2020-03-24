@@ -21,8 +21,8 @@ class Database
 	 */
 	function __construct(string $unverified_database_name,bool $full_rights = true)
 	{
-		global $toolbelt;
-		$this->root_dblink = $toolbelt->root_dblink;
+		global $toolbelt_base;
+		$this->root_dblink = $toolbelt_base->root_dblink;
 		$unverified_database_name = $this->root_dblink->Escape_String($unverified_database_name);
 		$this->If_Does_Not_Exist_Create_Database_And_Issue_Credentials($unverified_database_name);
 		$user_to_use = (int) $full_rights;

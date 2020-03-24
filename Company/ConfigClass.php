@@ -48,6 +48,10 @@ class Config extends Active_Record
     {
         return $this->default_value;
     }
+    public function Get_Config_Name() : string
+    {
+        return $this->config_name;
+    }
     /**
      * @throws Active_Record_Object_Failed_To_Load
      */

@@ -190,6 +190,27 @@ class ConfigurationFile
 			return 'H:i:s';
 		}
 	}
+	
+	
+	function Set_Client_ID(string $client_id) : void
+	{
+		$this->Add_Or_Update_Config('client_id',$client_id);
+	}
+	function Set_Secret_ID(string $secret) : void
+	{
+		$this->Add_Or_Update_Config('secret',$secret);
+	}
+	function Get_Client_ID() : string
+	{
+		return $this->Get_Value_If_Enabled('client_id');
+	}
+	function Get_Secret_ID() : string
+	{
+		return $this->Get_Value_If_Enabled('secret');
+	}
+
+
+
 	/**
 	 * @param string $con_name leave blank to default to the name of the current project
 	 * @throws Config_Missing

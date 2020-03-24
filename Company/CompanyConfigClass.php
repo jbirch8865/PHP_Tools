@@ -40,6 +40,13 @@ class Company_Config extends Active_Record
     {
         return $this->config_id;
     }
+    public function Get_Config_Name() : string
+    {
+        $config = new \Company\Config();
+        $id = (int) $this->config_id;
+        $config->Load_Config_By_ID($id);
+        return $config->Get_Config_Name();
+    }
     public function Get_Config_Value()
     {
         return $this->config_value;

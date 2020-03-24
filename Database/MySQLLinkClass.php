@@ -25,8 +25,8 @@ Class MySQLLink
 	{
 		$this->database_name = $database_to_connect_to;
 		$this->which_user = $which_user;
-		global $toolbelt;
-		$this->cConfigs = $toolbelt->cConfigs;
+		global $toolbelt_base;
+		$this->cConfigs = $toolbelt_base->cConfigs;
 		if($database_to_connect_to == "" && $which_user != 2)
 		{
 			$database_to_connect_to = $this->cConfigs->Get_Name_Of_Project();

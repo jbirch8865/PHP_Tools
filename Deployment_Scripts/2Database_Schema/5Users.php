@@ -1,14 +1,15 @@
 <?php declare(strict_types=1);
-$toolbelt->Users = new \DatabaseLink\Table('Users',$toolbelt->dblink);
-user_Validate_ID_Column($toolbelt->Users);
-user_Validate_Username_Column($toolbelt->Users);
-user_Validate_Company_ID_Column($toolbelt->Users);
-user_Validate_Project_Name_Column($toolbelt->Users);
-user_Validate_CSPRING_Column($toolbelt->Users);
-user_Validate_User_Active_Status_Column($toolbelt->Users);
-user_Validate_Password_Column($toolbelt->Users);
-ADODB_Active_Record::TableKeyBelongsTo('Companies','id','Users','company_id','\Company\Company');
+$toolbelt_base->Users = new \DatabaseLink\Table('Users',$toolbelt_base->dblink);
+user_Validate_ID_Column($toolbelt_base->Users);
+user_Validate_Username_Column($toolbelt_base->Users);
+user_Validate_Company_ID_Column($toolbelt_base->Users);
+user_Validate_Project_Name_Column($toolbelt_base->Users);
+user_Validate_CSPRING_Column($toolbelt_base->Users);
+user_Validate_User_Active_Status_Column($toolbelt_base->Users);
+user_Validate_Password_Column($toolbelt_base->Users);
+$toolbelt_base->Users->Load_Columns();
 ADODB_Active_Record::TableKeyHasMany('Companies','id','Users','company_id','\Company\Company');
+ADODB_Active_Record::TableBelongsTo('Users','Companies','company_id','id','\Company\Company');
 
 function user_Validate_ID_Column(\DatabaseLink\Table $user_table)
 {

@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
-$toolbelt->Programs = new \DatabaseLink\Table('Programs',$toolbelt->dblink);
-program_Validate_ID_Column($toolbelt->Programs);
-program_Validate_Project_Name_Column($toolbelt->Programs);
-program_Validate_Secret_Column($toolbelt->Programs);
-program_Validate_Client_ID_Column($toolbelt->Programs);
-program_Validate_Active_Status_Column($toolbelt->Companies);
+$toolbelt_base->Programs = new \DatabaseLink\Table('Programs',$toolbelt_base->dblink);
+program_Validate_ID_Column($toolbelt_base->Programs);
+program_Validate_Program_Name_Column($toolbelt_base->Programs);
+program_Validate_Secret_Column($toolbelt_base->Programs);
+program_Validate_Client_ID_Column($toolbelt_base->Programs);
+program_Validate_Active_Status_Column($toolbelt_base->Companies);
+$toolbelt_base->Programs->Load_Columns();
 function program_Validate_ID_Column(\DatabaseLink\Table $program_table)
 {
     if($column = $program_table->Get_Column('id'))
@@ -40,9 +41,9 @@ function program_Validate_ID_Column(\DatabaseLink\Table $program_table)
         );
     }
 }
-function program_Validate_Project_Name_Column(\DatabaseLink\Table $program_table)
+function program_Validate_Program_Name_Column(\DatabaseLink\Table $program_table)
 {
-    if($column = $program_table->Get_Column('project_name'))
+    if($column = $program_table->Get_Column('program_name'))
     {
         if($column->Get_Column_Key() != "UNI")
         {
@@ -67,7 +68,7 @@ function program_Validate_Project_Name_Column(\DatabaseLink\Table $program_table
         $column->Update_Column();
     }else
     {
-        $column = new \DatabaseLink\Column('project_name',$program_table,array(
+        $column = new \DatabaseLink\Column('program_name',$program_table,array(
             'COLUMN_TYPE' => 'varchar(64)',
             'COLUMN_DEFAULT' => null,
             'is_nullable' => false,
@@ -84,9 +85,9 @@ function program_Validate_Secret_Column(\DatabaseLink\Table $program_table)
         {
             $column->Set_Column_Key(""); 
         }
-        if($column->Get_Data_Type() != "varchar(64)")
+        if($column->Get_Data_Type() != "varchar(48)")
         {
-            $column->Set_Data_Type("varchar(64)");
+            $column->Set_Data_Type("varchar(48)");
         }
         if($column->Get_Default_Value() != null)
         {
@@ -104,7 +105,7 @@ function program_Validate_Secret_Column(\DatabaseLink\Table $program_table)
     }else
     {
         $column = new \DatabaseLink\Column('secret',$program_table,array(
-            'COLUMN_TYPE' => 'varchar(64)',
+            'COLUMN_TYPE' => 'varchar(48)',
             'COLUMN_DEFAULT' => null,
             'is_nullable' => false,
             'column_key' => "",
@@ -120,9 +121,9 @@ function program_Validate_Client_ID_Column(\DatabaseLink\Table $program_table)
         {
             $column->Set_Column_Key("UNI"); 
         }
-        if($column->Get_Data_Type() != "varchar(64)")
+        if($column->Get_Data_Type() != "varchar(32)")
         {
-            $column->Set_Data_Type("varchar(64)");
+            $column->Set_Data_Type("varchar(32)");
         }
         if($column->Get_Default_Value() != null)
         {
@@ -140,7 +141,7 @@ function program_Validate_Client_ID_Column(\DatabaseLink\Table $program_table)
     }else
     {
         $column = new \DatabaseLink\Column('client_id',$program_table,array(
-            'COLUMN_TYPE' => 'varchar(64)',
+            'COLUMN_TYPE' => 'varchar(32)',
             'COLUMN_DEFAULT' => null,
             'is_nullable' => false,
             'column_key' => "UNI",

@@ -18,9 +18,9 @@ class User extends Active_Record
     function __construct(string $unverified_username,string $unverified_password,int $company_id,bool $create_user = false)
     {
         parent::__construct();
-        global $toolbelt;
-        $this->cConfigs = $toolbelt->cConfigs;
-        $this->table_dblink = new \DatabaseLink\Table($this->_table,$toolbelt->dblink);
+        global $toolbelt_base;
+        $this->cConfigs = $toolbelt_base->cConfigs;
+        $this->table_dblink = new \DatabaseLink\Table($this->_table,$toolbelt_base->dblink);
         $this->company_id = $company_id;
         $this->username = $unverified_username;
         $this->password = $unverified_password;
@@ -106,6 +106,11 @@ class User extends Active_Record
     {
         $cspring = Generate_CSPRNG(64);
         $this->Set_Varchar('cspring',$cspring,false,true);
+    }
+
+    public function Delete_User()
+    {
+        $this->Delete_Object('destroy');
     }
 }
 ?>

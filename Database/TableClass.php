@@ -179,6 +179,7 @@ class Table
 	}
 	function Get_Column(string $column_name):?Column
 	{
+		$this->Reset_Columns();
 		While($column = $this->Get_Columns())
 		{
 			if($column->Get_Column_Name() == $column_name)
@@ -191,6 +192,7 @@ class Table
 	}
 	function Does_Column_Exist(string $column_name):bool
 	{
+		$this->Reset_Columns();
 		While($column = $this->Get_Columns())
 		{
 			if($column->Get_Column_Name() == $column_name)
@@ -304,6 +306,13 @@ class Table
 	 */
 	function Add_Unique_Columns(array $columns_to_be_unique) : void
 	{
+		ForEach($columns_to_be_unique as $column_name)
+		{
+			if(!$this->Does_Column_Exist($column_name))
+			{
+				throw new \DatabaseLink\Column_Does_Not_Exist($column_name." does not exist in table ".$this->Get_Table_Name());
+			}
+		}
 		$columns = implode(",",Wrap_Array_Values_With_String("`",$columns_to_be_unique));
 		try
 		{

@@ -9,7 +9,7 @@ class TableTest extends \PHPUnit\Framework\TestCase
 
 	public function setUp() :void
 	{
-        global $toolbelt;
+        $toolbelt = new \Test_Tools\toolbelt();;
         $this->cConfigs = $toolbelt->cConfigs;
         $this->database_dblink = new \DatabaseLink\Database('not_a_real_database');
     }

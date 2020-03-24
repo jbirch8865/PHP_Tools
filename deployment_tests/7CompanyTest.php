@@ -9,7 +9,7 @@ class CompanyTest extends \PHPUnit\Framework\TestCase
 
 	public function setUp() :void
 	{
-        global $toolbelt;
+        $toolbelt = new \Test_Tools\toolbelt();;
         $this->table_dblink = $toolbelt->Companies;
         $this->toolbelt = $toolbelt;
     }

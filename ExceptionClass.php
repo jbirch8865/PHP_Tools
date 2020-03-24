@@ -190,5 +190,11 @@ Class User_Not_Set Extends \exception\CustomException{
 		parent::__construct($message);
 	}
 }
+Class Session_Not_Established Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}
+}
 
 ?>

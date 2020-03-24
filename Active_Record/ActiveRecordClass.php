@@ -3,6 +3,8 @@ namespace Active_Record;
 
 use Active_Record_Object;
 use ADODB_Active_Record;
+use DateTime;
+
 abstract class Active_Record extends ADODB_Active_Record
 {
     public \config\ConfigurationFile $cConfigs;
@@ -11,10 +13,10 @@ abstract class Active_Record extends ADODB_Active_Record
     function __construct()
     {
         parent::__construct();
-        global $toolbelt;
-        $this->cConfigs = $toolbelt->cConfigs;
+        global $toolbelt_base;
+        $this->cConfigs = $toolbelt_base->cConfigs;
         $table_name = $this->_table;
-        $this->table_dblink = $toolbelt->$table_name;
+        $this->table_dblink = $toolbelt_base->$table_name;
     }
     /**
      * @throws Object_Is_Already_Loaded
@@ -34,22 +36,55 @@ abstract class Active_Record extends ADODB_Active_Record
     {
         $this->Load_Object($column_name,$varchar_to_search);
     }
+    /**
+     * @param array $load_from array(array('column_name','value'),array('column_name','value))
+     * @throws Object_Is_Already_Loaded
+     * @throws \DatabaseLink\Column_Does_Not_Exist
+     * @throws Active_Record_Object_Failed_To_Load if adodb->load method fails
+     */
+    protected function Load_From_Multiple_Vars(array $load_from) : void
+    {
+        $this->Load_Object("",$load_from);
+    }
     private function Load_Object(string $column_name,$var_to_search) : void
     {
         if($this->Is_Loaded())
         {
             throw new Object_Is_Already_Loaded("This active record object has already been loaded from table ".$this->Get_Table_Name()." with id of ".$this->Get_Verified_ID());
         }
-        if(!$this->table_dblink->Does_Column_Exist($column_name))
+        if(!$this->table_dblink->Does_Column_Exist($column_name) && $column_name != "")
         {
             throw new \DatabaseLink\Column_Does_Not_Exist($column_name." does not exist in table ".$this->Get_Table_Name());
         }
-        if(!$this->load('`'.$column_name.'`=\''.$var_to_search."'"))
+        if(is_array($var_to_search))
         {
-            throw new Active_Record_Object_Failed_To_Load("Failed loading ".$var_to_search." from column ".$column_name." in table ".$this->Get_Table_Name());
+            $columns = array();
+            $values = array();
+            ForEach($var_to_search as $value_to_match)
+            {
+                if(!$this->table_dblink->Does_Column_Exist($value_to_match[0]))
+                {
+                    throw new \DatabaseLink\Column_Does_Not_Exist($value_to_match[0]." does not exist in table ".$this->Get_Table_Name());
+                }
+                $columns[] = $value_to_match[0];
+                $values[] = $value_to_match[1];
+            }
+            $columns = Wrap_Array_Values_With_String('`',$columns);
+            $columns = Append_To_Array_Values_With_String('=?',$columns);
+            $columns = implode(" AND ",$columns);
+            if(!$this->load($columns,$values))
+            {
+                throw new Active_Record_Object_Failed_To_Load("Failed loading ".$columns." in table ".$this->Get_Table_Name());
+            }    
+        }else
+        {
+            if(!$this->load('`'.$column_name.'`=?',array($var_to_search)))
+            {
+                throw new Active_Record_Object_Failed_To_Load("Failed loading ".$var_to_search." from column ".$column_name." in table ".$this->Get_Table_Name());
+            }    
         }
     }
-    private function Is_Loaded():bool
+    public function Is_Loaded():bool
     {
         if($this->_saved)
         {
@@ -101,6 +136,28 @@ abstract class Active_Record extends ADODB_Active_Record
                 throw new Varchar_Too_Long_To_Set($value_to_set." is too long of a string for column ".$column_name." in table ".$this->Get_Table_Name());
             }
         }
+        $this->$column_name = $value_to_set;
+        if($update_immediately)
+        {
+            $this->Create_Object();
+        }
+    }
+    /**
+     * @throws Varchar_Too_Long_To_Set
+     */
+    protected function Set_Timestamp(string $column_name,DateTime $value_to_set,bool $update_immediately = true) : void
+    {
+        $this->$column_name = $value_to_set->format('Y-m-d H:i:s');
+        if($update_immediately)
+        {
+            $this->Create_Object();
+        }
+    }
+    /**
+     * @throws Varchar_Too_Long_To_Set
+     */
+    protected function Set_Int(string $column_name,int $value_to_set,bool $update_immediately = true) : void
+    {
         $this->$column_name = $value_to_set;
         if($update_immediately)
         {

@@ -11,7 +11,7 @@ class MySQLLinkTest extends \PHPUnit\Framework\TestCase
 
     public function setUp() :void
     {
-        global $toolbelt;
+        $toolbelt = new \Test_Tools\toolbelt();;
         $this->toolbelt = $toolbelt;
         $this->cConfigs = $this->toolbelt->cConfigs;
         $this->dblink = $this->toolbelt->dblink;

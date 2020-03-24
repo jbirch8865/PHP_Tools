@@ -9,7 +9,7 @@ class ConfigFileTest extends \PHPUnit\Framework\TestCase
 	public function setUp() :void
 	{
 		global $project_folder_name;
-		global $toolbelt;
+		$toolbelt = new \Test_Tools\toolbelt();;
 		$this->toolbelt = $toolbelt;
 		$this->cConfigs = $toolbelt->cConfigs;
 		$this->filename = $project_folder_name;
