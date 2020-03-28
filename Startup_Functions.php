@@ -127,7 +127,6 @@ function Ask_User_For_Credentials() : void
 		$connection_failed_try_again = Send_Message_To_Stdin_Get_Response("I tried connecting to the database but failed, would you like to save these credentials [y] or try again [n]");
 		if(strtoupper($connection_failed_try_again) == 'Y')
 		{
-            echo 'creating config file and terminating execution';
 			Create_Config_File($root_username,$root_password,$root_hostname,$root_listeningport);
 		}else
 		{
@@ -137,6 +136,7 @@ function Ask_User_For_Credentials() : void
 }
 function Create_Config_File(string $root_username,string $root_password,string $root_hostname,string $root_listeningport) : void
 {
+    echo 'creating config file and terminating execution';
     $array = array('root_username' => $root_username,'root_password' => $root_password,'root_hostname' => $root_hostname,'root_listeningport' => $root_listeningport);
     $ini_string = Array_To_Ini($array);
     $file_handle = fopen(dirname(__FILE__).DIRECTORY_SEPARATOR.'config.local.ini','w');
