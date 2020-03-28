@@ -8,21 +8,18 @@ class CustomException Extends \Exception {
 	}		
 }
 namespace config;
+
+use function exception\Send_Message_Get_Response;
+
 class config_file_missing Extends \exception\CustomException {
 	function __construct($message = "",$create_config_file = false)
 	{
 		if($create_config_file)
 		{
-			echo "Config file does not exist.  Would you like to create it?";
-			echo "Type 'yes' or 'y' to continue: ";
-
-			$handle = fopen("php://stdin","r"); // read from STDIN
-			$line = trim(fgets($handle));
-
-			if($line !== 'yes' && $line !== 'y'){
-
-			}else
+			$go_ahead_and_create_file = Send_Message_To_Stdin_Get_Response("Config file does not exist.  Would you like to create it?");
+			if(strtoupper($go_ahead_and_create_file) == "Y" || strtoupper($go_ahead_and_create_file) == "YES")
 			{
+				Ask_User_For_Credentials();
 			}
 		}
 		parent::__construct($message);

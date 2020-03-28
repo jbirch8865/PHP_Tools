@@ -84,4 +84,54 @@ function is_connected() : bool
     }
     return $is_conn;
 }
+function Array_To_Ini(array $array) : string
+{
+	$res = array();
+	foreach($array as $key => $val)
+	{
+		if(is_array($val))
+		{
+			$res[] = "[$key]";
+			foreach($val as $skey => $sval) $res[] = "$skey = ".(is_numeric($sval) ? $sval : '"'.$sval.'"');
+		}
+		else $res[] = "$key = ".(is_numeric($val) ? $val : '"'.$val.'"');
+	}
+	return implode("\r\n", $res);
+}
+function Send_Message_To_Stdin_Get_Response(string $message) :string
+{
+	echo $message;
+	$handle = fopen("php://stdin","r"); // read from STDIN
+	$line = trim(fgets($handle));
+	return $line;
+}
+function Ask_User_For_Credentials() : void
+{
+	$root_username = Send_Message_To_Stdin_Get_Response("Database root username?");
+	$root_password = Send_Message_To_Stdin_Get_Response("Database root password?");
+	$root_hostname = Send_Message_To_Stdin_Get_Response("Database hostname, leave blank for localhost?");
+	$root_listeningport = Send_Message_To_Stdin_Get_Response("Database listeningport, leave blank for 3306?");
+	if(mysqli_connect($root_hostname,$root_username,$root_password,'',$root_listeningport))
+	{
+		Create_Config_File($root_username,$root_password,$root_hostname,$root_listeningport);
+	}else
+	{
+		$connection_failed_try_again = Send_Message_To_Stdin_Get_Response("I tried connecting to the database but failed, would you like to save these credentials [y] or try again [n]");
+		if(strtoupper($connection_failed_try_again) == 'Y')
+		{
+			Create_Config_File($root_username,$root_password,$root_hostname,$root_listeningport);
+		}else
+		{
+			Ask_User_For_Credentials();
+		}
+	}
+}
+function Create_Config_File(string $root_username,string $root_password,string $root_hostname,string $root_listeningport) : void
+{
+    $array = array('root_username' => $root_username,'root_password' => $root_password,'root_hostname' => $root_hostname,'root_listeningport' => $root_listeningport);
+    $ini_string = Array_To_Ini($array);
+    $file_handle = fopen(dirname(__FILE__).DIRECTORY_SEPARATOR.'config.local.ini','w');
+    fwrite($file_handle,$ini_string);
+    fclose($file_handle);
+}
 ?>

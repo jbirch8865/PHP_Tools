@@ -425,17 +425,8 @@ class ConfigurationFile
 
 	private function write_php_ini(array $array,string $file)
 	{
-		$res = array();
-		foreach($array as $key => $val)
-		{
-			if(is_array($val))
-			{
-				$res[] = "[$key]";
-				foreach($val as $skey => $sval) $res[] = "$skey = ".(is_numeric($sval) ? $sval : '"'.$sval.'"');
-			}
-			else $res[] = "$key = ".(is_numeric($val) ? $val : '"'.$val.'"');
-		}
-		$this->safefilerewrite($file, implode("\r\n", $res));
+		$filebody = Array_To_Ini($array);
+		$this->safefilerewrite($file, $filebody);
 	}
 	
 	private function safefilerewrite(string $fileName,string $dataToSave)
