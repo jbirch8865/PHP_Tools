@@ -510,6 +510,36 @@ final class Generator
     }
 
     /**
+     * @throws RuntimeException
+     *
+     * @return MockMethod[]
+     */
+    public function mockInterfaceMethods(string $interfaceName, bool $cloneArguments): array
+    {
+        try {
+            $class = new \ReflectionClass($interfaceName);
+            // @codeCoverageIgnoreStart
+        } catch (\ReflectionException $e) {
+            throw new RuntimeException(
+                $e->getMessage(),
+                (int) $e->getCode(),
+                $e
+            );
+        }
+        // @codeCoverageIgnoreEnd
+
+        $methods = [];
+
+        foreach ($class->getMethods() as $method) {
+            $methods[] = MockMethod::fromReflection($method, false, $cloneArguments);
+        }
+
+        return $methods;
+    }
+
+    /**
+     * @psalm-param class-string $interfaceName
+     *
      * @return \ReflectionMethod[]
      */
     private function userDefinedInterfaceMethods(string $interfaceName): array
@@ -811,10 +841,15 @@ final class Generator
             }
         }
 
-        if ($explicitMethods === [] &&
-            ($isClass || $isInterface)) {
+        if ($isClass && $explicitMethods === []) {
             $mockMethods->addMethods(
                 ...$this->mockClassMethods($mockClassName['fullClassName'], $callOriginalMethods, $cloneArguments)
+            );
+        }
+
+        if ($isInterface && ($explicitMethods === [] || $explicitMethods === null)) {
+            $mockMethods->addMethods(
+                ...$this->mockInterfaceMethods($mockClassName['fullClassName'], $cloneArguments)
             );
         }
 
@@ -974,7 +1009,7 @@ final class Generator
 
     private function canMockMethod(\ReflectionMethod $method): bool
     {
-        return !($method->isConstructor() || $method->isFinal() || $method->isPrivate() || $this->isMethodNameBlacklisted($method->getName()));
+        return !($this->isConstructor($method) || $method->isFinal() || $method->isPrivate() || $this->isMethodNameBlacklisted($method->getName()));
     }
 
     private function isMethodNameBlacklisted(string $name): bool
@@ -991,5 +1026,21 @@ final class Generator
         }
 
         return self::$templates[$filename];
+    }
+
+    /**
+     * @see https://github.com/sebastianbergmann/phpunit/issues/4139#issuecomment-605409765
+     */
+    private function isConstructor(\ReflectionMethod $method): bool
+    {
+        $methodName = \strtolower($method->getName());
+
+        if ($methodName === '__construct') {
+            return true;
+        }
+
+        $className  = \strtolower($method->getDeclaringClass()->getName());
+
+        return $methodName === $className;
     }
 }
