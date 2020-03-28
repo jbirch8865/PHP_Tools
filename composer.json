@@ -1,6 +1,7 @@
 {
     "name": "jbirch8865/php_tools",
     "description": "Base PHP tools and classes",
+    "type": "library",
     "license": "MIT",
     "authors": [
         {
@@ -9,6 +10,9 @@
         }
     ],
     "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {"jbirch8865\\php_tools\\": "/"}
+    },
     "require": {
         "instasent/sms-counter-php": "^0.5.2",
         "twilio/sdk": "^5.0",
