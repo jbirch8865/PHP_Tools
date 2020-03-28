@@ -107,7 +107,7 @@ function Send_Message_To_Stdin_Get_Response(string $message) :string
 }
 function Ask_User_For_Credentials() : void
 {
-	$root_username = Send_Message_To_Stdin_Get_Response("Database root username?");
+    $root_username = Send_Message_To_Stdin_Get_Response("Database root username?");
 	$root_password = Send_Message_To_Stdin_Get_Response("Database root password?");
     $root_hostname = Send_Message_To_Stdin_Get_Response("Database hostname, leave blank for localhost?");
     if ($root_hostname == "") 
@@ -124,13 +124,13 @@ function Ask_User_For_Credentials() : void
 		Create_Config_File($root_username,$root_password,$root_hostname,$root_listeningport);
 	}else
 	{
-		$connection_failed_try_again = Send_Message_To_Stdin_Get_Response("I tried connecting to the database but failed, would you like to save these credentials [y] or try again [n]");
-		if(strtoupper($connection_failed_try_again) == 'Y')
-		{
-			Create_Config_File($root_username,$root_password,$root_hostname,$root_listeningport);
-		}else
+		$connection_failed_try_again = Send_Message_To_Stdin_Get_Response("I tried connecting to the database but failed, would you like to try again?");
+		if(strtoupper($connection_failed_try_again) == 'Y' || strtoupper($connection_failed_try_again) == 'Y')
 		{
 			Ask_User_For_Credentials();
+		}else
+		{
+            return;
 		}
 	}
 }

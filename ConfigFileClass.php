@@ -84,7 +84,14 @@ class ConfigurationFile
 			return false;
 		}
 	}
-
+	/**
+	 * @throws Config_Missing
+	 */
+	function Get_Environment() : string
+	{
+		$this->Throw_Error_If_Config_Does_Not_Exist('Environment');
+		return $this->Get_Value_If_Enabled('Environment');
+	}
 	function Set_Dev_Environment() : void
 	{
 		$this->Add_Or_Update_Config('Environment','DEVELOPMENT');
