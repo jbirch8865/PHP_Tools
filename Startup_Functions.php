@@ -109,8 +109,16 @@ function Ask_User_For_Credentials() : void
 {
 	$root_username = Send_Message_To_Stdin_Get_Response("Database root username?");
 	$root_password = Send_Message_To_Stdin_Get_Response("Database root password?");
-	$root_hostname = Send_Message_To_Stdin_Get_Response("Database hostname, leave blank for localhost?");
-	$root_listeningport = Send_Message_To_Stdin_Get_Response("Database listeningport, leave blank for 3306?");
+    $root_hostname = Send_Message_To_Stdin_Get_Response("Database hostname, leave blank for localhost?");
+    if ($root_hostname == "") 
+    {
+        $root_hostname = 'localhost';
+    }
+    $root_listeningport = Send_Message_To_Stdin_Get_Response("Database listeningport, leave blank for 3306?");
+    if($root_listeningport == "")
+    {
+        $root_listeningport = '3306';
+    }
 	if(mysqli_connect($root_hostname,$root_username,$root_password,'',$root_listeningport))
 	{
 		Create_Config_File($root_username,$root_password,$root_hostname,$root_listeningport);
@@ -119,6 +127,7 @@ function Ask_User_For_Credentials() : void
 		$connection_failed_try_again = Send_Message_To_Stdin_Get_Response("I tried connecting to the database but failed, would you like to save these credentials [y] or try again [n]");
 		if(strtoupper($connection_failed_try_again) == 'Y')
 		{
+            echo 'creating config file and terminating execution';
 			Create_Config_File($root_username,$root_password,$root_hostname,$root_listeningport);
 		}else
 		{

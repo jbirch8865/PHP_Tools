@@ -26,7 +26,7 @@ class ConfigurationFile
 			$this->configurations = $this->LoadFile();
 		}else
 		{
-			throw new config_file_missing("$filename does not exist");
+			throw new config_file_missing("$filename does not exist",true);
 		}
 		if(!$this->Get_Name_Of_Project())
 		{
