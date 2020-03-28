@@ -175,12 +175,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/bovigo/vfsStream.git",
-            "reference": "a76d2136d9fe7a31355dba4f3111e983a79b0da0"
+            "reference": "53be878e306cb8bcf08781b201187e3fdfa04399"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/bovigo/vfsStream/zipball/a76d2136d9fe7a31355dba4f3111e983a79b0da0",
-            "reference": "a76d2136d9fe7a31355dba4f3111e983a79b0da0",
+            "url": "https://api.github.com/repos/bovigo/vfsStream/zipball/53be878e306cb8bcf08781b201187e3fdfa04399",
+            "reference": "53be878e306cb8bcf08781b201187e3fdfa04399",
             "shasum": ""
         },
         "require": {
@@ -189,7 +189,7 @@
         "require-dev": {
             "phpunit/phpunit": "^4.5|^5.0"
         },
-        "time": "2020-03-05T09:02:43+00:00",
+        "time": "2020-03-23T08:38:30+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -868,12 +868,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/sebastianbergmann/phpunit.git",
-            "reference": "35b4c697008ca08168c2e91b975e1fc40879690e"
+            "reference": "3c03f884f4839f874326de00ab53d38765f8c6a1"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/35b4c697008ca08168c2e91b975e1fc40879690e",
-            "reference": "35b4c697008ca08168c2e91b975e1fc40879690e",
+            "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3c03f884f4839f874326de00ab53d38765f8c6a1",
+            "reference": "3c03f884f4839f874326de00ab53d38765f8c6a1",
             "shasum": ""
         },
         "require": {
@@ -911,7 +911,7 @@
             "ext-xdebug": "*",
             "phpunit/php-invoker": "^2.0.0"
         },
-        "time": "2020-03-20T06:58:40+00:00",
+        "time": "2020-03-28T13:16:23+00:00",
         "bin": [
             "phpunit"
         ],
