@@ -27,6 +27,13 @@ class Program extends Active_Record
     /**
      * @throws Active_Record_Object_Failed_To_Load
      */
+    public function Load_Program_By_Client_ID(string $client_id) : void
+    {
+        $this->Load_From_Varchar('client_id',$client_id);
+    }
+    /**
+     * @throws Active_Record_Object_Failed_To_Load
+     */
     public function Load_Program_By_ID(int $id) : void
     {
         $this->Load_From_Int('id',$id);
