@@ -18,16 +18,11 @@ class Program_Session extends Active_Record
         $this->Load_From_Varchar('access_token',$access_token);
     }
     /**
-     * @throws Active_Record_Object_Failed_To_Load
-     */
-    public function Load_Program_By_ID(int $id) : void
-    {
-        $this->Load_From_Int('id',$id);
-    }
-    /**
      * @throws \Active_Record\Object_Is_Already_Loaded
      * @throws \Active_Record\Active_Record_Object_Failed_To_Load
      * @throws \Active_Record\Varchar_Too_Long_To_Set
+     * @throws \Authentication\Incorrect_Password
+     * @throws \Authentication\User_Does_Not_Exist
      */
     public function Create_New_Session(string $client_id,string $secret,int $company_id, string $username, string $password) : void
     {
@@ -48,7 +43,11 @@ class Program_Session extends Active_Record
             $this->Set_Int('user_id',$User->Get_Verified_ID(),true);
         }
     }
-    public function Revoke_Session()
+    /**
+     * @throws \API\Session_Not_Established
+     * @throws \Active_Record\Update_Failed
+     */
+    public function Revoke_Session() : void
     {
         if(!$this->Is_Loaded())
         {
@@ -57,70 +56,23 @@ class Program_Session extends Active_Record
         $dateTime = new \DateTime("5 minutes ago");
         $this->Set_Timestamp('experation_timestamp',$dateTime,false,true);
     }
-    /**
-     * @throws SQLQueryError
-     */
-    public function Change_Primary_Key(int $new_key,int $old_key) : void
+    public function Get_Access_Token() : string
     {
-        parent::Change_Primary_Key($new_key,$old_key);
+        return $this->Get_Value_From_Name('access_token');
     }
-    public function Set_Program_Name(string $program_name) : void
+    public function Get_User_ID() : string
     {
-        $this->Set_Varchar('program_name',$program_name);
+        return $this->Get_Value_From_Name('user_id');
     }
-    public function Delete_Program() : void
+    public function Get_Experation() : \DateTime
     {
-        parent::Delete_Object('destroy');
-    }
-    public function Get_Secret() : string
-    {
-        return $this->Get_Value_From_Name('secret');
-    }
-    public function Is_Expired() : bool
-    {
-        if(!$this->Is_Loaded())
-        {
-            throw new \API\Session_Not_Established('no session established');
-        }
-        if(gmdate('Y-m-d H:i:s') > date('Y-m-d H:i:s',strtotime($this->experation_timestamp)))
-        {
-            return true;
-        }else
-        {
-            return false;
-        }
-    }
-    public function Get_Program_Name() : string
-    {
-        return $this->Get_Value_From_Name('program_name');
+        $datetime = new \DateTime($this->Get_Value_From_Name('experation_timestamp'));
+        return $datetime;
     }
     public function Get_Client_ID() : string
     {
         return $this->Get_Value_From_Name('client_id');
     }
-    /**
-     * This table doesn't have active status, delete and create are the only options
-     * this function does nothing
-     */
-    public function Set_Object_Active() : void
-    {
-    }
-    /**
-     * This table doesn't have active status, delete and create are the only options
-     * this function does nothing
-     */
-    public function Set_Object_Inactive() : void
-    {
-    }
-    /**
-     * This table doesn't have active status, delete and create are the only options
-     * this function does nothing
-     */
-    public function Is_Object_Active() : bool
-    {  
-        return false;
-    }
-
 }
 
 ?>

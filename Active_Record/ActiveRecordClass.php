@@ -143,7 +143,7 @@ abstract class Active_Record extends ADODB_Active_Record
         }
     }
     /**
-     * @throws Varchar_Too_Long_To_Set
+     * @throws Update_Failed
      */
     protected function Set_Timestamp(string $column_name,DateTime $value_to_set,bool $update_immediately = true) : void
     {
@@ -154,7 +154,7 @@ abstract class Active_Record extends ADODB_Active_Record
         }
     }
     /**
-     * @throws Varchar_Too_Long_To_Set
+     * @throws Update_Failed
      */
     protected function Set_Int(string $column_name,int $value_to_set,bool $update_immediately = true) : void
     {
