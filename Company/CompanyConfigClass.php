@@ -19,7 +19,7 @@ class Company_Config extends Active_Record
         try
         {
             global $user;
-            $company_id = $user->Company->Get_Company_ID();
+            $company_id = $user->Companies->Get_Verified_ID();
         }catch(\Exception $e)
         {
             throw new \api\User_Not_Set('Looks like the user was not properly set when making this request');
