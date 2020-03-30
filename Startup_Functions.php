@@ -2,7 +2,7 @@
 /**
  * @throws Exception if you use a different keyspace it has to be more than two characters long
  */
-function Generate_CSPRNG(int $length,string $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') : string
+function Generate_CSPRNG(int $length,string $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+=.?$') : string
 {
     $str = '';
     $max = mb_strlen($keyspace, '8bit') - 1;

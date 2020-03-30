@@ -35,6 +35,7 @@ class Program_Session extends Active_Record
         {
             $this->Load_From_Multiple_Vars(array(array('client_id',$client_id),array('user_id',$User->Get_Verified_ID())));
             $dateTime = new \DateTime(gmdate('Y-m-d H:i:s',strtotime('+'.$User->Companies->Get_Session_Time_Limit()." seconds")));
+            $this->Set_Varchar('access_token',Generate_CSPRNG(45),false,false);
             $this->Set_Timestamp('experation_timestamp',$dateTime,false,true);
         } catch (\Active_Record\Active_Record_Object_Failed_To_Load $e)
         {
