@@ -38,7 +38,7 @@ class Program_Session extends Active_Record
         {
             $this->Set_Varchar('client_id',$client_id,false,false);
             $this->Set_Varchar('access_token',Generate_CSPRNG(45),false,false);
-            $dateTime = new \DateTime(date('Y-m-d H:i',strtotime('+'.$User->Companies->Get_Session_Time_Limit()." minutes")));
+            $dateTime = new \DateTime(date('Y-m-d H:i',strtotime('+'.$User->Companies->Get_Session_Time_Limit()." seconds")));
             $this->Set_Timestamp('experation_timestamp',$dateTime,false,false);
             $this->Set_Int('user_id',$User->Get_Verified_ID(),true);
         }

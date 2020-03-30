@@ -46,6 +46,21 @@ class AuthenticationTest extends \PHPUnit\Framework\TestCase
         $session->Revoke_Session();
         $this->assertTrue($session->Is_Expired());
     }
+    function test_Session_Timeout()
+    {
+
+        $toolbelt = new \Test_Tools\toolbelt;
+        $session = new \API\Program_Session();
+        $company = new \Company\Company;
+        $company->Load_Company_By_ID(1);
+        $session_time_limit = $company->Get_Session_Time_Limit();
+        $company->Set_Session_Time_Limit(2);
+        $session->Create_New_Session($toolbelt->cConfigs->Get_Client_ID(),$toolbelt->cConfigs->Get_Secret_ID(),1,'temp_user_delete_me','Basic_Password');
+        $this->assertFalse($session->Is_Expired());
+        sleep(3);
+        $this->assertTrue($session->Is_Expired());
+        $company->Set_Session_Time_Limit($session_time_limit);
+    }
     function test_Delete_Temp_User()
     {
         $user = new \Authentication\User('temp_user_delete_me','Basic_Password',1,false);

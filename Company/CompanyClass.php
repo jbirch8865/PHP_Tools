@@ -59,19 +59,19 @@ class Company extends Active_Record
     {
         $this->Load_From_Int('id',$id_to_search);
     }
-    public function Get_Session_Time_Limit() : ?string
+    public function Get_Session_Time_Limit() : ?int
     {
-        return $this->Get_Config_Value_By_Name('session_time_limit');
+        return (int) $this->Get_Config_Value_By_Name('session_time_limit');
     }
     /**
      * @throws UpdateFailed
      * @throws User_Not_Set
      */
-    public function Set_Session_Time_Limit(string $time_in_minutes,bool $company_has_no_users = false) : void
+    public function Set_Session_Time_Limit(int $time_in_seconds,bool $company_has_no_users = false) : void
     {
         $config = new \Company\Config();
         $config->Load_Config_By_Name('session_time_limit');
-        $this->Create_Or_Update_Config($config->Get_Verified_ID(),$time_in_minutes,$company_has_no_users);
+        $this->Create_Or_Update_Config($config->Get_Verified_ID(),(string)$time_in_seconds,$company_has_no_users);
     }
     /**
      * @throws UpdateFailed
