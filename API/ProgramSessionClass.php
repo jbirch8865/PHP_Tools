@@ -73,6 +73,23 @@ class Program_Session extends Active_Record
     {
         return $this->Get_Value_From_Name('client_id');
     }
+    /**
+     * @throws \API\Session_Not_Established
+     */
+    public function Is_Expired() : bool
+    {
+        if(!$this->Is_Loaded())
+        {
+            throw new \API\Session_Not_Established('no session established');
+        }
+        if(gmdate('Y-m-d H:i:s') > date('Y-m-d H:i:s',strtotime($this->experation_timestamp)))
+        {
+            return true;
+        }else
+        {
+            return false;
+        }
+    }
 }
 
 ?>
