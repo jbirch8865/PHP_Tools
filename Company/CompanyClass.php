@@ -112,7 +112,7 @@ class Company extends Active_Record
         $time_limit->Load_Config_By_Name('session_time_limit');
         $time_zone = new \Company\Config();
         $time_zone->Load_Config_By_Name('company_time_zone');        
-        $this->Set_Session_Time_Limit($time_limit->Get_Default_Config_Value(),true);
+        $this->Set_Session_Time_Limit((int) $time_limit->Get_Default_Config_Value(),true);
         $this->Set_Time_Zone($time_zone->Get_Default_Config_Value(),true);
     }
     private function Get_Config_Value_By_Name(string $config_name) : ?string
