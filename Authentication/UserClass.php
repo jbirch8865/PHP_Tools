@@ -2,6 +2,8 @@
 namespace Authentication;
 
 use Active_Record\Active_Record;
+use Active_Record\Object_Is_Currently_Inactive;
+
 class User extends Active_Record
 {
     public \config\ConfigurationFile $cConfigs;
@@ -14,8 +16,10 @@ class User extends Active_Record
      * @throws User_Does_Not_Exist
      * @throws UpdateFailed
      * @throws Varchar_Too_Long_To_Set if creating a user and the password or username is too long
+     * @param bool $only_if_active if $create_user is true this will be ignored, if we are loading / authorizing credentials this will load even if user is inactive
+     * @throws Object_Is_Currently_Inactive
      */
-    function __construct(string $unverified_username,string $unverified_password,int $company_id,bool $create_user = false)
+    function __construct(string $unverified_username,string $unverified_password,int $company_id,bool $create_user = false,bool $only_if_active = true)
     {
         parent::__construct();
         global $toolbelt_base;
@@ -27,6 +31,13 @@ class User extends Active_Record
         $this->project_name = $this->cConfigs->Get_Name_Of_Project();
         if($this->Load_User_If_Exists())
         {
+            if($only_if_active)
+            {
+                if(!$this->Is_Object_Active())
+                {
+                    throw new Object_Is_Currently_Inactive($this->Get_Username().' is currently inactive.');
+                }
+            }
             $this->Check_Password();
         }else
         {

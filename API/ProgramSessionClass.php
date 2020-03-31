@@ -22,25 +22,20 @@ class Program_Session extends Active_Record
     }
     /**
      * @throws \Active_Record\Object_Is_Already_Loaded
-     * @throws \Active_Record\Active_Record_Object_Failed_To_Load
-     * @throws \Active_Record\Varchar_Too_Long_To_Set
+     * @throws \Active_Record\Varchar_Too_Long_To_Set if client_id, username or password are too long
      * @throws \Authentication\Incorrect_Password
      * @throws \Authentication\User_Does_Not_Exist
+     * @throws \Active_Record\Object_Is_Currently_Inactive
+     * @throws \Active_Record\Update_Failed If client id does not exist
+     * 
      */
-    public function Create_New_Session(string $client_id,string $secret,int $company_id, string $username, string $password,bool $only_if_user_is_active = true) : void
+    public function Create_New_Session(string $client_id,int $company_id, string $username, string $password,bool $only_if_user_is_active = true) : void
     {
         if($this->Is_Loaded())
         {
             throw new \Active_Record\Object_Is_Already_Loaded("Program Session is already loaded");
         }
-        $User = new \Authentication\User($username,$password,$company_id,false);
-        if($only_if_user_is_active)
-        {
-            if(!$User->Is_Object_Active())
-            {
-                throw new Object_Is_Currently_Inactive($this->User->Get_Username().' is currently inactive.');
-            }
-        }
+        $User = new \Authentication\User($username,$password,$company_id,false,$only_if_user_is_active);
         try
         {
             $this->Load_From_Multiple_Vars(array(array('client_id',$client_id),array('user_id',$User->Get_Verified_ID())));
