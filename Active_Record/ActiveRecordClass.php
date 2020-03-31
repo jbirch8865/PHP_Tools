@@ -256,6 +256,7 @@ abstract class Active_Record extends ADODB_Active_Record
                     if($column->Get_Column_Name() == $property_name && $column->Am_I_Included_In_Response())
                     {
                         $collection[$property_name] = $property_value;
+                        break;
                     }
                 }
             }

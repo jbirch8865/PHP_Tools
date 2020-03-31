@@ -382,7 +382,7 @@ class Column
 			}elseif(strtolower($value_name) == "character_maximum_length")
 			{
 				$this->Set_Data_Length($value_to_set,false);
-			}elseif(strtolower($value_name) == 'COLUMN_COMMENT')
+			}elseif(strtolower($value_name) == 'column_comment')
 			{
 				if(strtolower($value_to_set) == 'exclude')
 				{
