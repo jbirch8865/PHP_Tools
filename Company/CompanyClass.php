@@ -53,7 +53,7 @@ class Company extends Active_Record
     }
     /**
      * @throws Exception if object already loaded
-     * @throws CompanyDoesNotExist
+     * @throws \Active_Record\Active_Record_Object_Failed_To_Load
      */
     public function Load_Company_By_ID(int $id_to_search) : void
     {

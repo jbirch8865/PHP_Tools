@@ -179,6 +179,13 @@ Class Object_Is_Already_Loaded Extends \exception\CustomException{
 	}
 }
 
+Class Object_Is_Currently_Inactive Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}
+}
+
 namespace api;
 
 Class User_Not_Set Extends \exception\CustomException{

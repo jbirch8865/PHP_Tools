@@ -184,7 +184,7 @@ abstract class Active_Record extends ADODB_Active_Record
     }
     private function Get_Active_Status() : bool
     {
-        return $this->active_status;
+        return (bool) $this->active_status;
     }
     /**
      * @throws UpdateFailed if adodb->save method fails

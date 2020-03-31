@@ -2,6 +2,9 @@
 namespace API;
 
 use Active_Record\Active_Record;
+use Active_Record\Object_Is_Already_Loaded;
+use Active_Record\Object_Is_Currently_Inactive;
+
 class Program_Session extends Active_Record
 {
     public $_table = "Programs_Have_Sessions";
@@ -24,13 +27,20 @@ class Program_Session extends Active_Record
      * @throws \Authentication\Incorrect_Password
      * @throws \Authentication\User_Does_Not_Exist
      */
-    public function Create_New_Session(string $client_id,string $secret,int $company_id, string $username, string $password) : void
+    public function Create_New_Session(string $client_id,string $secret,int $company_id, string $username, string $password,bool $only_if_user_is_active = true) : void
     {
         if($this->Is_Loaded())
         {
             throw new \Active_Record\Object_Is_Already_Loaded("Program Session is already loaded");
         }
         $User = new \Authentication\User($username,$password,$company_id,false);
+        if($only_if_user_is_active)
+        {
+            if(!$User->Is_Object_Active())
+            {
+                throw new Object_Is_Currently_Inactive($this->User->Get_Username().' is currently inactive.');
+            }
+        }
         try
         {
             $this->Load_From_Multiple_Vars(array(array('client_id',$client_id),array('user_id',$User->Get_Verified_ID())));
@@ -59,9 +69,12 @@ class Program_Session extends Active_Record
         $dateTime = new \DateTime("5 minutes ago");
         $this->Set_Timestamp('experation_timestamp',$dateTime,false,true);
     }
-    public function Get_Access_Token() : string
+    /**
+     * @throws Object_Is_Currently_Inactive
+     */
+    public function Get_Access_Token(bool $only_if_active = true) : string
     {
-        return $this->Get_Value_From_Name('access_token');
+        return $this->Get_Value_From_Name('access_token');        
     }
     public function Get_User_ID() : string
     {
