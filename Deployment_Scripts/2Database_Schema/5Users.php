@@ -175,6 +175,10 @@ function user_Validate_CSPRING_Column(\DatabaseLink\Table $user_table)
         {
             $column->Column_Does_Not_Auto_Increments();
         }
+        if($column->Am_I_Included_In_Response())
+        {
+            $column->Exclude_From_Response();
+        }
     }else
     {
         $column = new \DatabaseLink\Column('cspring',$user_table,array(
@@ -182,7 +186,8 @@ function user_Validate_CSPRING_Column(\DatabaseLink\Table $user_table)
             'COLUMN_DEFAULT' => null,
             'is_nullable' => false,
             'column_key' => "",
-            'EXTRA' => "")
+            'EXTRA' => "",
+            'COLUMN_COMMENTS' => 'exclude')
         );
     }
 }
@@ -246,6 +251,10 @@ function user_Validate_Password_Column(\DatabaseLink\Table $user_table)
         {
             $column->Column_Does_Not_Auto_Increments();
         }
+        if($column->Am_I_Included_In_Response())
+        {
+            $column->Exclude_From_Response();
+        }
     }else
     {
         $column = new \DatabaseLink\Column('verified_hashed_password',$user_table,array(
@@ -253,7 +262,8 @@ function user_Validate_Password_Column(\DatabaseLink\Table $user_table)
             'COLUMN_DEFAULT' => null,
             'is_nullable' => false,
             'column_key' => "",
-            'EXTRA' => "")
+            'EXTRA' => "",
+            'COLUMN_COMMENTS' => 'exclude')
         );
     }
 }

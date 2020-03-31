@@ -15,6 +15,7 @@ class Column
 	private bool $is_nullable = false;
 	private string $column_key = "PRI";
 	private $field_value = NULL;
+	private bool $include_in_response = true;
 
 	/**
 	 * @param array $default_values {not caps sensative} 
@@ -24,7 +25,8 @@ class Column
 	 * 			null{no default, value will be required}],
 	 * 	"is_nullable" = bool,"column_key" = ["","PRI","UNI"],
 	 *  "EXTRA" = "auto_increment",
-	 *  "CHARACTER_MAXIMUM_LENGTH" = "64") 
+	 *  "CHARACTER_MAXIMUM_LENGTH" = "64",
+	 * 	["COLUMN_COMMENT" = "exclude"]) 
 	 * if is_nullable = true and default_value is NULL then the default will be NULL if is_nullable = false and default_value = NULL
 	 * then there will be no default
 	 * @throws Exception if default values are not all set
@@ -97,7 +99,14 @@ class Column
 		}else
 		{
 			$default_value = " DEFAULT '".$this->default_value."'";
-		}	
+		}
+		if(!$this->include_in_response)
+		{
+			$COMMENT = " COMMENT 'exclude'";
+		}	else
+		{
+			$COMMENT = "";
+		}
 		if(strtolower($this->auto_increment) == "auto_increment")
 		{
 			$NULL = " NOT NULL";
@@ -106,13 +115,13 @@ class Column
 		try
 		{
 			$this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("ALTER TABLE ".$this->table_dblink->Get_Table_Name()." ADD 
-			".$unverified_column_name." ".$this->data_type."$NULL$default_value$AUTO_INCREMENT$PRIMARY_KEY");	
+			".$unverified_column_name." ".$this->data_type."$NULL$default_value$AUTO_INCREMENT$PRIMARY_KEY$COMMENT");	
 		} catch (SQLQueryError $e)
 		{
 			if($this->table_dblink->database_dblink->dblink->Get_Last_Error_Number() == 1060)
 			{
 				$this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("ALTER TABLE ".$this->table_dblink->Get_Table_Name()." MODIFY 
-				".$unverified_column_name." ".$this->data_type."$NULL$default_value$AUTO_INCREMENT$PRIMARY_KEY");						
+				".$unverified_column_name." ".$this->data_type."$NULL$default_value$AUTO_INCREMENT$PRIMARY_KEY$COMMENT");						
 			}else
 			{
 				throw new SQLQueryError($e->getMessage());
@@ -190,6 +199,21 @@ class Column
 		{
 			$this->Create_Column($this->verified_column_name);
 		}
+	}
+	/**
+	 * @throws SQLQueryError
+	 */
+	function Exclude_From_Response(bool $update_now = true):void
+	{
+		$this->include_in_response = false;
+		if($update_now)
+		{
+			$this->Create_Column($this->verified_column_name);
+		}
+	}
+	function Am_I_Included_In_Response():bool
+	{
+		return (bool) $this->include_in_response;
 	}
 	/**
 	 * @throws SQLQueryError
@@ -358,6 +382,15 @@ class Column
 			}elseif(strtolower($value_name) == "character_maximum_length")
 			{
 				$this->Set_Data_Length($value_to_set,false);
+			}elseif(strtolower($value_name) == 'COLUMN_COMMENT')
+			{
+				if(strtolower($value_to_set) == 'exclude')
+				{
+					$this->include_in_response = false;
+				}else
+				{
+					$this->include_in_response = true;
+				}
 			}
 		}
 	}
