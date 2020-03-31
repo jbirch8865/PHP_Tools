@@ -243,5 +243,23 @@ abstract class Active_Record extends ADODB_Active_Record
     {
         $this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("UPDATE `".$this->Get_Table_Name()."` SET `id` = ? WHERE `id` = ?",array($new_key,$old_key));
     }
+    public function Get_Response_Collection() : array
+    {
+        $collection = [];
+        ForEach($this as $property_name => $property_value)
+        {
+            if(is_string($property_value))
+            {
+                while($column = $this->table_dblink->Get_Columns())
+                {
+                    if($column->Get_Column_Name() == $property_name)
+                    {
+                        $collection[$property_name] = $property_value;
+                    }
+                }
+            }
+        }
+        return $collection;
+    }
 }
 ?>
