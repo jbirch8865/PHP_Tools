@@ -250,9 +250,10 @@ abstract class Active_Record extends ADODB_Active_Record
         {
             if(is_string($property_value))
             {
+                $this->table_dblink->Reset_Columns();
                 while($column = $this->table_dblink->Get_Columns())
                 {
-                    if($column->Get_Column_Name() == $property_name)
+                    if($column->Get_Column_Name() == $property_name && $column->Am_I_Included_In_Response())
                     {
                         $collection[$property_name] = $property_value;
                     }
