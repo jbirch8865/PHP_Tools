@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
 $toolbelt_base->Company_Roles = new \DatabaseLink\Table('Company_Roles',$toolbelt_base->dblink);
-company_config_Validate_ID_Column($toolbelt_base->Company_Roles);
-company_config_Validate_Company_ID_Column($toolbelt_base->Company_Roles);
-company_config_Validate_Role_Name($toolbelt_base->Company_Roles);
-company_config_Validate_Active_Status_Column($toolbelt_base->Company_Roles);
+company_roles_Validate_ID_Column($toolbelt_base->Company_Roles);
+company_roles_Validate_Company_ID_Column($toolbelt_base->Company_Roles);
+company_roles_Validate_Role_Name($toolbelt_base->Company_Roles);
+company_roles_Validate_Active_Status_Column($toolbelt_base->Company_Roles);
 $toolbelt_base->Company_Roles->Load_Columns();
-ADODB_Active_Record::TableHasMany('Companies','Company_Roles','company_id','\Company\Company_Roles');
-function company_config_Validate_ID_Column(\DatabaseLink\Table $Company_Roles)
+ADODB_Active_Record::TableHasMany('Companies','Company_Roles','company_id','\Company\Company_Role');
+function company_roles_Validate_ID_Column(\DatabaseLink\Table $Company_Roles)
 {
     if($column = $Company_Roles->Get_Column('id'))
     {
@@ -42,7 +42,7 @@ function company_config_Validate_ID_Column(\DatabaseLink\Table $Company_Roles)
         );
     }
 }
-function company_config_Validate_Company_ID_Column(\DatabaseLink\Table $Company_Roles)
+function company_roles_Validate_Company_ID_Column(\DatabaseLink\Table $Company_Roles)
 {
     if($column = $Company_Roles->Get_Column('company_id'))
     {
@@ -78,9 +78,9 @@ function company_config_Validate_Company_ID_Column(\DatabaseLink\Table $Company_
         );
     }
 }
-function company_config_Validate_Role_Name(\DatabaseLink\Table $Company_Roles)
+function company_roles_Validate_Role_Name(\DatabaseLink\Table $Company_Roles)
 {
-    if($column = $Company_Roles->Get_Column('Role_Name'))
+    if($column = $Company_Roles->Get_Column('role_name'))
     {
         if($column->Get_Column_Key() != "")
         {
@@ -105,7 +105,7 @@ function company_config_Validate_Role_Name(\DatabaseLink\Table $Company_Roles)
         $column->Update_Column();
     }else
     {
-        $column = new \DatabaseLink\Column('Role_Name',$Company_Roles,array(
+        $column = new \DatabaseLink\Column('role_name',$Company_Roles,array(
             'COLUMN_TYPE' => 'varchar(200)',
             'COLUMN_DEFAULT' => null,
             'is_nullable' => false,
@@ -114,7 +114,7 @@ function company_config_Validate_Role_Name(\DatabaseLink\Table $Company_Roles)
         );
     }
 }
-function company_config_Validate_Active_Status_Column(\DatabaseLink\Table $Company_Roles)
+function company_roles_Validate_Active_Status_Column(\DatabaseLink\Table $Company_Roles)
 {
     global $cConfigs;
     if($column = $Company_Roles->Get_Column('active_status'))

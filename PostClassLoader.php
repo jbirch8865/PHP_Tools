@@ -10,5 +10,9 @@ ADODB_Active_Record::TableKeyHasMany('Companies','id','Users','company_id','\Com
 ADODB_Active_Record::TableBelongsTo('Users','Companies','company_id','id','\Company\Company');
 //ADODB_Active_Record::TableBelongsTo('Programs_Have_Sessions','Users','user_id','id','\Authentication\User'); If we want this we would need to not construct the user with the __construct function.  Don't like this idea, ins
 $toolbelt_base->Programs_Have_Sessions = new \DatabaseLink\Table('Programs_Have_Sessions',$toolbelt_base->dblink);
+$toolbelt_base->Company_Roles = new \DatabaseLink\Table('Company_Roles',$toolbelt_base->dblink);
+ADODB_Active_Record::TableHasMany('Companies','Company_Roles','company_id','\Company\Company_Role');
+$toolbelt_base->Users_Have_Roles = new \DatabaseLink\Table('Users_Have_Roles',$toolbelt_base->dblink);
+ADODB_Active_Record::TableHasMany('Users','Users_Have_Roles','user_id','\Authentication\Users_Have_Roles');
 
 ?>

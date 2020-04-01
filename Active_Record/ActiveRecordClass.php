@@ -123,6 +123,7 @@ abstract class Active_Record extends ADODB_Active_Record
     }
     /**
      * @throws Varchar_Too_Long_To_Set
+     * @throws UpdateFailed — if adodb->save method fails
      */
     protected function Set_Varchar(string $column_name,string $value_to_set,bool $trim_if_too_long = true,bool $update_immediately = true) : void
     {
