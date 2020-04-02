@@ -104,7 +104,7 @@ function users_have_roles_Validate_Role_ID_Column(\DatabaseLink\Table $Users_Hav
         $column->Update_Column();
     }else
     {
-        $column = new \DatabaseLink\Column('access_token',$Users_Have_Roles,array(
+        $column = new \DatabaseLink\Column('role_id',$Users_Have_Roles,array(
             'COLUMN_TYPE' => 'int(11)',
             'COLUMN_DEFAULT' => null,
             'is_nullable' => false,

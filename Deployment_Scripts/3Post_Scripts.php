@@ -89,7 +89,9 @@ function Add_All_Constraints()
         array(array('Company_Configs','company_id'),array('Companies','id')),        
         array(array('Company_Configs','config_id'),array('Configs','id')),        
         array(array('Programs_Have_Sessions','client_id'),array('Programs','client_id')),
-        array(array('Company_Roles','company_id'),array('Companies','id'))   
+        array(array('Company_Roles','company_id'),array('Companies','id')),
+        [['Users_Have_Roles','user_id'],['Users','id']],
+        [['Users_Have_Roles','role_id'],['Company_Roles','id']]   
     );
 
     ForEach($from_to_columns as $index => $value)
@@ -108,6 +110,8 @@ function Add_All_Multi_Column_Unique_Indexes()
     global $toolbelt_base;
     $toolbelt_base->Company_Configs->Add_Unique_Columns(array('company_id','config_id'));
     $toolbelt_base->Programs_Have_Sessions->Add_Unique_Columns(array('client_id','user_id'));
+    $toolbelt_base->Company_Roles->Add_Unique_Columns(array('company_id','role_name'));
+    $toolbelt_base->Users->Add_Unique_Columns(array('company_id','username','project_name'));
     
 }
 ?>
