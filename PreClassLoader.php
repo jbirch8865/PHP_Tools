@@ -25,6 +25,7 @@ unset($read_only_dblink);
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "Authentication/UserClass.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "Company/Loader.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "API/Loader.php";
+require dirname(__FILE__) . DIRECTORY_SEPARATOR . "Authentication/UserRoleClass.php";
 $db = NewADOConnection('mysqli://'.$toolbelt_base->cConfigs->Get_Connection_Username().':'.$toolbelt_base->cConfigs->Get_Connection_Password().'@'.$toolbelt_base->cConfigs->Get_Connection_Hostname().'/'.$toolbelt_base->cConfigs->Get_Name_Of_Project_Database());
 ADOdb_Active_Record::SetDatabaseAdapter($db);
 ?>
