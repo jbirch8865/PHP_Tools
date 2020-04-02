@@ -13,7 +13,8 @@ class toolbelt_base
     public \DatabaseLink\Table $Company_Configs;
     public \DatabaseLink\Table $Users;
     public \DatabaseLink\Table $Programs_Have_Sessions;
-    
+    public \DatabaseLink\Table $Users_Have_Roles;
+    public \DatabaseLink\Table $Company_Roles;    
     /**
      * Call protected/private method of a class.
      *
@@ -45,6 +46,9 @@ class toolbelt extends toolbelt_base
     public \DatabaseLink\Table $Company_Configs;
     public \DatabaseLink\Table $Users;
     public \DatabaseLink\Table $Programs_Have_Sessions;
+    public \DatabaseLink\Table $Users_Have_Roles;
+    public \DatabaseLink\Table $Company_Roles;
+    
     
     function __construct()
     {
@@ -59,6 +63,8 @@ class toolbelt extends toolbelt_base
         $this->Company_Configs = $toolbelt_base->Company_Configs;
         $this->Users = $toolbelt_base->Users;
         $this->Programs_Have_Sessions = $toolbelt_base->Programs_Have_Sessions;
+        $this->Users_Have_Roles = $toolbelt_base->Users_Have_Roles;
+        $this->Company_Roles = $toolbelt_base->Company_Roles;
     }
 }
 
