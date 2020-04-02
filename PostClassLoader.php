@@ -13,6 +13,6 @@ $toolbelt_base->Programs_Have_Sessions = new \DatabaseLink\Table('Programs_Have_
 $toolbelt_base->Company_Roles = new \DatabaseLink\Table('Company_Roles',$toolbelt_base->dblink);
 ADODB_Active_Record::TableHasMany('Companies','Company_Roles','company_id','\Company\Company_Role');
 $toolbelt_base->Users_Have_Roles = new \DatabaseLink\Table('Users_Have_Roles',$toolbelt_base->dblink);
-ADODB_Active_Record::TableHasMany('Users','Users_Have_Roles','user_id','\Authentication\Users_Have_Roles');
+ADODB_Active_Record::TableHasMany('Users','Users_Have_Roles','user_id','\Authentication\User_Role');
 
 ?>
