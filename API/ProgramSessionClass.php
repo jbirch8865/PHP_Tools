@@ -8,7 +8,7 @@ use Active_Record\Object_Is_Currently_Inactive;
 class Program_Session extends Active_Record
 {
     public $_table = "Programs_Have_Sessions";
-
+    private string $username = ""; 
     function __construct()
     {
         parent::__construct();
@@ -36,6 +36,7 @@ class Program_Session extends Active_Record
             throw new \Active_Record\Object_Is_Already_Loaded("Program Session is already loaded");
         }
         $User = new \Authentication\User($username,$password,$company_id,false,$only_if_user_is_active);
+        $this->username = $username;
         try
         {
             $this->Load_From_Multiple_Vars(array(array('client_id',$client_id),array('user_id',$User->Get_Verified_ID())));
@@ -74,6 +75,10 @@ class Program_Session extends Active_Record
     public function Get_User_ID() : string
     {
         return $this->Get_Value_From_Name('user_id');
+    }
+    public function Get_Username() : string
+    {
+        return $this->username;
     }
     public function Get_Experation() : \DateTime
     {
