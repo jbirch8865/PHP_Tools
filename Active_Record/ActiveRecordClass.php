@@ -264,5 +264,31 @@ abstract class Active_Record extends ADODB_Active_Record
         }
         return $collection;
     }
+    public function Get_Array_Response_Collection(string $table_name) : array
+    {
+        $toolbelt = new \Test_Tools\toolbelt;
+        $parent_collection = [];
+        ForEach($this->$table_name as $table_object)
+        {
+            $collection = [];
+            ForEach($table_object as $property_name => $property_value)
+            {
+                if(is_string($property_value))
+                {
+                    $toolbelt->$table_name->Reset_Columns();
+                    while($column = $toolbelt->$table_name->Get_Columns())
+                    {
+                        if($column->Get_Column_Name() == $property_name && $column->Am_I_Included_In_Response())
+                        {
+                            $collection[$property_name] = $property_value;
+                            break;
+                        }
+                    }
+                }
+            }
+            $parent_collection[] = $collection;    
+        }
+        return $parent_collection;
+    }
 }
 ?>
