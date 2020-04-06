@@ -6,7 +6,7 @@ company_roles_Validate_Company_ID_Column($toolbelt_base->Company_Roles);
 company_roles_Validate_Role_Name($toolbelt_base->Company_Roles);
 company_roles_Validate_Active_Status_Column($toolbelt_base->Company_Roles);
 $toolbelt_base->Company_Roles->Load_Columns();
-ADODB_Active_Record::TableHasMany('Companies','Company_Roles','company_id','\Company\Company_Role');
+//ADODB_Active_Record::TableHasMany('Companies','Company_Roles','company_id','\Company\Company_Role');
 function company_roles_Validate_ID_Column(\DatabaseLink\Table $Company_Roles)
 {
     if($column = $Company_Roles->Get_Column('id'))

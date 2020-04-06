@@ -11,6 +11,9 @@ $cConfigs = new \config\ConfigurationFile();
 $toolbelt_base->cConfigs = $cConfigs;
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . '../../adodb/adodb-php/adodb-active-record.inc.php';
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Active_Record/ActiveRecordClass.php';
+require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Active_Record/ActiveRecordRelationManagementClass.php';
+global $active_record_relationship_manager;
+$toolbelt_base->active_record_relationship_manager = new \Active_Record\RelationshipManager;
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "Database/ClassLoader.php";
 $root_dblink = new \DatabaseLink\MySQLLink("",2);
 $toolbelt_base->root_dblink = $root_dblink;
@@ -28,4 +31,5 @@ require dirname(__FILE__) . DIRECTORY_SEPARATOR . "API/Loader.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "Authentication/UserRoleClass.php";
 $db = NewADOConnection('mysqli://'.$toolbelt_base->cConfigs->Get_Connection_Username().':'.$toolbelt_base->cConfigs->Get_Connection_Password().'@'.$toolbelt_base->cConfigs->Get_Connection_Hostname().'/'.$toolbelt_base->cConfigs->Get_Name_Of_Project_Database());
 ADOdb_Active_Record::SetDatabaseAdapter($db);
+
 ?>

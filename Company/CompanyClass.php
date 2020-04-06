@@ -4,11 +4,16 @@ namespace Company;
 use Active_Record\Active_Record;
 class Company extends Active_Record
 {
+    private array $table_has_many = [['Company_Configs','company_id','Companies','\Company\Company_Config']];
     public $_table = "Companies";
 
     function __construct()
     {
         parent::__construct();
+        ForEach($this->table_has_many as $relation)
+        {
+//            \ADODB_Active_Record::TableHasMany($relation[1],$relation[0],$relation[2],$relation[3]);
+        }
     }
     public function Get_Company_Name() : string
     {

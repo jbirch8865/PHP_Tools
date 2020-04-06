@@ -8,8 +8,8 @@ user_Validate_CSPRING_Column($toolbelt_base->Users);
 user_Validate_User_Active_Status_Column($toolbelt_base->Users);
 user_Validate_Password_Column($toolbelt_base->Users);
 $toolbelt_base->Users->Load_Columns();
-ADODB_Active_Record::TableKeyHasMany('Companies','id','Users','company_id','\Company\Company');
-ADODB_Active_Record::TableBelongsTo('Users','Companies','company_id','id','\Company\Company');
+//ADODB_Active_Record::TableKeyHasMany('Companies','id','Users','company_id','\Company\Company');
+//ADODB_Active_Record::TableBelongsTo('Users','Companies','company_id','id','\Company\Company');
 
 function user_Validate_ID_Column(\DatabaseLink\Table $user_table)
 {

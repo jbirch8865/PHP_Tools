@@ -14,7 +14,9 @@ class toolbelt_base
     public \DatabaseLink\Table $Users;
     public \DatabaseLink\Table $Programs_Have_Sessions;
     public \DatabaseLink\Table $Users_Have_Roles;
-    public \DatabaseLink\Table $Company_Roles;    
+    public \DatabaseLink\Table $Company_Roles;   
+    public \Active_Record\RelationshipManager $active_record_relationship_manager;
+ 
     /**
      * Call protected/private method of a class.
      *
@@ -36,20 +38,6 @@ class toolbelt_base
 
 class toolbelt extends toolbelt_base
 {
-    public \config\ConfigurationFile $cConfigs;
-    public \DatabaseLink\MySQLLink $root_dblink;
-    public \DatabaseLink\Database $dblink;
-    public \DatabaseLink\Database $read_only_dblink;
-    public \DatabaseLink\Table $Companies;
-    public \DatabaseLink\Table $Programs;
-    public \DatabaseLink\Table $Configs;
-    public \DatabaseLink\Table $Company_Configs;
-    public \DatabaseLink\Table $Users;
-    public \DatabaseLink\Table $Programs_Have_Sessions;
-    public \DatabaseLink\Table $Users_Have_Roles;
-    public \DatabaseLink\Table $Company_Roles;
-    
-    
     function __construct()
     {
         global $toolbelt_base;
@@ -65,6 +53,7 @@ class toolbelt extends toolbelt_base
         $this->Programs_Have_Sessions = $toolbelt_base->Programs_Have_Sessions;
         $this->Users_Have_Roles = $toolbelt_base->Users_Have_Roles;
         $this->Company_Roles = $toolbelt_base->Company_Roles;
+        $this->active_record_relationship_manager = $toolbelt_base->active_record_relationship_manager;
     }
 }
 
