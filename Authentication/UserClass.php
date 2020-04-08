@@ -116,6 +116,7 @@ class User extends Active_Record implements iUser
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded — for company_role
      * @throws \Active_Record\Object_Has_Not_Been_Loaded — for user
+     * @throws \Active_Record\UpdateFailed if role already assigned
      */
     public function Assign_Company_Role(\Company\Company_Role $company_role): void
     {

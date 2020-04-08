@@ -91,7 +91,13 @@ function Create_Backend_User_If_Not_Already(\config\ConfigurationFile $cConfigs)
     $company = new \Company\Company;
     $company->Load_Company_By_ID(1);
     $user = new \Authentication\User('sandbox_master',$toolbelt->cConfigs->Get_Client_ID(),$company,true);
-    $user->Assign_Company_Role($company->Get_Master_Role());
+    try
+    {
+        $user->Assign_Company_Role($company->Get_Master_Role());
+    } catch (\Active_Record\UpdateFailed $e)
+    {
+        
+    }
 }
 function Add_All_Constraints()
 {
@@ -125,6 +131,7 @@ function Add_All_Multi_Column_Unique_Indexes()
     $toolbelt_base->Programs_Have_Sessions->Add_Unique_Columns(array('client_id','user_id'));
     $toolbelt_base->Company_Roles->Add_Unique_Columns(array('company_id','role_name'));
     $toolbelt_base->Users->Add_Unique_Columns(array('company_id','username','project_name'));
+    $toolbelt_base->Users_Have_Roles->Add_Unique_Columns(array('user_id','role_id'));
     
 }
 ?>
