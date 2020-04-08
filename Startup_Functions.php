@@ -143,4 +143,8 @@ function Create_Config_File(string $root_username,string $root_password,string $
     fwrite($file_handle,$ini_string);
     fclose($file_handle);
 }
+function The_Stupidest_Problem_Ever()
+{
+    \ADODB_Active_Record::TableKeyHasMany('Programs_Have_Sessions','user_id','Users_Have_Roles','user_id','\Authentication\User_Role');
+}
 ?>

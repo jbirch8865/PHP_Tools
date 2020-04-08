@@ -11,49 +11,57 @@ class Config extends Active_Record
         parent::__construct();
     }
     /**
-     * @throws User_Not_Set
      * @throws UpdateFailed
      */
     public function Create_Or_Update_Config(string $config_name,string $config_default_value) : void
     {
-        if(!$this->_saved)
+        try
         {
-            try
-            {
-                $this->Load_From_Varchar('config_name',$config_name);
-            } catch (\Active_Record\Active_Record_Object_Failed_To_Load $e)
-            {
+            $this->Load_From_Varchar('config_name',$config_name);
+        } catch (\Active_Record\Active_Record_Object_Failed_To_Load $e)
+        {
 
-            }
+        } catch (\Active_Record\Object_Is_Already_Loaded $e)
+        {
+            
         }
-        $this->config_name = $config_name;
-        $this->default_value = $config_default_value;
+        $this->Set_Config_Name($config_name);
+        $this->Set_Config_Default_Value($config_default_value);
         $this->Create_Object();    
     }
     /**
      * @throws Varchar_Too_Long_To_Set
+     * @throws UpdateFailed
      */
     public function Set_Config_Name(string $config_name,bool $trim_if_too_long = true,bool $update_immediately = false) : void
     {
-        $this->Set_Varchar('config_name',$config_name,$trim_if_too_long,$update_immediately);
+        $this->Set_Varchar($this->table_dblink->Get_Column('config_name'),$config_name,$trim_if_too_long,$update_immediately);
     }
     /**
      * @throws Varchar_Too_Long_To_Set
+     * @throws UpdateFailed
      */
     public function Set_Config_Default_Value(string $config_value,bool $update_immediately = false) : void
     {
-        $this->Set_Varchar('config_value',$config_value,false,$update_immediately);
+        $this->Set_Varchar($this->table_dblink->Get_Column('default_value'),$config_value,false,$update_immediately);
     }
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
     public function Get_Default_Config_Value() : string
     {
-        return $this->default_value;
+        return $this->Get_Value_From_Name('default_value');
     }
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
     public function Get_Config_Name() : string
     {
-        return $this->config_name;
+        return $this->Get_Value_From_Name('config_name');
     }
     /**
      * @throws Active_Record_Object_Failed_To_Load
+     * @throws Object_Is_Already_Loaded
      */
     public function Load_Config_By_Name(string $config_name) : void
     {
@@ -61,6 +69,7 @@ class Config extends Active_Record
     }
     /**
      * @throws Active_Record_Object_Failed_To_Load
+     * @throws Object_Is_Already_Loaded
      */
     public function Load_Config_By_ID(int $config_id) : void
     {

@@ -25,6 +25,7 @@ unset($cConfigs);
 unset($root_dblink);
 unset($dblink);
 unset($read_only_dblink);
+require dirname(__FILE__) . DIRECTORY_SEPARATOR . "Authentication/User_Interface.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "Authentication/UserClass.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "Company/Loader.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "API/Loader.php";

@@ -188,7 +188,7 @@ class Table
 				return $column;
 			}
 		}
-		return null;
+		throw new \DatabaseLink\Column_Does_Not_Exist($column_name.' does not exist in table '.$this->Get_Table_Name());
 	}
 	function Does_Column_Exist(string $column_name):bool
 	{

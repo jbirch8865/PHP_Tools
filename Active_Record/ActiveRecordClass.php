@@ -96,21 +96,22 @@ abstract class Active_Record extends ADODB_Active_Record
     }
     /**
      * @throws \DatabaseLink\Column_Does_Not_Exist if column id isn't present
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
-    public function Get_Verified_ID() : ?int
+    public function Get_Verified_ID() : int
     {
-        $id = (int) $this->Get_Value_From_Name('id');
-        return $id;
+        return (int) $this->Get_Value_From_Name('id');
     }
     /**
      * @throws \DatabaseLink\Column_Does_Not_Exist
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
     protected function Get_Value_From_Name(string $column_name) : ?string
     {
+        if(!$this->Is_Loaded()){throw new Object_Has_Not_Been_Loaded('Can not get value from '.$column_name.' because this object has not been loaded yet.');}
         if($this->table_dblink->Does_Column_Exist($column_name))
         {
-            $column_name = (string) $this->$column_name;
-            return $column_name;
+            return (string) $this->$column_name;
         }else
         {
             throw new \DatabaseLink\Column_Does_Not_Exist("Table ".$this->Get_Table_Name()." does not contain ".$column_name." column. Check schema to see primary key column");
@@ -125,19 +126,20 @@ abstract class Active_Record extends ADODB_Active_Record
      * @throws Varchar_Too_Long_To_Set
      * @throws UpdateFailed — if adodb->save method fails
      */
-    protected function Set_Varchar(string $column_name,string $value_to_set,bool $trim_if_too_long = true,bool $update_immediately = true) : void
+    protected function Set_Varchar(\DatabaseLink\Column $column,string $value_to_set,bool $trim_if_too_long = true,bool $update_immediately = true) : void
     {
         if($trim_if_too_long)
         {
-            $value_to_set = substr($value_to_set,0,$this->table_dblink->Get_Column($column_name)->Get_Data_Length());
+            $value_to_set = substr($value_to_set,0,$column->Get_Data_Length());
         }else
         {
-            if(strlen($value_to_set) > $this->table_dblink->Get_Column($column_name)->Get_Data_Length())
+            if(strlen($value_to_set) > $column->Get_Data_Length())
             {
-                throw new Varchar_Too_Long_To_Set($value_to_set." is too long of a string for column ".$column_name." in table ".$this->Get_Table_Name());
+                throw new Varchar_Too_Long_To_Set($value_to_set." is too long of a string for column ".$column->Get_Column_Name()." in table ".$this->Get_Table_Name());
             }
         }
-        $this->$column_name = $value_to_set;
+        $name = $column->Get_Column_Name();
+        $this->$name = $value_to_set;
         if($update_immediately)
         {
             $this->Create_Object();
@@ -146,9 +148,10 @@ abstract class Active_Record extends ADODB_Active_Record
     /**
      * @throws Update_Failed
      */
-    protected function Set_Timestamp(string $column_name,DateTime $value_to_set,bool $update_immediately = true) : void
+    protected function Set_Timestamp(\DatabaseLink\Column $column,DateTime $value_to_set,bool $update_immediately = true) : void
     {
-        $this->$column_name = $value_to_set->format('Y-m-d H:i:s');
+        $name = $column->Get_Column_Name();
+        $this->$name = $value_to_set->format('Y-m-d H:i:s');
         if($update_immediately)
         {
             $this->Create_Object();
@@ -157,42 +160,68 @@ abstract class Active_Record extends ADODB_Active_Record
     /**
      * @throws Update_Failed
      */
-    protected function Set_Int(string $column_name,int $value_to_set,bool $update_immediately = true) : void
+    protected function Set_Int(\DatabaseLink\Column $column,int $value_to_set,bool $update_immediately = true) : void
     {
-        $this->$column_name = $value_to_set;
+        $name = $column->Get_Column_Name();
+        $this->$name = $value_to_set;
         if($update_immediately)
         {
             $this->Create_Object();
         }
     }
+    /**
+     * @throws \DatabaseLink\Column_Does_Not_Exist if table does not support this option
+     */
     protected function Set_Object_Active() : void
     {
-        if($this->table_dblink->Does_Column_Exist('active_status')) 
+        try
         {
-            $this->active_status = 1;
-        }
+            $this->Get_Active_Status();
+        } catch (\Active_Record\Object_Has_Not_Been_Loaded $e)
+        {}
+        $this->active_status = 1;
     }
+    /**
+     * @throws \DatabaseLink\Column_Does_Not_Exist if table does not support this option
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
     protected function Set_Object_Inactive() : void
     {
-        if($this->table_dblink->Does_Column_Exist('active_status')) 
-        {
-            $this->active_status = 0;
-        }
+        $this->Get_Active_Status();
+        $this->active_status = 0;
     }
+    /**
+     * @throws \DatabaseLink\Column_Does_Not_Exist if table does not support this option
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
     protected function Is_Object_Active() : bool
     {  
         return $this->Get_Active_Status();
     }
+    /**
+     * @throws \DatabaseLink\Column_Does_Not_Exist if table does not support this option
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
     private function Get_Active_Status() : bool
     {
-        return (bool) $this->active_status;
+        if(!$this->table_dblink->Does_Column_Exist('active_status')) 
+        {
+            throw new \DatabaseLink\Column_Does_Not_Exist('This table doesn\'t support active_status.');
+        }
+        return (bool) $this->Get_Value_From_Name('active_status');
     }
     /**
      * @throws UpdateFailed if adodb->save method fails
      */
     protected function Create_Object() : void
     {
-        $this->Set_Object_Active();
+        try
+        {
+            $this->Set_Object_Active();
+        } catch (\DatabaseLink\Column_Does_Not_Exist $e)
+        {
+
+        }
         $this->Update_Object();
     }
     /**
@@ -210,9 +239,11 @@ abstract class Active_Record extends ADODB_Active_Record
      * 
      * @param string $password verify your intentions by passing the word "destroy"
      * @throws \Exception if the password isn't correct
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
     protected function Delete_Object(string $password) : void
     {
+        $this->Get_Verified_ID();//This will throw the exception of object not loaded
         if($password != "destroy")
         {
             throw new \Exception("destroy password not set.");
@@ -239,44 +270,47 @@ abstract class Active_Record extends ADODB_Active_Record
     }
     /**
      * @throws \DatabaseLink\SQLQueryError
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
     protected function Change_Primary_Key(int $new_key,int $old_key) : void
     {
+        $this->Get_Verified_ID();
         $this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("UPDATE `".$this->Get_Table_Name()."` SET `id` = ? WHERE `id` = ?",array($new_key,$old_key));
     }
-    public function Get_Response_Collection() : array
+    /**
+     * @param int $recursive_depth is the depth you want to go on loading relational objects
+     */
+    public function Get_Response_Collection(int $recursive_depth = 0) : array
     {
+        if($recursive_depth > 0)
+        {
+            $this->Load_All_Relationships();
+            $toolbelt = new \Test_Tools\toolbelt;
+            $related_tables = $toolbelt->active_record_relationship_manager->Get_Relationships_From_Parent_Table($this->table_dblink);
+        }
         $collection = [];
         ForEach($this as $property_name => $property_value)
         {
             if(is_string($property_value))
             {
-                $this->table_dblink->Reset_Columns();
-                while($column = $this->table_dblink->Get_Columns())
+                if(key_exists($property_name,$related_tables))
                 {
-                    if($column->Get_Column_Name() == $property_name && $column->Am_I_Included_In_Response())
+                    if(is_array($property_value))
                     {
-                        $collection[$property_name] = $property_value;
+                        ForEach($property_value as $active_record)
+                        {
+                            $collection[$property_name][] = $active_record->Get_Response_Collection($recursive_depth - 1);
+                        }
+                        break;
+                    }else
+                    {
+                        $collection[$property_name] = $property_value->Get_Response_Collection($recursive_depth - 1);
                         break;
                     }
-                }
-            }
-        }
-        return $collection;
-    }
-    public function Get_Array_Response_Collection(string $table_name) : array
-    {
-        $toolbelt = new \Test_Tools\toolbelt;
-        $parent_collection = [];
-        ForEach($this->$table_name as $table_object)
-        {
-            $collection = [];
-            ForEach($table_object as $property_name => $property_value)
-            {
-                if(is_string($property_value))
+                }else
                 {
-                    $toolbelt->$table_name->Reset_Columns();
-                    while($column = $toolbelt->$table_name->Get_Columns())
+                    $this->table_dblink->Reset_Columns();
+                    while($column = $this->table_dblink->Get_Columns())
                     {
                         if($column->Get_Column_Name() == $property_name && $column->Am_I_Included_In_Response())
                         {
@@ -284,11 +318,21 @@ abstract class Active_Record extends ADODB_Active_Record
                             break;
                         }
                     }
+    
                 }
             }
-            $parent_collection[] = $collection;    
         }
-        return $parent_collection;
+        return $collection;
+    }
+
+    private function Load_All_Relationships() : void
+    {
+        $toolbelt = new \Test_Tools\toolbelt;
+        $relationships_to_load = $toolbelt->active_record_relationship_manager->Get_Relationships_From_Parent_Table($this->table_dblink);
+        ForEach($relationships_to_load as $child_table_name)
+        {
+            $this->LoadRelations($child_table_name);
+        }
     }
 }
 ?>

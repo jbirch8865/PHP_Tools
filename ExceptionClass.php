@@ -179,6 +179,13 @@ Class Object_Is_Already_Loaded Extends \exception\CustomException{
 	}
 }
 
+Class Object_Has_Not_Been_Loaded Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}
+}
+
 Class Object_Is_Currently_Inactive Extends \exception\CustomException{
 	function __construct($message = Null)
 	{

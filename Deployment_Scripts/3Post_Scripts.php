@@ -78,7 +78,9 @@ function Create_Configs()
 }
 function Create_Backend_User_If_Not_Already(\config\ConfigurationFile $cConfigs)
 {
-    $user = new \Authentication\User($cConfigs->Get_Name_Of_Project(),$cConfigs->Get_Connection_Password(),1,true);
+    $company = new \Company\Company;
+    $company->Load_Company_By_ID(1);
+    $user = new \Authentication\User($cConfigs->Get_Name_Of_Project(),$cConfigs->Get_Connection_Password(),$company,true);
 }
 function Add_All_Constraints()
 {
