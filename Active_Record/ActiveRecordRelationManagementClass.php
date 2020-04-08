@@ -111,19 +111,28 @@ class RelationshipManager
 
     function Get_Relationships_From_Parent_Table(\DatabaseLink\Table $parent_table)
     {
+
         $children = [];
-        ForEach($this->table_belongs_to[$parent_table] as $child_name => $relationship)
+        if(isset($this->table_belongs_to[$parent_table->Get_Table_Name()]))
         {
-            $children[] = $child_name;
+            ForEach($this->table_belongs_to[$parent_table->Get_Table_Name()] as $child_name => $relationship)
+            {
+                $children[] = $child_name;
+            }    
         }
-        ForEach($this->table_has_many[$parent_table] as $child_name => $relationship)
+        if (isset($this->table_has_many[$parent_table->Get_Table_Name()])) 
         {
-            $children[] = $child_name;
+            foreach ($this->table_has_many[$parent_table->Get_Table_Name()] as $child_name => $relationship) {
+                $children[] = $child_name;
+            }
         }
-        ForEach($this->table_key_has_many[$parent_table] as $child_name => $relationship)
+        if (isset($this->table_key_has_many[$parent_table->Get_Table_Name()])) 
         {
-            $children[] = $child_name;
-        }
+            foreach ($this->table_key_has_many[$parent_table->Get_Table_Name()] as $child_name => $relationship) {
+                $children[] = $child_name;
+            }
+        }    
+        return $children;
     }
 
 }

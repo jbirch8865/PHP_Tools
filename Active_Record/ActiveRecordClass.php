@@ -282,6 +282,7 @@ abstract class Active_Record extends ADODB_Active_Record
      */
     public function Get_Response_Collection(int $recursive_depth = 0) : array
     {
+        $related_tables = [];
         if($recursive_depth > 0)
         {
             $this->Load_All_Relationships();
@@ -292,8 +293,19 @@ abstract class Active_Record extends ADODB_Active_Record
         ForEach($this as $property_name => $property_value)
         {
             if(is_string($property_value))
+            {            
+                $this->table_dblink->Reset_Columns();
+                while($column = $this->table_dblink->Get_Columns())
+                {
+                    if($column->Get_Column_Name() == $property_name && $column->Am_I_Included_In_Response())
+                    {
+                        $collection[$property_name] = $property_value;
+                        break;
+                    }
+                }
+            }else
             {
-                if(key_exists($property_name,$related_tables))
+                if(in_array($property_name,$related_tables))
                 {
                     if(is_array($property_value))
                     {
@@ -307,18 +319,6 @@ abstract class Active_Record extends ADODB_Active_Record
                         $collection[$property_name] = $property_value->Get_Response_Collection($recursive_depth - 1);
                         break;
                     }
-                }else
-                {
-                    $this->table_dblink->Reset_Columns();
-                    while($column = $this->table_dblink->Get_Columns())
-                    {
-                        if($column->Get_Column_Name() == $property_name && $column->Am_I_Included_In_Response())
-                        {
-                            $collection[$property_name] = $property_value;
-                            break;
-                        }
-                    }
-    
                 }
             }
         }
