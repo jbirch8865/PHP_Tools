@@ -115,7 +115,7 @@ function program_Validate_Secret_Column(\DatabaseLink\Table $program_table)
 }
 function program_Validate_Client_ID_Column(\DatabaseLink\Table $program_table)
 {
-    if($column = $program_table->Get_Column('client_id'))
+    if($column = $program_table->Get_Column('Client_ID'))
     {
         if($column->Get_Column_Key() != "UNI")
         {
@@ -140,7 +140,7 @@ function program_Validate_Client_ID_Column(\DatabaseLink\Table $program_table)
         $column->Update_Column();
     }else
     {
-        $column = new \DatabaseLink\Column('client_id',$program_table,array(
+        $column = new \DatabaseLink\Column('Client_ID',$program_table,array(
             'COLUMN_TYPE' => 'varchar(32)',
             'COLUMN_DEFAULT' => null,
             'is_nullable' => false,

@@ -313,11 +313,9 @@ abstract class Active_Record extends ADODB_Active_Record
                         {
                             $collection[$property_name][] = $active_record->Get_Response_Collection($recursive_depth - 1);
                         }
-                        break;
                     }else
                     {
                         $collection[$property_name] = $property_value->Get_Response_Collection($recursive_depth - 1);
-                        break;
                     }
                 }
             }

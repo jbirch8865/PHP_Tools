@@ -113,5 +113,32 @@ class User extends Active_Record implements iUser
             $this->Delete_Object('destroy');
         }
     }
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded — for company_role
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded — for user
+     */
+    public function Assign_Company_Role(\Company\Company_Role $company_role): void
+    {
+        $user_role = new \Authentication\User_Role;
+        $user_role->Set_Role($company_role,false);
+        $user_role->Set_User($this,true);
+    }
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded — for user and company_role
+     * @throws Active_Record_Object_Failed_To_Load
+     */
+    public function Remove_Company_Role(\Company\Company_Role $company_role): void
+    {
+        $user_role = new \Authentication\User_Role;
+        $user_role->Load_User_Role_From_User_And_Company_Role($this,$company_role);
+        $user_role->Delete_Object();
+    }
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
+    public function Get_User_ID(): int
+    {
+        return $this->Get_Verified_ID();
+    }
 }
 ?>

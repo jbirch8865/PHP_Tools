@@ -43,7 +43,7 @@ function programs_have_sessions_Validate_ID_Column(\DatabaseLink\Table $programs
 }
 function programs_have_sessions_Validate_Client_ID_Column(\DatabaseLink\Table $programs_have_sessions_table)
 {
-    if($column = $programs_have_sessions_table->Get_Column('client_id'))
+    if($column = $programs_have_sessions_table->Get_Column('Client_ID'))
     {
         if($column->Get_Column_Key() != "")
         {
@@ -68,7 +68,7 @@ function programs_have_sessions_Validate_Client_ID_Column(\DatabaseLink\Table $p
         $column->Update_Column();
     }else
     {
-        $column = new \DatabaseLink\Column('client_id',$programs_have_sessions_table,array(
+        $column = new \DatabaseLink\Column('Client_ID',$programs_have_sessions_table,array(
             'COLUMN_TYPE' => 'varchar(64)',
             'COLUMN_DEFAULT' => null,
             'is_nullable' => false,

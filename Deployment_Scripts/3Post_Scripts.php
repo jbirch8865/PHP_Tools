@@ -14,6 +14,8 @@ try
 }
 function Create_System_If_Not_Already()
 {
+    $toolbelt = new \Test_Tools\toolbelt;
+    if($toolbelt->cConfigs->Is_Prod()){return;}
     try
     {
         $company = new \Company\Company();
@@ -37,28 +39,34 @@ function Create_System_If_Not_Already()
             $company->Change_Primary_Key(1,$company->Get_Verified_ID());
         }
     }
+    if(is_null($company->Get_Master_Role()))
+    {
+        $company->Create_Company_Role('master');
+    }
 }
 function Create_Backend_Program_For_API(\Test_Tools\toolbelt_base $toolbelt_base)
 {
+    $toolbelt = new \Test_Tools\toolbelt;
+    if($toolbelt->cConfigs->Is_Prod()){return;}
     try
     {
         $program = new \API\Program();
         $program->Load_Program_By_ID(1);
-        if(!$program->Get_Program_Name() == 'Front_End')
+        if(!$program->Get_Program_Name() == 'Sandbox')
         {
-            $program->Get_Program_Name('Front_End');
+            $program->Get_Program_Name('Sandbox');
         }
     } catch (\Active_Record\Active_Record_Object_Failed_To_Load $e)
     {
         try
         {
             $program = new \API\Program();
-            $program->Load_Program_By_Name('Front_End');
+            $program->Load_Program_By_Name('Sandbox');
             $program->Change_Primary_Key(1,$program->Get_Verified_ID());
         } catch (\Active_Record\Active_Record_Object_Failed_To_Load $e)
         {
             $program = new \API\Program();
-            $program->Create_Project('Front_End');
+            $program->Create_Project('Sandbox');
         }
     }
     $toolbelt_base->cConfigs->Set_Client_ID($program->Get_Client_ID());
@@ -78,9 +86,12 @@ function Create_Configs()
 }
 function Create_Backend_User_If_Not_Already(\config\ConfigurationFile $cConfigs)
 {
+    $toolbelt = new \Test_Tools\toolbelt;
+    if($toolbelt->cConfigs->Is_Prod()){return;}
     $company = new \Company\Company;
     $company->Load_Company_By_ID(1);
-    $user = new \Authentication\User($cConfigs->Get_Name_Of_Project(),$cConfigs->Get_Connection_Password(),$company,true);
+    $user = new \Authentication\User('sandbox_master',$toolbelt->cConfigs->Get_Client_ID(),$company,true);
+    $user->Assign_Company_Role($company->Get_Master_Role());
 }
 function Add_All_Constraints()
 {
@@ -90,7 +101,7 @@ function Add_All_Constraints()
         array(array('Programs_Have_Sessions','user_id'),array('Users','id')),        
         array(array('Company_Configs','company_id'),array('Companies','id')),        
         array(array('Company_Configs','config_id'),array('Configs','id')),        
-        array(array('Programs_Have_Sessions','client_id'),array('Programs','client_id')),
+        array(array('Programs_Have_Sessions','Client_ID'),array('Programs','Client_ID')),
         array(array('Company_Roles','company_id'),array('Companies','id')),
         [['Users_Have_Roles','user_id'],['Users','id']],
         [['Users_Have_Roles','role_id'],['Company_Roles','id']]   
@@ -111,7 +122,7 @@ function Add_All_Multi_Column_Unique_Indexes()
 {
     global $toolbelt_base;
     $toolbelt_base->Company_Configs->Add_Unique_Columns(array('company_id','config_id'));
-    $toolbelt_base->Programs_Have_Sessions->Add_Unique_Columns(array('client_id','user_id'));
+    $toolbelt_base->Programs_Have_Sessions->Add_Unique_Columns(array('Client_ID','user_id'));
     $toolbelt_base->Company_Roles->Add_Unique_Columns(array('company_id','role_name'));
     $toolbelt_base->Users->Add_Unique_Columns(array('company_id','username','project_name'));
     

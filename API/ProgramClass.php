@@ -23,9 +23,9 @@ class Program extends Active_Record
      * @throws Active_Record_Object_Failed_To_Load
      * @throws Object_Is_Already_Loaded
      */
-    public function Load_Program_By_Client_ID(string $client_id) : void
+    public function Load_Program_By_Client_ID(string $Client_ID) : void
     {
-        $this->Load_From_Varchar('client_id',$client_id);
+        $this->Load_From_Varchar('Client_ID',$Client_ID);
     }
     /**
      * @throws Active_Record_Object_Failed_To_Load
@@ -46,7 +46,7 @@ class Program extends Active_Record
         }
         $this->Set_Varchar($this->table_dblink->Get_Column('program_name'),$program_name,true,false);
         $this->Set_Varchar($this->table_dblink->Get_Column('secret'),Generate_CSPRNG(48),false,false);
-        $this->Set_Varchar($this->table_dblink->Get_Column('client_id'),Generate_CSPRNG(32),false,true);
+        $this->Set_Varchar($this->table_dblink->Get_Column('Client_ID'),Generate_CSPRNG(32),false,true);
     }
     /**
      * @throws SQLQueryError
@@ -85,7 +85,7 @@ class Program extends Active_Record
      */
     public function Get_Client_ID() : string
     {
-        return $this->Get_Value_From_Name('client_id');
+        return $this->Get_Value_From_Name('Client_ID');
     }
     /**
      * This table doesn't have active status, delete and create are the only options

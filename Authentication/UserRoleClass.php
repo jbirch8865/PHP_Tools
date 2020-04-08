@@ -65,6 +65,13 @@ class User_Role extends Active_Record implements iUser
     {
         $this->Load_From_Multiple_Vars([['user_id',$user->Get_Verified_ID()],['role_id',$company_role->Get_Verified_ID()]]);
     }
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
+    public function Delete_Object() : void
+    {
+        $this->Delete_Object('destroy');
+    }
 }
 
 ?>

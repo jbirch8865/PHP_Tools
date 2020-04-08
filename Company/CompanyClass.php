@@ -157,6 +157,17 @@ class Company extends Active_Record
         $this->LoadRelations('Company_Roles');
     }
 
+    function Get_Master_Role() : ?\Company\Company_Role
+    {
+        ForEach($this->Company_Roles as $company_role)
+        {
+            if($company_role->Get_Role_Name() == 'master')
+            {
+                return $company_role;
+            }
+        }
+        return null;
+    }
     function Delete_Company(bool $make_inactive = true) : void
     {
         if($make_inactive)
