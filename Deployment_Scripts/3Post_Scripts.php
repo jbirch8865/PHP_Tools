@@ -101,7 +101,7 @@ function Add_All_Constraints()
         array(array('Programs_Have_Sessions','user_id'),array('Users','id')),        
         array(array('Company_Configs','company_id'),array('Companies','id')),        
         array(array('Company_Configs','config_id'),array('Configs','id')),        
-        array(array('Programs_Have_Sessions','Client_ID'),array('Programs','Client_ID')),
+        array(array('Programs_Have_Sessions','client_id'),array('Programs','client_id')),
         array(array('Company_Roles','company_id'),array('Companies','id')),
         [['Users_Have_Roles','user_id'],['Users','id']],
         [['Users_Have_Roles','role_id'],['Company_Roles','id']]   

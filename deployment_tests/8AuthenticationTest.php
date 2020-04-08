@@ -67,7 +67,7 @@ class AuthenticationTest extends \PHPUnit\Framework\TestCase
     function test_Delete_Temp_User()
     {
         $user = new \Authentication\User('temp_user_delete_me','Basic_Password',$this->company,false);
-        $user->Delete_User();
+        $user->Delete_User(false);
         $this->expectException(\Authentication\User_Does_Not_Exist::class);
         $user = new \Authentication\User('temp_user','Basic_Password',$this->company,false);
 

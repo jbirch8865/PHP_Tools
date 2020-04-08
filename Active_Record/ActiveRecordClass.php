@@ -189,6 +189,7 @@ abstract class Active_Record extends ADODB_Active_Record
     {
         $this->Get_Active_Status();
         $this->active_status = 0;
+        $this->Update_Object();
     }
     /**
      * @throws \DatabaseLink\Column_Does_Not_Exist if table does not support this option
