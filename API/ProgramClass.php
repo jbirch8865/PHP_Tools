@@ -46,7 +46,7 @@ class Program extends Active_Record
         }
         $this->Set_Varchar($this->table_dblink->Get_Column('program_name'),$program_name,true,false);
         $this->Set_Varchar($this->table_dblink->Get_Column('secret'),Generate_CSPRNG(48),false,false);
-        $this->Set_Varchar($this->table_dblink->Get_Column('Client_ID'),Generate_CSPRNG(32),false,true);
+        $this->Set_Varchar($this->table_dblink->Get_Column('client_id'),Generate_CSPRNG(32),false,true);
     }
     /**
      * @throws SQLQueryError
@@ -85,7 +85,7 @@ class Program extends Active_Record
      */
     public function Get_Client_ID() : string
     {
-        return $this->Get_Value_From_Name('Client_ID');
+        return $this->Get_Value_From_Name('client_id');
     }
     /**
      * This table doesn't have active status, delete and create are the only options

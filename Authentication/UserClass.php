@@ -131,7 +131,7 @@ class User extends Active_Record implements iUser
     {
         $user_role = new \Authentication\User_Role;
         $user_role->Load_User_Role_From_User_And_Company_Role($this,$company_role);
-        $user_role->Delete_Object();
+        $user_role->Delete_User_Role();
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded

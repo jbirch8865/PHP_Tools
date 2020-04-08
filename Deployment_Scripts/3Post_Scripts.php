@@ -122,7 +122,7 @@ function Add_All_Multi_Column_Unique_Indexes()
 {
     global $toolbelt_base;
     $toolbelt_base->Company_Configs->Add_Unique_Columns(array('company_id','config_id'));
-    $toolbelt_base->Programs_Have_Sessions->Add_Unique_Columns(array('Client_ID','user_id'));
+    $toolbelt_base->Programs_Have_Sessions->Add_Unique_Columns(array('client_id','user_id'));
     $toolbelt_base->Company_Roles->Add_Unique_Columns(array('company_id','role_name'));
     $toolbelt_base->Users->Add_Unique_Columns(array('company_id','username','project_name'));
     

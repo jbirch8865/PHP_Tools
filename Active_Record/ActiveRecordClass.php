@@ -276,6 +276,7 @@ abstract class Active_Record extends ADODB_Active_Record
     {
         $this->Get_Verified_ID();
         $this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("UPDATE `".$this->Get_Table_Name()."` SET `id` = ? WHERE `id` = ?",array($new_key,$old_key));
+        $this->Load('id = 1');
     }
     /**
      * @param int $recursive_depth is the depth you want to go on loading relational objects

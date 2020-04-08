@@ -43,13 +43,13 @@ class Program_Session extends Active_Record implements \Authentication\iUser
         $User = new \Authentication\User($username,$password,$company,false,$only_if_user_is_active);
         try
         {
-            $this->Load_From_Multiple_Vars(array(array('Client_ID',$Client_ID),array('user_id',$User->Get_Verified_ID())));
+            $this->Load_From_Multiple_Vars(array(array('client_id',$Client_ID),array('user_id',$User->Get_Verified_ID())));
             $dateTime = new \DateTime(gmdate('Y-m-d H:i:s',strtotime('+'.$User->Companies->Get_Session_Time_Limit()." seconds")));
             $this->Set_Varchar($this->table_dblink->Get_Column('access_token'),Generate_CSPRNG(45),false,false);
             $this->Set_Timestamp($this->table_dblink->Get_Column('experation_timestamp'),$dateTime,true);
         } catch (Active_Record_Object_Failed_To_Load $e)
         {
-            $this->Set_Varchar($this->table_dblink->Get_Column('Client_ID'),$Client_ID,false,false);
+            $this->Set_Varchar($this->table_dblink->Get_Column('client_id'),$Client_ID,false,false);
             $this->Set_Varchar($this->table_dblink->Get_Column('access_token'),Generate_CSPRNG(45),false,false);
             $dateTime = new \DateTime(gmdate('Y-m-d H:i:s',strtotime('+'.$User->Companies->Get_Session_Time_Limit()." seconds")));
             $this->Set_Timestamp($this->table_dblink->Get_Column('experation_timestamp'),$dateTime,false);
@@ -141,7 +141,7 @@ class Program_Session extends Active_Record implements \Authentication\iUser
         {
             if($user_role->Company_Roles->Get_Verified_ID() == $company_role->Get_Verified_ID())
             {
-                $user_role->Delete_Object();
+                $user_role->Delete_User_Role();
                 return;
             }
         }

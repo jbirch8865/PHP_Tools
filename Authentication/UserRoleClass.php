@@ -6,7 +6,7 @@ use Company\Company_Role;
 use Active_Record\Active_Record;
 use Company\Company;
 
-class User_Role extends Active_Record implements iUser
+class User_Role extends Active_Record
 {
     public $_table = "Users_Have_Roles";
 
@@ -68,7 +68,7 @@ class User_Role extends Active_Record implements iUser
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
-    public function Delete_Object() : void
+    public function Delete_User_Role() : void
     {
         $this->Delete_Object('destroy');
     }
