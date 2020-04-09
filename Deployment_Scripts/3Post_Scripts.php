@@ -1,10 +1,4 @@
 <?php
-Add_All_Constraints();
-Add_All_Multi_Column_Unique_Indexes();
-Create_Configs();
-Create_System_If_Not_Already();
-Create_Backend_User_If_Not_Already($toolbelt_base->cConfigs);
-Create_Backend_Program_For_API($toolbelt_base);
 try
 {
     $toolbelt_base->cConfigs->Save_Environment();
@@ -12,6 +6,12 @@ try
 {
     $toolbelt_base->cConfigs->Set_Dev_Environment();
 }
+Add_All_Constraints();
+Add_All_Multi_Column_Unique_Indexes();
+Create_Backend_Program_For_API($toolbelt_base);
+Create_Configs();
+Create_System_If_Not_Already();
+Create_Backend_User_If_Not_Already($toolbelt_base->cConfigs);
 function Create_System_If_Not_Already()
 {
     $toolbelt = new \Test_Tools\toolbelt;
