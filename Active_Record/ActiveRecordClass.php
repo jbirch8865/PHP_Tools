@@ -282,12 +282,12 @@ abstract class Active_Record extends ADODB_Active_Record
     /**
      * @param int $recursive_depth is the depth you want to go on loading relational objects
      */
-    public function Get_Response_Collection(int $recursive_depth = 0) : array
+    public function Get_Response_Collection(int $recursive_depth = 0,int $offset = 0,int $limit = 1) : array
     {
         $related_tables = [];
         if($recursive_depth > 0)
         {
-            $this->Load_All_Relationships();
+            $this->Load_All_Relationships($offset,$limit);
             $toolbelt = new \Test_Tools\toolbelt;
             $related_tables = $toolbelt->active_record_relationship_manager->Get_Relationships_From_Parent_Table($this->table_dblink);
         }
@@ -325,13 +325,13 @@ abstract class Active_Record extends ADODB_Active_Record
         return $collection;
     }
 
-    private function Load_All_Relationships() : void
+    private function Load_All_Relationships(int $offset,int $limit) : void
     {
         $toolbelt = new \Test_Tools\toolbelt;
         $relationships_to_load = $toolbelt->active_record_relationship_manager->Get_Relationships_From_Parent_Table($this->table_dblink);
         ForEach($relationships_to_load as $child_table_name)
         {
-            $this->LoadRelations($child_table_name);
+            $this->LoadRelations($child_table_name,'',$offset,$limit);
         }
     }
 }
