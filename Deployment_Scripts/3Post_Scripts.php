@@ -90,7 +90,7 @@ function Create_Backend_User_If_Not_Already(\config\ConfigurationFile $cConfigs)
     if($toolbelt->cConfigs->Is_Prod()){return;}
     $company = new \Company\Company;
     $company->Load_Company_By_ID(1);
-    $user = new \Authentication\User('sandbox_master',$toolbelt->cConfigs->Get_Client_ID(),$company,true);
+    $user = new \Authentication\User('default',$toolbelt->cConfigs->Get_Client_ID(),$company,true);
     try
     {
         $user->Assign_Company_Role($company->Get_Master_Role());

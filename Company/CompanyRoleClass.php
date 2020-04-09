@@ -50,6 +50,21 @@ class Company_Role extends Active_Record
     {
         $this->Load_From_Varchar('role_name',$role_name);
     }
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     * 
+     */
+    public function Delete_Role(bool $mark_inactive = true) : void
+    {
+        if($mark_inactive)
+        {
+            $this->Set_Object_Inactive();
+        }else
+        {
+            $this->Delete_Object('destroy');
+
+        }
+    }
 }
 
 ?>
