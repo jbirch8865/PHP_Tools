@@ -5,6 +5,7 @@ use Active_Record\Active_Record;
 use Active_Record\Object_Is_Already_Loaded;
 use Active_Record\Object_Is_Currently_Inactive;
 use Active_Record\Active_Record_Object_Failed_To_Load;
+use Active_Record\iActiveRecord;
 use Company\Company;
 use API\Session_Not_Established;
 
@@ -146,7 +147,7 @@ class Program_Session extends Active_Record implements \Authentication\iUser
                 return;
             }
         }
-        throw new \Active_Record\Active_Record_Object_Failed_To_Load($company_role->Get_Role_Name().' does not appear to belong to '.$this->Get_Username());
+        throw new \Active_Record\Active_Record_Object_Failed_To_Load($company_role->Get_Friendly_Name().' does not appear to belong to '.$this->Get_Username());
     }
 }
 

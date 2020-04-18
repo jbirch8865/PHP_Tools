@@ -12,6 +12,7 @@ $toolbelt_base->cConfigs = $cConfigs;
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . '../../adodb/adodb-php/adodb-active-record.inc.php';
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Active_Record/ActiveRecordClass.php';
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Active_Record/ActiveRecordRelationManagementClass.php';
+require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Active_Record/ActiveRecordInterface.php';
 global $active_record_relationship_manager;
 $toolbelt_base->active_record_relationship_manager = new \Active_Record\RelationshipManager;
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "Database/ClassLoader.php";

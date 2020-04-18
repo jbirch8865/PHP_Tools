@@ -4,9 +4,10 @@ namespace Authentication;
 use Authentication\iUser;
 use Company\Company_Role;
 use Active_Record\Active_Record;
+use Active_Record\iActiveRecord;
 use Company\Company;
 
-class User_Role extends Active_Record
+class User_Role extends Active_Record implements iActiveRecord
 {
     public $_table = "Users_Have_Roles";
 
@@ -30,6 +31,10 @@ class User_Role extends Active_Record
     {
         return (int) $this->Get_Value_From_Name('user_id');
     }
+    public function Get_Friendly_Name() : ?string
+    {
+        return null;
+    }
     /**
      * @throws UpdateFailed — — if adodb->save method fails
      * @throws \Active_Record\Object_Has_Not_Been_Loaded for company_role
@@ -52,7 +57,7 @@ class User_Role extends Active_Record
      * @throws Active_Record_Object_Failed_To_Load
      * @throws Object_Is_Already_Loaded
      */
-    public function Load_User_Role_From_ID(int $user_role_id) : void
+    public function Load_Object_By_ID(int $user_role_id) : void
     {
         $this->Load_From_Int('id',$user_role_id);
     }

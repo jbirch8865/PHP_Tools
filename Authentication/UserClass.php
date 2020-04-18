@@ -18,6 +18,7 @@ class User extends Active_Record implements iUser
      * @throws Varchar_Too_Long_To_Set if creating a user and the password is too long
      * @param bool $only_if_active if $create_user is true this will be ignored, if we are loading / authorizing credentials this will load even if user is inactive
      * @throws Object_Is_Currently_Inactive
+     * @param string $unverified_password to skip checking the password use 'skip_check' as the password
      */
     function __construct(string $unverified_username,string $unverified_password,\Company\Company $company,bool $create_user = false,bool $only_if_active = true)
     {
@@ -40,7 +41,10 @@ class User extends Active_Record implements iUser
                     throw new Object_Is_Currently_Inactive($this->Get_Username().' is currently inactive.');
                 }
             }
-            $this->Check_Password();
+            if($unverified_password != 'skip_check')
+            {
+                $this->Check_Password();
+            }
         }else
         {
             if($create_user)
@@ -73,7 +77,7 @@ class User extends Active_Record implements iUser
             return false;
         }
     }
-    private function Hash_Password(string $password) : string
+    protected function Hash_Password(string $password) : string
     {
         $string_to_hash = $password.$this->cspring;
         return hash('sha256',$string_to_hash);

@@ -2,6 +2,8 @@
 namespace Company;
 
 use Active_Record\Active_Record;
+use Active_Record\iActiveRecord;
+
 class Company_Config extends Active_Record
 {
     public $_table = "Company_Configs";
@@ -47,7 +49,7 @@ class Company_Config extends Active_Record
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
-    public function Get_Config_Name() : string
+    public function Get_Friendly_Name() : string
     {
         $this->Get_Verified_ID();
         return $this->Configs->Get_Value_From_Name('config_name');

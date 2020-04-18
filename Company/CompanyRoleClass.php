@@ -2,7 +2,9 @@
 namespace Company;
 
 use Active_Record\Active_Record;
-class Company_Role extends Active_Record
+use Active_Record\iActiveRecord;
+
+class Company_Role extends Active_Record implements iActiveRecord
 {
     public $_table = "Company_Roles";
 
@@ -16,7 +18,7 @@ class Company_Role extends Active_Record
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
-    public function Get_Role_Name() : string
+    public function Get_Friendly_Name() : string
     {
         return $this->Get_Value_From_Name('role_name');
     }
@@ -38,7 +40,7 @@ class Company_Role extends Active_Record
      * @throws \Active_Record\Active_Record_Object_Failed_To_Load if adodb->load method fails
      * @throws Object_Is_Already_Loaded
      */
-    public function Load_Role_By_ID(int $role_id) : void
+    public function Load_Object_By_ID(int $role_id) : void
     {
         $this->Load_From_Int('id',$role_id);
     }

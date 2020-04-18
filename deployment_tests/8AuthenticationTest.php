@@ -15,7 +15,7 @@ class AuthenticationTest extends \PHPUnit\Framework\TestCase
         $this->cConfigs = $toolbelt->cConfigs;
         $this->table_dblink = $toolbelt->Users;
         $this->company = new \Company\Company;
-        $this->company->Load_Company_By_ID(1);
+        $this->company->Load_Object_By_ID(1);
     }
     
     public function tearDown() :void
@@ -55,7 +55,7 @@ class AuthenticationTest extends \PHPUnit\Framework\TestCase
         $toolbelt = new \Test_Tools\toolbelt;
         $session = new \API\Program_Session();
         $company = new \Company\Company;
-        $company->Load_Company_By_ID(1);
+        $company->Load_Object_By_ID(1);
         $session_time_limit = $company->Get_Session_Time_Limit();
         $company->Set_Session_Time_Limit(1);
         $session->Create_New_Session($toolbelt->cConfigs->Get_Client_ID(),$this->company,'temp_user_delete_me','Basic_Password');

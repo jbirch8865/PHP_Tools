@@ -3,7 +3,9 @@ namespace API;
 
 use Active_Record\Object_Is_Already_Loaded;
 use Active_Record\Active_Record;
-class Program extends Active_Record
+use Active_Record\iActiveRecord;
+
+class Program extends Active_Record implements iActiveRecord
 {
     public $_table = "Programs";
 
@@ -31,7 +33,7 @@ class Program extends Active_Record
      * @throws Active_Record_Object_Failed_To_Load
      * @throws Object_Is_Already_Loaded
      */
-    public function Load_Program_By_ID(int $id) : void
+    public function Load_Object_By_ID(int $id) : void
     {
         $this->Load_From_Int('id',$id);
     }
@@ -76,7 +78,7 @@ class Program extends Active_Record
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
-    public function Get_Program_Name() : string
+    public function Get_Friendly_Name() : string
     {
         return $this->Get_Value_From_Name('program_name');
     }

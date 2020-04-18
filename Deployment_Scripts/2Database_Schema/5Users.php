@@ -17,7 +17,7 @@ function user_Validate_ID_Column(\DatabaseLink\Table $user_table)
     {
         if($column->Get_Column_Key() != "PRI")
         {
-            $column->Set_Column_Key("PRI"); 
+            $column->Set_Column_Key("PRI");
         }
         if($column->Get_Data_Type() != "int(11)")
         {
@@ -52,7 +52,7 @@ function user_Validate_Username_Column(\DatabaseLink\Table $user_table)
     {
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "varchar(25)")
         {
@@ -87,7 +87,7 @@ function user_Validate_Company_ID_Column(\DatabaseLink\Table $user_table)
     {
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "INT(11)")
         {
@@ -122,7 +122,7 @@ function user_Validate_Project_Name_Column(\DatabaseLink\Table $user_table)
     {
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "varchar(20)")
         {
@@ -157,7 +157,7 @@ function user_Validate_CSPRING_Column(\DatabaseLink\Table $user_table)
     {
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "varchar(64)")
         {
@@ -187,7 +187,7 @@ function user_Validate_CSPRING_Column(\DatabaseLink\Table $user_table)
             'is_nullable' => false,
             'column_key' => "",
             'EXTRA' => "",
-            'COLUMN_COMMENTS' => 'exclude')
+            'COLUMN_COMMENT' => 'exclude')
         );
     }
 }
@@ -197,7 +197,7 @@ function user_Validate_User_Active_Status_Column(\DatabaseLink\Table $company_ta
     {
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "INT(11)")
         {
@@ -233,7 +233,7 @@ function user_Validate_Password_Column(\DatabaseLink\Table $user_table)
     {
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "varchar(64)")
         {
@@ -263,7 +263,7 @@ function user_Validate_Password_Column(\DatabaseLink\Table $user_table)
             'is_nullable' => false,
             'column_key' => "",
             'EXTRA' => "",
-            'COLUMN_COMMENTS' => 'exclude')
+            'COLUMN_COMMENT' => 'exclude')
         );
     }
 }

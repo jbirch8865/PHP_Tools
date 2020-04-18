@@ -2,7 +2,9 @@
 namespace Company;
 
 use Active_Record\Active_Record;
-class Config extends Active_Record
+use Active_Record\iActiveRecord;
+
+class Config extends Active_Record implements iActiveRecord
 {
     public $_table = "Configs";
 
@@ -55,7 +57,7 @@ class Config extends Active_Record
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
-    public function Get_Config_Name() : string
+    public function Get_Friendly_Name() : string
     {
         return $this->Get_Value_From_Name('config_name');
     }
@@ -71,7 +73,7 @@ class Config extends Active_Record
      * @throws Active_Record_Object_Failed_To_Load
      * @throws Object_Is_Already_Loaded
      */
-    public function Load_Config_By_ID(int $config_id) : void
+    public function Load_Object_By_ID(int $config_id) : void
     {
         $this->Load_From_Int('id',$config_id);
     }

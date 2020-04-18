@@ -18,7 +18,7 @@ class Column
 	private bool $include_in_response = true;
 
 	/**
-	 * @param array $default_values {not caps sensative} 
+	 * @param array $default_values {not caps sensative}
 	 * array("COLUMN_TYPE" = valid mysql columntype string,
 	 * 	"COLUMN_DEFAULT" = ["NULL"{will make column nullable},
 	 * 			"string"{in absence of value this will be used},
@@ -26,7 +26,7 @@ class Column
 	 * 	"is_nullable" = bool,"column_key" = ["","PRI","UNI"],
 	 *  "EXTRA" = "auto_increment",
 	 *  "CHARACTER_MAXIMUM_LENGTH" = "64",
-	 * 	["COLUMN_COMMENT" = "exclude"]) 
+	 * 	["COLUMN_COMMENT" = "exclude"])
 	 * if is_nullable = true and default_value is NULL then the default will be NULL if is_nullable = false and default_value = NULL
 	 * then there will be no default
 	 * @throws Exception if default values are not all set
@@ -114,14 +114,14 @@ class Column
 		}
 		try
 		{
-			$this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("ALTER TABLE ".$this->table_dblink->Get_Table_Name()." ADD 
-			".$unverified_column_name." ".$this->data_type."$NULL$default_value$AUTO_INCREMENT$PRIMARY_KEY$COMMENT");	
+			$this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("ALTER TABLE ".$this->table_dblink->Get_Table_Name()." ADD
+			".$unverified_column_name." ".$this->data_type."$NULL$default_value$AUTO_INCREMENT$PRIMARY_KEY$COMMENT");
 		} catch (SQLQueryError $e)
 		{
 			if($this->table_dblink->database_dblink->dblink->Get_Last_Error_Number() == 1060)
 			{
-				$this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("ALTER TABLE ".$this->table_dblink->Get_Table_Name()." MODIFY 
-				".$unverified_column_name." ".$this->data_type."$NULL$default_value$AUTO_INCREMENT$PRIMARY_KEY$COMMENT");						
+				$this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("ALTER TABLE ".$this->table_dblink->Get_Table_Name()." MODIFY
+				".$unverified_column_name." ".$this->data_type."$NULL$default_value$AUTO_INCREMENT$PRIMARY_KEY$COMMENT");
 			}else
 			{
 				throw new SQLQueryError($e->getMessage());
@@ -147,12 +147,12 @@ class Column
 		if($cascade)
 		{
 			$this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("ALTER TABLE `".$this->table_dblink->Get_Table_Name()."`
-			ADD CONSTRAINT `".$this->table_dblink->Get_Table_Name()."_".$this->Get_Column_Name()."_ibfk_1` FOREIGN KEY IF NOT EXISTS (`".$this->Get_Column_Name()."`) REFERENCES 
+			ADD CONSTRAINT `".$this->table_dblink->Get_Table_Name()."_".$this->Get_Column_Name()."_ibfk_1` FOREIGN KEY IF NOT EXISTS (`".$this->Get_Column_Name()."`) REFERENCES
 			`".$column_to_relate->table_dblink->Get_Table_Name()."`(`".$column_to_relate->Get_Column_Name()."`) ON DELETE CASCADE ON UPDATE CASCADE;");
 		}else
 		{
 			$this->table_dblink->database_dblink->dblink->Execute_Any_SQL_Query("ALTER TABLE `".$this->table_dblink->Get_Table_Name()."`
-			ADD CONSTRAINT `".$this->table_dblink->Get_Table_Name()."_".$this->Get_Column_Name()."_ibfk_1` FOREIGN KEY IF NOT EXISTS (`".$this->Get_Column_Name()."`) REFERENCES 
+			ADD CONSTRAINT `".$this->table_dblink->Get_Table_Name()."_".$this->Get_Column_Name()."_ibfk_1` FOREIGN KEY IF NOT EXISTS (`".$this->Get_Column_Name()."`) REFERENCES
 			`".$column_to_relate->table_dblink->Get_Table_Name()."`(`".$column_to_relate->Get_Column_Name()."`);");
 		}
 
@@ -354,7 +354,7 @@ class Column
 						$value_to_set = "";
 					}else
 					{
-						$value_to_set = trim($value_to_set,"'");					
+						$value_to_set = trim($value_to_set,"'");
 					}
 				}
 				$this->Set_Default_Value($value_to_set,false);

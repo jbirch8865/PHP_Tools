@@ -2,7 +2,9 @@
 namespace Company;
 
 use Active_Record\Active_Record;
-class Company extends Active_Record
+use Active_Record\iActiveRecord;
+
+class Company extends Active_Record implements iActiveRecord
 {
     public $_table = "Companies";
 
@@ -16,7 +18,7 @@ class Company extends Active_Record
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
-    public function Get_Company_Name() : string
+    public function Get_Friendly_Name() : string
     {
         return $this->Get_Value_From_Name('company_name');
     }
@@ -61,7 +63,7 @@ class Company extends Active_Record
      * @throws Object_Is_Already_Loaded
      * @throws \Active_Record\Active_Record_Object_Failed_To_Load
      */
-    public function Load_Company_By_ID(int $id_to_search) : void
+    public function Load_Object_By_ID(int $id_to_search) : void
     {
         $this->Load_From_Int('id',$id_to_search);
     }
@@ -128,7 +130,7 @@ class Company extends Active_Record
         $this->Get_Verified_ID();
         ForEach($this->Company_Configs as $index => $company_config)
         {
-            if($company_config->Get_Config_Name() == $config_name)
+            if($company_config->Get_Friendly_Name() == $config_name)
             {
                 return $company_config->Get_Config_Value();
             }
@@ -161,7 +163,7 @@ class Company extends Active_Record
     {
         ForEach($this->Company_Roles as $company_role)
         {
-            if($company_role->Get_Role_Name() == 'master')
+            if($company_role->Get_Friendly_Name() == 'master')
             {
                 return $company_role;
             }

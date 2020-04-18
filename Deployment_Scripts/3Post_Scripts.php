@@ -19,8 +19,8 @@ function Create_System_If_Not_Already()
     try
     {
         $company = new \Company\Company();
-        $company->Load_Company_By_ID(1);
-        if(!$company->Get_Company_Name() == 'System')
+        $company->Load_Object_By_ID(1);
+        if($company->Get_Friendly_Name() != 'System')
         {
             $company->Set_Company_Name('System');
         }
@@ -51,10 +51,10 @@ function Create_Backend_Program_For_API(\Test_Tools\toolbelt_base $toolbelt_base
     try
     {
         $program = new \API\Program();
-        $program->Load_Program_By_ID(1);
-        if(!$program->Get_Program_Name() == 'Sandbox')
+        $program->Load_Object_By_ID(1);
+        if(!$program->Get_Friendly_Name() == 'Sandbox')
         {
-            $program->Get_Program_Name('Sandbox');
+            $program->Get_Friendly_Name('Sandbox');
         }
     } catch (\Active_Record\Active_Record_Object_Failed_To_Load $e)
     {
@@ -82,21 +82,21 @@ function Create_Configs()
     $config->Create_Or_Update_Config('company_time_zone','UTC');
     $config = new \Company\Config();
     $config->Create_Or_Update_Config('session_time_limit','300');
-    
+
 }
 function Create_Backend_User_If_Not_Already(\config\ConfigurationFile $cConfigs)
 {
     $toolbelt = new \Test_Tools\toolbelt;
     if($toolbelt->cConfigs->Is_Prod()){return;}
     $company = new \Company\Company;
-    $company->Load_Company_By_ID(1);
+    $company->Load_Object_By_ID(1);
     $user = new \Authentication\User('default',$toolbelt->cConfigs->Get_Client_ID(),$company,true);
     try
     {
         $user->Assign_Company_Role($company->Get_Master_Role());
     } catch (\Active_Record\UpdateFailed $e)
     {
-        
+
     }
 }
 function Add_All_Constraints()
@@ -104,13 +104,13 @@ function Add_All_Constraints()
     global $toolbelt_base;
     $from_to_columns = array(
         array(array('Users','company_id'),array('Companies','id')),
-        array(array('Programs_Have_Sessions','user_id'),array('Users','id')),        
-        array(array('Company_Configs','company_id'),array('Companies','id')),        
-        array(array('Company_Configs','config_id'),array('Configs','id')),        
+        array(array('Programs_Have_Sessions','user_id'),array('Users','id')),
+        array(array('Company_Configs','company_id'),array('Companies','id')),
+        array(array('Company_Configs','config_id'),array('Configs','id')),
         array(array('Programs_Have_Sessions','client_id'),array('Programs','client_id')),
         array(array('Company_Roles','company_id'),array('Companies','id')),
         [['Users_Have_Roles','user_id'],['Users','id']],
-        [['Users_Have_Roles','role_id'],['Company_Roles','id']]   
+        [['Users_Have_Roles','role_id'],['Company_Roles','id']]
     );
 
     ForEach($from_to_columns as $index => $value)
@@ -121,8 +121,8 @@ function Add_All_Constraints()
         $to_table_name = $value[1][0];
         $from_column = new \DatabaseLink\Column($from_column_name,$toolbelt_base->$from_table_name);
         $to_column = new \DatabaseLink\Column($to_column_name,$toolbelt_base->$to_table_name);
-        Add_Column_Constraint($from_column,$to_column);            
-    }    
+        Add_Column_Constraint($from_column,$to_column);
+    }
 }
 function Add_All_Multi_Column_Unique_Indexes()
 {
@@ -132,6 +132,6 @@ function Add_All_Multi_Column_Unique_Indexes()
     $toolbelt_base->Company_Roles->Add_Unique_Columns(array('company_id','role_name'));
     $toolbelt_base->Users->Add_Unique_Columns(array('company_id','username','project_name'));
     $toolbelt_base->Users_Have_Roles->Add_Unique_Columns(array('user_id','role_id'));
-    
+
 }
 ?>

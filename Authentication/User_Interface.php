@@ -20,6 +20,7 @@ interface iUser
      */
 
     public function Remove_Company_Role(\Company\Company_Role $company_role) : void;
+    public function Get_Verified_ID() : int;
 }
 
 ?>

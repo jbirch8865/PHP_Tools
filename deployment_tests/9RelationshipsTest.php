@@ -77,7 +77,7 @@ class RelationshipsTest extends \PHPUnit\Framework\TestCase
         $role_exists = false;
         ForEach($this->company->Company_Roles as $company_role)
         {
-            if($company_role->Get_Role_Name() == 'test_role_1')
+            if($company_role->Get_Friendly_Name() == 'test_role_1')
             {
                 $role_exists = true;
                 break;
@@ -139,7 +139,7 @@ class RelationshipsTest extends \PHPUnit\Framework\TestCase
 
     function test_User_Roles_Comp_Role()
     {
-        $this->assertEquals('test_role_1',$this->session->Users_Have_Roles[0]->Company_Roles->Get_Role_Name());
+        $this->assertEquals('test_role_1',$this->session->Users_Have_Roles[0]->Company_Roles->Get_Friendly_Name());
     }
 
     function test_Clean_Up()
