@@ -4,7 +4,7 @@ namespace Company;
 use Active_Record\Active_Record;
 use Active_Record\iActiveRecord;
 
-class Company_Config extends Active_Record
+class Company_Config extends Active_Record implements iActiveRecord
 {
     public $_table = "Company_Configs";
 
@@ -47,6 +47,14 @@ class Company_Config extends Active_Record
         return $this->Get_Value_From_Name('config_id');
     }
     /**
+     * @throws \Active_Record\Active_Record_Object_Failed_To_Load
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
+    public function Load_Object_By_ID(int $object_id): void
+    {
+        $this->Load_From_Int('id',$object_id);
+    }
+    /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
     public function Get_Friendly_Name() : string
@@ -54,6 +62,16 @@ class Company_Config extends Active_Record
         $this->Get_Verified_ID();
         return $this->Configs->Get_Value_From_Name('config_name');
     }
+    /**
+     * @throws Active_Record_Object_Failed_To_Load
+     * @throws Object_Is_Already_Loaded
+     * Don't use this function as there is no friendly name
+     */
+    public function Load_By_Friendly_Name(string $friendly_name,?\Active_Record\Active_Record $object = null): void
+    {
+        throw new \Exception('Load_By_Friendly_Name does not work on Company Config Class for name '.$friendly_name.'.');
+    }
+
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */

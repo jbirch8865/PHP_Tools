@@ -65,6 +65,14 @@ class Config extends Active_Record implements iActiveRecord
      * @throws Active_Record_Object_Failed_To_Load
      * @throws Object_Is_Already_Loaded
      */
+    public function Load_By_Friendly_Name(string $friendly_name,?\Active_Record\Active_Record $object = null): void
+    {
+        $this->Load_From_Varchar('config_name',$friendly_name);
+    }
+    /**
+     * @throws Active_Record_Object_Failed_To_Load
+     * @throws Object_Is_Already_Loaded
+     */
     public function Load_Config_By_Name(string $config_name) : void
     {
         $this->Load_From_Varchar('config_name',$config_name);

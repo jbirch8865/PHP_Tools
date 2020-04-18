@@ -23,6 +23,15 @@ class Company extends Active_Record implements iActiveRecord
         return $this->Get_Value_From_Name('company_name');
     }
     /**
+     * @throws Active_Record_Object_Failed_To_Load
+     * @throws Object_Is_Already_Loaded
+     */
+    public function Load_By_Friendly_Name(string $friendly_name,?\Active_Record\Active_Record $object = null): void
+    {
+        $this->Load_From_Varchar('company_name',$friendly_name);
+    }
+
+    /**
      * @throws \Active_Record\Varchar_Too_Long_To_Set if string too long and trim is false
      */
     public function Set_Company_Name(string $company_name,bool $trim_if_too_long = true,bool $update_immediately = true) : void

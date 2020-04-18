@@ -195,7 +195,7 @@ abstract class Active_Record extends ADODB_Active_Record
      * @throws \DatabaseLink\Column_Does_Not_Exist if table does not support this option
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
-    protected function Is_Object_Active() : bool
+    public function Is_Object_Active() : bool
     {  
         return $this->Get_Active_Status();
     }

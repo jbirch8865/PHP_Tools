@@ -90,6 +90,14 @@ class Program extends Active_Record implements iActiveRecord
         return $this->Get_Value_From_Name('client_id');
     }
     /**
+     * @throws Active_Record_Object_Failed_To_Load
+     * @throws Object_Is_Already_Loaded
+     */
+    public function Load_By_Friendly_Name(string $friendly_name,?\Active_Record\Active_Record $object = null): void
+    {
+        $this->Load_From_Varchar('program_name',$friendly_name);
+    }
+    /**
      * This table doesn't have active status, delete and create are the only options
      * this function does nothing
      */

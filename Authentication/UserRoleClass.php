@@ -36,6 +36,16 @@ class User_Role extends Active_Record implements iActiveRecord
         return null;
     }
     /**
+     * @throws Active_Record_Object_Failed_To_Load
+     * @throws Object_Is_Already_Loaded
+     * Don't use this function as their is no user role friendly name
+     */
+    public function Load_By_Friendly_Name(string $friendly_name,?\Active_Record\Active_Record $object = null): void
+    {
+        throw new \Exception('Load_By_Friendly_Name does not work on User Role Class for name '.$friendly_name.'.');
+    }
+
+    /**
      * @throws UpdateFailed — — if adodb->save method fails
      * @throws \Active_Record\Object_Has_Not_Been_Loaded for company_role
      */
