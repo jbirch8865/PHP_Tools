@@ -15,7 +15,7 @@ class Program_Session extends Active_Record implements \Authentication\iUser
     function __construct()
     {
         $toolbelt = new \Test_Tools\toolbelt;
-        $toolbelt->active_record_relationship_manager->Load_Table_Key_Has_Many_If_Empty($toolbelt->Programs_Have_Sessions,$toolbelt->Users_Have_Roles,$toolbelt->Programs_Have_Sessions->Get_Column('user_id'),$toolbelt->Users_Have_Roles->Get_Column('user_id'),'\Authentication\User_Role');
+        $toolbelt->active_record_relationship_manager->Load_Table_Key_Has_Many_If_Empty($toolbelt->Programs_Have_Sessions,$toolbelt->Users_Have_Roles,$toolbelt->Programs_Have_Sessions->Get_Column('user_id'),$toolbelt->Users_Have_Roles->Get_Column('user_id'),'\app\Helpers\User_Role');
         parent::__construct();
     }
     /**

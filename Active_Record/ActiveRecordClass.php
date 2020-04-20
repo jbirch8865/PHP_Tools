@@ -75,13 +75,13 @@ abstract class Active_Record extends ADODB_Active_Record
             if(!$this->load($columns,$values))
             {
                 throw new Active_Record_Object_Failed_To_Load("Failed loading ".$columns." in table ".$this->Get_Table_Name());
-            }    
+            }
         }else
         {
             if(!$this->load('`'.$column_name.'`=?',array($var_to_search)))
             {
                 throw new Active_Record_Object_Failed_To_Load("Failed loading ".$var_to_search." from column ".$column_name." in table ".$this->Get_Table_Name());
-            }    
+            }
         }
     }
     public function Is_Loaded():bool
@@ -169,6 +169,18 @@ abstract class Active_Record extends ADODB_Active_Record
             $this->Create_Object();
         }
     }
+    public function Set_Active_Status(?bool $active_status) : void
+    {
+        if(is_null($active_status)){return;}
+        if($active_status)
+        {
+            $this->Set_Object_Active();
+            $this->Update_Object();
+        }else
+        {
+            $this->Set_Object_Inactive();
+        }
+    }
     /**
      * @throws \DatabaseLink\Column_Does_Not_Exist if table does not support this option
      */
@@ -196,7 +208,7 @@ abstract class Active_Record extends ADODB_Active_Record
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
     public function Is_Object_Active() : bool
-    {  
+    {
         return $this->Get_Active_Status();
     }
     /**
@@ -205,7 +217,7 @@ abstract class Active_Record extends ADODB_Active_Record
      */
     private function Get_Active_Status() : bool
     {
-        if(!$this->table_dblink->Does_Column_Exist('active_status')) 
+        if(!$this->table_dblink->Does_Column_Exist('active_status'))
         {
             throw new \DatabaseLink\Column_Does_Not_Exist('This table doesn\'t support active_status.');
         }
@@ -237,7 +249,7 @@ abstract class Active_Record extends ADODB_Active_Record
     }
     /**
      * Deletes the object from the database.
-     * 
+     *
      * @param string $password verify your intentions by passing the word "destroy"
      * @throws \Exception if the password isn't correct
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
@@ -295,7 +307,7 @@ abstract class Active_Record extends ADODB_Active_Record
         ForEach($this as $property_name => $property_value)
         {
             if(is_string($property_value))
-            {            
+            {
                 $this->table_dblink->Reset_Columns();
                 while($column = $this->table_dblink->Get_Columns())
                 {

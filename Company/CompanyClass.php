@@ -13,7 +13,7 @@ class Company extends Active_Record implements iActiveRecord
         parent::__construct();
         global $toolbelt_base;
         $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Company_Configs,$toolbelt_base->Company_Configs->Get_Column('company_id'),'\Company\Company_Config');
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Company_Roles,$toolbelt_base->Company_Roles->Get_Column('company_id'),'\Company\Company_Role');
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Company_Roles,$toolbelt_base->Company_Roles->Get_Column('company_id'),'\app\Helpers\Company_Role');
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
