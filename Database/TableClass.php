@@ -325,5 +325,38 @@ class Table
 			}
 		}
 	}
+
+	/**
+     * @param string $object_class Company must be a valid app\Helpers\ class
+     */
+     public function Get_All_Objects(string $object_class,Request $request) : \Illuminate\Http\JsonResponse
+     {
+         if($request->input('include_disabled',false))
+         {
+             $this->Query_Single_Table(array('id'),false,"LIMIT ".$request->input('offset',0).", ".$request->input('limit',50));
+         }else
+         {
+             $this->Query_Single_Table(array('id'),false,"WHERE `Active_Status` = '1' LIMIT ".$request->input('offset',0).", ".$request->input('limit',50));
+         }
+         $objects = array();
+         While($row = $this->Get_Queried_Data())
+         {
+             $class = '\\app\\Helpers\\'.$object_class;
+             $object = new $class;
+             $object->Load_Object_By_ID($row['id']);
+             if($request->input('include_details',false))
+             {
+                 $objects[$object->Get_Friendly_Name()] = $object->Get_API_Response_Collection();
+             }else
+             {
+                 $objects[$object->Get_Friendly_Name()] = $object->Get_Verified_ID();
+             }
+         }
+         return Response_200([
+             'message' => 'Response Objects',
+             $object_class => $objects
+         ],$request);
+ 
+     }
 }
 ?>

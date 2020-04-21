@@ -6,11 +6,12 @@ company_Validate_Company_Active_Status_Column($toolbelt_base->Companies);
 $toolbelt_base->Companies->Load_Columns();
 function company_Validate_ID_Column(\DatabaseLink\Table $company_table)
 {
-    if($column = $company_table->Get_Column('id'))
+    try
     {
+        $column = $company_table->Get_Column('id');
         if($column->Get_Column_Key() != "PRI")
         {
-            $column->Set_Column_Key("PRI"); 
+            $column->Set_Column_Key("PRI");
         }
         if($column->Get_Data_Type() != "int(11)")
         {
@@ -28,7 +29,7 @@ function company_Validate_ID_Column(\DatabaseLink\Table $company_table)
         {
             $column->Column_Auto_Increments();
         }
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('id',$company_table,array(
             'COLUMN_TYPE' => 'int(11)',
@@ -41,11 +42,12 @@ function company_Validate_ID_Column(\DatabaseLink\Table $company_table)
 }
 function company_Validate_Company_Name_Column(\DatabaseLink\Table $company_table)
 {
-    if($column = $company_table->Get_Column('company_name'))
+    try
     {
+        $column = $company_table->Get_Column('company_name');
         if($column->Get_Column_Key() != "UNI")
         {
-            $column->Set_Column_Key("UNI"); 
+            $column->Set_Column_Key("UNI");
         }
         if($column->Get_Data_Type() != "varchar(75)")
         {
@@ -64,7 +66,7 @@ function company_Validate_Company_Name_Column(\DatabaseLink\Table $company_table
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('company_name',$company_table,array(
             'COLUMN_TYPE' => 'varchar(75)',
@@ -77,11 +79,12 @@ function company_Validate_Company_Name_Column(\DatabaseLink\Table $company_table
 }
 function company_Validate_Company_Active_Status_Column(\DatabaseLink\Table $company_table)
 {
-    if($column = $company_table->Get_Column('active_status'))
+    try
     {
+        $column = $company_table->Get_Column('active_status');
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "INT(11)")
         {
@@ -100,7 +103,7 @@ function company_Validate_Company_Active_Status_Column(\DatabaseLink\Table $comp
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('active_status',$company_table,array(
             'COLUMN_TYPE' => 'INT(11)',

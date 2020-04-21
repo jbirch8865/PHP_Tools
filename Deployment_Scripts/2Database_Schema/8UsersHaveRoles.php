@@ -10,11 +10,12 @@ $toolbelt_base->Users_Have_Roles->Load_Columns();
 
 function users_have_roles_Validate_ID_Column(\DatabaseLink\Table $Users_Have_Roles)
 {
-    if($column = $Users_Have_Roles->Get_Column('id'))
+    try
     {
+        $column = $Users_Have_Roles->Get_Column('id');
         if($column->Get_Column_Key() != "PRI")
         {
-            $column->Set_Column_Key("PRI"); 
+            $column->Set_Column_Key("PRI");
         }
         if($column->Get_Data_Type() != "int(11)")
         {
@@ -32,7 +33,7 @@ function users_have_roles_Validate_ID_Column(\DatabaseLink\Table $Users_Have_Rol
         {
             $column->Column_Auto_Increments();
         }
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('id',$Users_Have_Roles,array(
             'COLUMN_TYPE' => 'int(11)',
@@ -45,11 +46,12 @@ function users_have_roles_Validate_ID_Column(\DatabaseLink\Table $Users_Have_Rol
 }
 function users_have_roles_Validate_User_ID_Column(\DatabaseLink\Table $Users_Have_Roles)
 {
-    if($column = $Users_Have_Roles->Get_Column('user_id'))
+    try
     {
+        $column = $Users_Have_Roles->Get_Column('user_id');
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "int(11)")
         {
@@ -68,7 +70,7 @@ function users_have_roles_Validate_User_ID_Column(\DatabaseLink\Table $Users_Hav
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('user_id',$Users_Have_Roles,array(
             'COLUMN_TYPE' => 'int(11)',
@@ -81,11 +83,12 @@ function users_have_roles_Validate_User_ID_Column(\DatabaseLink\Table $Users_Hav
 }
 function users_have_roles_Validate_Role_ID_Column(\DatabaseLink\Table $Users_Have_Roles)
 {
-    if($column = $Users_Have_Roles->Get_Column('role_id'))
+    try
     {
+        $column = $Users_Have_Roles->Get_Column('role_id');
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "int(11)")
         {
@@ -104,7 +107,7 @@ function users_have_roles_Validate_Role_ID_Column(\DatabaseLink\Table $Users_Hav
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('role_id',$Users_Have_Roles,array(
             'COLUMN_TYPE' => 'int(11)',

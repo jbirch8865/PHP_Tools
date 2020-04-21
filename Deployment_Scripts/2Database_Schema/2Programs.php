@@ -8,11 +8,12 @@ program_Validate_Active_Status_Column($toolbelt_base->Companies);
 $toolbelt_base->Programs->Load_Columns();
 function program_Validate_ID_Column(\DatabaseLink\Table $program_table)
 {
-    if($column = $program_table->Get_Column('id'))
+    try
     {
+        $column = $program_table->Get_Column('id');
         if($column->Get_Column_Key() != "PRI")
         {
-            $column->Set_Column_Key("PRI"); 
+            $column->Set_Column_Key("PRI");
         }
         if($column->Get_Data_Type() != "int(11)")
         {
@@ -30,7 +31,7 @@ function program_Validate_ID_Column(\DatabaseLink\Table $program_table)
         {
             $column->Column_Auto_Increments();
         }
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('id',$program_table,array(
             'COLUMN_TYPE' => 'int(11)',
@@ -43,11 +44,12 @@ function program_Validate_ID_Column(\DatabaseLink\Table $program_table)
 }
 function program_Validate_Program_Name_Column(\DatabaseLink\Table $program_table)
 {
-    if($column = $program_table->Get_Column('program_name'))
+    try
     {
+        $column = $program_table->Get_Column('program_name');
         if($column->Get_Column_Key() != "UNI")
         {
-            $column->Set_Column_Key("UNI"); 
+            $column->Set_Column_Key("UNI");
         }
         if($column->Get_Data_Type() != "varchar(64)")
         {
@@ -66,7 +68,7 @@ function program_Validate_Program_Name_Column(\DatabaseLink\Table $program_table
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('program_name',$program_table,array(
             'COLUMN_TYPE' => 'varchar(64)',
@@ -79,11 +81,12 @@ function program_Validate_Program_Name_Column(\DatabaseLink\Table $program_table
 }
 function program_Validate_Secret_Column(\DatabaseLink\Table $program_table)
 {
-    if($column = $program_table->Get_Column('secret'))
+    try
     {
+        $column = $program_table->Get_Column('secret');
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "varchar(48)")
         {
@@ -102,7 +105,7 @@ function program_Validate_Secret_Column(\DatabaseLink\Table $program_table)
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('secret',$program_table,array(
             'COLUMN_TYPE' => 'varchar(48)',
@@ -115,11 +118,12 @@ function program_Validate_Secret_Column(\DatabaseLink\Table $program_table)
 }
 function program_Validate_Client_ID_Column(\DatabaseLink\Table $program_table)
 {
-    if($column = $program_table->Get_Column('client_id'))
+    try
     {
+        $column = $program_table->Get_Column('client_id');
         if($column->Get_Column_Key() != "UNI")
         {
-            $column->Set_Column_Key("UNI"); 
+            $column->Set_Column_Key("UNI");
         }
         if($column->Get_Data_Type() != "varchar(32)")
         {
@@ -138,7 +142,7 @@ function program_Validate_Client_ID_Column(\DatabaseLink\Table $program_table)
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('client_id',$program_table,array(
             'COLUMN_TYPE' => 'varchar(32)',
@@ -151,11 +155,12 @@ function program_Validate_Client_ID_Column(\DatabaseLink\Table $program_table)
 }
 function program_Validate_Active_Status_Column(\DatabaseLink\Table $program_table)
 {
-    if($column = $program_table->Get_Column('active_status'))
+    try
     {
+        $column = $program_table->Get_Column('active_status');
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "INT(11)")
         {
@@ -174,7 +179,7 @@ function program_Validate_Active_Status_Column(\DatabaseLink\Table $program_tabl
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('active_status',$program_table,array(
             'COLUMN_TYPE' => 'INT(11)',

@@ -24,7 +24,7 @@ class User extends Active_Record implements iUser
     {
         parent::__construct();
         global $toolbelt_base;
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\app\Helpers\Company');
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\Company\Company');
         $this->cConfigs = $toolbelt_base->cConfigs;
         $this->table_dblink = new \DatabaseLink\Table($this->_table,$toolbelt_base->dblink);
         $this->company_id = $company->Get_Verified_ID();
@@ -86,11 +86,11 @@ class User extends Active_Record implements iUser
      * @throws UpdateFailed
      * @throws Varchar_Too_Long_To_Set
      */
-    protected function Create_Object() : void
+    protected function Create_Object() : bool
     {
         $this->cspring = Generate_CSPRNG(64);
         $this->verified_hashed_password = $this->Hash_Password($this->password);
-        parent::Create_Object();
+        return parent::Create_Object();
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
@@ -109,6 +109,11 @@ class User extends Active_Record implements iUser
      */
     public function Delete_User(bool $mark_inactive = true)
     {
+        if($this->Get_Username() == 'default' && !$mark_inactive)
+        {
+            Response_401(['message' => 'Sorry the default user cannot be permanently deleted'],app()->request)->send();
+            exit();
+        }
         if($mark_inactive)
         {
             $this->Set_Object_Inactive();
@@ -145,5 +150,29 @@ class User extends Active_Record implements iUser
     {
         return $this->Get_Verified_ID();
     }
+
+    /**
+     * @throws Varchar_Too_Long_To_Set
+     */
+    public function Change_Password(?string $new_password) : void
+    {
+        if(is_null($new_password)){return;}
+        if($new_password)
+        {
+            $password = $this->Hash_Password($new_password);
+            $this->Set_Varchar($this->table_dblink->Get_Column('verified_hashed_password'),$password,false,false);
+            $this->Update_Object();
+        }
+    }
+
+    public function Delete_Active_Record() : void
+    {
+        app()->request->validate([
+            'active_status' => ['required','bool']
+        ]);
+        $this->Delete_User(app()->request->input('active_status'));
+    }
+
+
 }
 ?>

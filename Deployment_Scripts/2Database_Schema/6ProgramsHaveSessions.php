@@ -8,11 +8,12 @@ programs_have_sessions_Validate_Experation_Timestamp_Column($toolbelt_base->Prog
 $toolbelt_base->Programs_Have_Sessions->Load_Columns();
 function programs_have_sessions_Validate_ID_Column(\DatabaseLink\Table $programs_have_sessions_table)
 {
-    if($column = $programs_have_sessions_table->Get_Column('id'))
+    try
     {
+        $column = $programs_have_sessions_table->Get_Column('id');
         if($column->Get_Column_Key() != "PRI")
         {
-            $column->Set_Column_Key("PRI"); 
+            $column->Set_Column_Key("PRI");
         }
         if($column->Get_Data_Type() != "int(11)")
         {
@@ -30,7 +31,7 @@ function programs_have_sessions_Validate_ID_Column(\DatabaseLink\Table $programs
         {
             $column->Column_Auto_Increments();
         }
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('id',$programs_have_sessions_table,array(
             'COLUMN_TYPE' => 'int(11)',
@@ -43,11 +44,12 @@ function programs_have_sessions_Validate_ID_Column(\DatabaseLink\Table $programs
 }
 function programs_have_sessions_Validate_Client_ID_Column(\DatabaseLink\Table $programs_have_sessions_table)
 {
-    if($column = $programs_have_sessions_table->Get_Column('client_id'))
+    try
     {
+        $column = $programs_have_sessions_table->Get_Column('client_id');
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "varchar(64)")
         {
@@ -66,7 +68,7 @@ function programs_have_sessions_Validate_Client_ID_Column(\DatabaseLink\Table $p
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('client_id',$programs_have_sessions_table,array(
             'COLUMN_TYPE' => 'varchar(64)',
@@ -79,11 +81,12 @@ function programs_have_sessions_Validate_Client_ID_Column(\DatabaseLink\Table $p
 }
 function programs_have_sessions_Validate_Access_Token_Column(\DatabaseLink\Table $programs_have_sessions_table)
 {
-    if($column = $programs_have_sessions_table->Get_Column('access_token'))
+    try
     {
+        $column = $programs_have_sessions_table->Get_Column('access_token');
         if($column->Get_Column_Key() != "UNI")
         {
-            $column->Set_Column_Key("UNI"); 
+            $column->Set_Column_Key("UNI");
         }
         if($column->Get_Data_Type() != "varchar(45)")
         {
@@ -102,7 +105,7 @@ function programs_have_sessions_Validate_Access_Token_Column(\DatabaseLink\Table
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('access_token',$programs_have_sessions_table,array(
             'COLUMN_TYPE' => 'varchar(45)',
@@ -115,11 +118,12 @@ function programs_have_sessions_Validate_Access_Token_Column(\DatabaseLink\Table
 }
 function programs_have_sessions_Validate_User_ID_Column(\DatabaseLink\Table $programs_have_sessions_table)
 {
-    if($column = $programs_have_sessions_table->Get_Column('user_id'))
+    try
     {
+        $column = $programs_have_sessions_table->Get_Column('user_id');
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "int(11)")
         {
@@ -138,7 +142,7 @@ function programs_have_sessions_Validate_User_ID_Column(\DatabaseLink\Table $pro
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('user_id',$programs_have_sessions_table,array(
             'COLUMN_TYPE' => 'int(11)',
@@ -151,11 +155,12 @@ function programs_have_sessions_Validate_User_ID_Column(\DatabaseLink\Table $pro
 }
 function programs_have_sessions_Validate_Experation_Timestamp_Column(\DatabaseLink\Table $programs_have_sessions_table)
 {
-    if($column = $programs_have_sessions_table->Get_Column('experation_timestamp'))
+    try
     {
+        $column = $programs_have_sessions_table->Get_Column('experation_timestamp');
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "timestamp")
         {
@@ -174,7 +179,7 @@ function programs_have_sessions_Validate_Experation_Timestamp_Column(\DatabaseLi
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('experation_timestamp',$programs_have_sessions_table,array(
             'COLUMN_TYPE' => 'timestamp',

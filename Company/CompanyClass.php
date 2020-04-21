@@ -13,7 +13,7 @@ class Company extends Active_Record implements iActiveRecord
         parent::__construct();
         global $toolbelt_base;
         $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Company_Configs,$toolbelt_base->Company_Configs->Get_Column('company_id'),'\Company\Company_Config');
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Company_Roles,$toolbelt_base->Company_Roles->Get_Column('company_id'),'\app\Helpers\Company_Role');
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Company_Roles,$toolbelt_base->Company_Roles->Get_Column('company_id'),'\Company\Company_Role');
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
@@ -114,10 +114,15 @@ class Company extends Active_Record implements iActiveRecord
     /**
      * @throws UpdateFailed
      */
-    public function Create_Object(): void
+    public function Create_Object(): bool
     {
-        parent::Create_Object();
-        $this->Set_Default_Configs();
+        if(parent::Create_Object())
+        {
+            $this->Set_Default_Configs();
+            $this->Create_Company_Role('master',true,true,true,true,true);    
+            return true;
+        }
+        return false;
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded — if this has not been loaded yet
@@ -160,7 +165,7 @@ class Company extends Active_Record implements iActiveRecord
      * @throws \Active_Record\UpdateFailed if the role already exists
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
-    function Create_Company_Role(string $role_name) : void
+    Private function Create_Role(string $role_name) : void
     {
         $company_role = new \Company\Company_Role;
         $company_role->Set_Company_ID($this->Get_Verified_ID(),false);
@@ -188,6 +193,82 @@ class Company extends Active_Record implements iActiveRecord
         {
             $this->Delete_Object('destroy');
         }
+    }
+
+       /**
+    * @throws \Active_Record\Object_Has_Not_Been_Loaded
+    */
+    function Create_Company_Role(string $role_name,bool $get = true,bool $delete = false,bool $post = true,bool $patch = true,bool $put = true): void
+    {
+        $this->Create_Role($role_name);
+        $new_role = new Company_Role;
+        $new_role->Load_By_Friendly_Name($role_name,$this);
+        $toolbelt = new \test_tools\toolbelt;
+        $toolbelt->Routes->Query_Single_Table(['id'],false);
+        while($row = $toolbelt->Routes->Get_Queried_Data())
+        {
+            $route = new \app\Helpers\Route;
+            $route->Load_From_Route_ID((int) $row['id']);
+            if($route->Am_I_Implicitly_Allowed())
+            {
+                continue;
+            }
+            $right = new \app\Helpers\Right;
+            if($get)
+            {
+                $right->Allow_Get();
+            }else
+            {
+                $right->Deny_Get();
+            }
+            if($delete)
+            {
+                $right->Allow_Destroy();
+            }else
+            {
+                $right->Deny_Destroy();
+            }
+            if($post)
+            {
+                $right->Allow_Post();
+            }else
+            {
+                $right->Deny_Post();
+            }
+            if($patch)
+            {
+                $right->Allow_Patch();
+            }else
+            {
+                $right->Deny_Patch();
+            }
+            if($put)
+            {
+                $right->Allow_Put();
+            }else
+            {
+                $right->Deny_Put();
+            }
+            $route_has_role = new \app\Helpers\Route_Role;
+            $route_has_role->Set_Right($right,false);
+            $route_has_role->Set_Role($new_role,false);
+            $route_has_role->Set_Route($route,true);
+        }
+    }
+    public function Delete_Active_Record() : void
+    {
+        app()->request->validate([
+            'active_status' => ['required','bool']
+        ]);
+
+    }
+
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
+    function Get_API_Response_Collection(): array
+    {
+        return $this->Get_Response_Collection(app()->request->input('include_details',0),app()->request->input('details_offset',0),app()->request->input('details_limit',1));
     }
 }
 ?>

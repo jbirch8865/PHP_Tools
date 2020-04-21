@@ -85,6 +85,16 @@ class Config extends Active_Record implements iActiveRecord
     {
         $this->Load_From_Int('id',$config_id);
     }
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
+    public function Delete_Active_Record() : void
+    {
+        app()->request->validate([
+            'active_status' => ['required','bool']
+        ]);
+    }
+
 }
 
 ?>

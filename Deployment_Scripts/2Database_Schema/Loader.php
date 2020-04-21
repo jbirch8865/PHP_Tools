@@ -7,4 +7,7 @@ require '5Users.php';
 require '6ProgramsHaveSessions.php';
 require '7CompanyRoles.php';
 require '8UsersHaveRoles.php';
+require '9Rights.php';
+require '91Routes.php';
+require '92RoutesHaveRoles.php';
 ?>

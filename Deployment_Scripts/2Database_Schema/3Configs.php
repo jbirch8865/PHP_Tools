@@ -7,11 +7,12 @@ config_Validate_Default_Value_Column($toolbelt_base->Configs);
 $toolbelt_base->Configs->Load_Columns();
 function config_Validate_ID_Column(\DatabaseLink\Table $config_table)
 {
-    if($column = $config_table->Get_Column('id'))
+    try
     {
+        $column = $config_table->Get_Column('id');
         if($column->Get_Column_Key() != "PRI")
         {
-            $column->Set_Column_Key("PRI"); 
+            $column->Set_Column_Key("PRI");
         }
         if($column->Get_Data_Type() != "int(11)")
         {
@@ -29,7 +30,7 @@ function config_Validate_ID_Column(\DatabaseLink\Table $config_table)
         {
             $column->Column_Auto_Increments();
         }
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('id',$config_table,array(
             'COLUMN_TYPE' => 'int(11)',
@@ -42,11 +43,12 @@ function config_Validate_ID_Column(\DatabaseLink\Table $config_table)
 }
 function config_Validate_Active_Status_Column(\DatabaseLink\Table $config_table)
 {
-    if($column = $config_table->Get_Column('active_status'))
+    try
     {
+        $column = $config_table->Get_Column('active_status');
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "INT(11)")
         {
@@ -65,7 +67,7 @@ function config_Validate_Active_Status_Column(\DatabaseLink\Table $config_table)
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('active_status',$config_table,array(
             'COLUMN_TYPE' => 'INT(11)',
@@ -78,11 +80,12 @@ function config_Validate_Active_Status_Column(\DatabaseLink\Table $config_table)
 }
 function config_Validate_Config_Name_Column(\DatabaseLink\Table $config_table)
 {
-    if($column = $config_table->Get_Column('config_name'))
+    try
     {
+        $column = $config_table->Get_Column('config_name');
         if($column->Get_Column_Key() != "UNI")
         {
-            $column->Set_Column_Key("UNI"); 
+            $column->Set_Column_Key("UNI");
         }
         if($column->Get_Data_Type() != "varchar(35)")
         {
@@ -101,7 +104,7 @@ function config_Validate_Config_Name_Column(\DatabaseLink\Table $config_table)
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('config_name',$config_table,array(
             'COLUMN_TYPE' => 'varchar(35)',
@@ -114,11 +117,12 @@ function config_Validate_Config_Name_Column(\DatabaseLink\Table $config_table)
 }
 function config_Validate_Default_Value_Column(\DatabaseLink\Table $config_table)
 {
-    if($column = $config_table->Get_Column('default_value'))
+    try
     {
+        $column = $config_table->Get_Column('default_value');
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "varchar(200)")
         {
@@ -137,7 +141,7 @@ function config_Validate_Default_Value_Column(\DatabaseLink\Table $config_table)
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('default_value',$config_table,array(
             'COLUMN_TYPE' => 'varchar(200)',

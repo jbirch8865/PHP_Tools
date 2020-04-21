@@ -16,6 +16,10 @@ class toolbelt_base
     public \DatabaseLink\Table $Users_Have_Roles;
     public \DatabaseLink\Table $Company_Roles;   
     public \Active_Record\RelationshipManager $active_record_relationship_manager;
+    public \DatabaseLink\Table $Rights;
+    public \DatabaseLink\Table $Routes;
+    public \DatabaseLink\Table $Routes_Have_Roles;
+
  
     /**
      * Call protected/private method of a class.
@@ -54,7 +58,11 @@ class toolbelt extends toolbelt_base
         $this->Users_Have_Roles = $toolbelt_base->Users_Have_Roles;
         $this->Company_Roles = $toolbelt_base->Company_Roles;
         $this->active_record_relationship_manager = $toolbelt_base->active_record_relationship_manager;
+        $this->Rights = $toolbelt_base->Rights;
+        $this->Routes = $toolbelt_base->Routes;
+        $this->Routes_Have_Roles = $toolbelt_base->Routes_Have_Roles;
     }
+
 }
 
 ?>

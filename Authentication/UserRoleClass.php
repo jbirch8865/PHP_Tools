@@ -15,7 +15,7 @@ class User_Role extends Active_Record implements iActiveRecord
     {
         parent::__construct();
         global $toolbelt_base;
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('role_id'),$toolbelt_base->Company_Roles,$toolbelt_base->Company_Roles->Get_Column('id'),'\app\Helpers\Company_Role');
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('role_id'),$toolbelt_base->Company_Roles,$toolbelt_base->Company_Roles->Get_Column('id'),'\Company\Company_Role');
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
@@ -83,10 +83,19 @@ class User_Role extends Active_Record implements iActiveRecord
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
-    public function Delete_User_Role() : void
+    private function Delete_User_Role() : void
     {
         $this->Delete_Object('destroy');
     }
+
+    public function Delete_Active_Record() : void
+    {
+        app()->request->validate([
+            'active_status' => ['required','bool']
+        ]);
+        $this->Delete_User_Role();
+    }
+
 }
 
 ?>

@@ -13,8 +13,9 @@ $toolbelt_base->Users->Load_Columns();
 
 function user_Validate_ID_Column(\DatabaseLink\Table $user_table)
 {
-    if($column = $user_table->Get_Column('id'))
+    try
     {
+        $column = $user_table->Get_Column('id');
         if($column->Get_Column_Key() != "PRI")
         {
             $column->Set_Column_Key("PRI");
@@ -35,7 +36,7 @@ function user_Validate_ID_Column(\DatabaseLink\Table $user_table)
         {
             $column->Column_Auto_Increments();
         }
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('id',$user_table,array(
             'COLUMN_TYPE' => 'int(11)',
@@ -48,8 +49,9 @@ function user_Validate_ID_Column(\DatabaseLink\Table $user_table)
 }
 function user_Validate_Username_Column(\DatabaseLink\Table $user_table)
 {
-    if($column = $user_table->Get_Column('username'))
+    try
     {
+        $column = $user_table->Get_Column('username');
         if($column->Get_Column_Key() != "")
         {
             $column->Set_Column_Key("");
@@ -70,7 +72,7 @@ function user_Validate_Username_Column(\DatabaseLink\Table $user_table)
         {
             $column->Column_Does_Not_Auto_Increments();
         }
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('username',$user_table,array(
             'COLUMN_TYPE' => 'varchar(25)',
@@ -83,8 +85,9 @@ function user_Validate_Username_Column(\DatabaseLink\Table $user_table)
 }
 function user_Validate_Company_ID_Column(\DatabaseLink\Table $user_table)
 {
-    if($column = $user_table->Get_Column('company_id'))
+    try
     {
+        $column = $user_table->Get_Column('company_id');
         if($column->Get_Column_Key() != "")
         {
             $column->Set_Column_Key("");
@@ -105,7 +108,7 @@ function user_Validate_Company_ID_Column(\DatabaseLink\Table $user_table)
         {
             $column->Column_Does_Not_Auto_Increments();
         }
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('company_id',$user_table,array(
             'COLUMN_TYPE' => 'INT(11)',
@@ -118,8 +121,9 @@ function user_Validate_Company_ID_Column(\DatabaseLink\Table $user_table)
 }
 function user_Validate_Project_Name_Column(\DatabaseLink\Table $user_table)
 {
-    if($column = $user_table->Get_Column('project_name'))
+    try
     {
+        $column = $user_table->Get_Column('project_name');
         if($column->Get_Column_Key() != "")
         {
             $column->Set_Column_Key("");
@@ -140,7 +144,7 @@ function user_Validate_Project_Name_Column(\DatabaseLink\Table $user_table)
         {
             $column->Column_Does_Not_Auto_Increments();
         }
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('project_name',$user_table,array(
             'COLUMN_TYPE' => 'varchar(20)',
@@ -153,8 +157,9 @@ function user_Validate_Project_Name_Column(\DatabaseLink\Table $user_table)
 }
 function user_Validate_CSPRING_Column(\DatabaseLink\Table $user_table)
 {
-    if($column = $user_table->Get_Column('cspring'))
+    try
     {
+        $column = $user_table->Get_Column('cspring');
         if($column->Get_Column_Key() != "")
         {
             $column->Set_Column_Key("");
@@ -179,7 +184,7 @@ function user_Validate_CSPRING_Column(\DatabaseLink\Table $user_table)
         {
             $column->Exclude_From_Response();
         }
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('cspring',$user_table,array(
             'COLUMN_TYPE' => 'varchar(64)',
@@ -193,8 +198,9 @@ function user_Validate_CSPRING_Column(\DatabaseLink\Table $user_table)
 }
 function user_Validate_User_Active_Status_Column(\DatabaseLink\Table $company_table)
 {
-    if($column = $company_table->Get_Column('active_status'))
+    try
     {
+        $column = $company_table->Get_Column('active_status');
         if($column->Get_Column_Key() != "")
         {
             $column->Set_Column_Key("");
@@ -216,7 +222,7 @@ function user_Validate_User_Active_Status_Column(\DatabaseLink\Table $company_ta
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('active_status',$company_table,array(
             'COLUMN_TYPE' => 'INT(11)',
@@ -229,8 +235,9 @@ function user_Validate_User_Active_Status_Column(\DatabaseLink\Table $company_ta
 }
 function user_Validate_Password_Column(\DatabaseLink\Table $user_table)
 {
-    if($column = $user_table->Get_Column('verified_hashed_password'))
+    try
     {
+        $column = $user_table->Get_Column('verified_hashed_password');
         if($column->Get_Column_Key() != "")
         {
             $column->Set_Column_Key("");
@@ -255,7 +262,7 @@ function user_Validate_Password_Column(\DatabaseLink\Table $user_table)
         {
             $column->Exclude_From_Response();
         }
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('verified_hashed_password',$user_table,array(
             'COLUMN_TYPE' => 'varchar(64)',

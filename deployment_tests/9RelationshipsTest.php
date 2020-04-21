@@ -73,7 +73,7 @@ class RelationshipsTest extends \PHPUnit\Framework\TestCase
     function test_Companies_Roles()
     {
         $this->assertIsArray($this->company->Company_Roles);
-        $this->assertEquals(4,count($this->company->Company_Roles));
+        $this->assertEquals(5,count($this->company->Company_Roles));
         $role_exists = false;
         ForEach($this->company->Company_Roles as $company_role)
         {
@@ -139,7 +139,7 @@ class RelationshipsTest extends \PHPUnit\Framework\TestCase
 
     function test_User_Roles_Comp_Role()
     {
-        $this->assertEquals('test_role_1',$this->session->Users_Have_Roles[0]->Company_Roles->Get_Friendly_Name());
+        $this->assertEquals('master',$this->session->Users_Have_Roles[0]->Company_Roles->Get_Friendly_Name());
     }
 
     function test_Clean_Up()

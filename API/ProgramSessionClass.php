@@ -9,13 +9,13 @@ use Active_Record\iActiveRecord;
 use Company\Company;
 use API\Session_Not_Established;
 
-class Program_Session extends Active_Record implements \Authentication\iUser
+class Program_Session extends Active_Record
 {
     public $_table = "Programs_Have_Sessions";
     function __construct()
     {
         $toolbelt = new \Test_Tools\toolbelt;
-        $toolbelt->active_record_relationship_manager->Load_Table_Key_Has_Many_If_Empty($toolbelt->Programs_Have_Sessions,$toolbelt->Users_Have_Roles,$toolbelt->Programs_Have_Sessions->Get_Column('user_id'),$toolbelt->Users_Have_Roles->Get_Column('user_id'),'\app\Helpers\User_Role');
+        $toolbelt->active_record_relationship_manager->Load_Table_Key_Has_Many_If_Empty($toolbelt->Programs_Have_Sessions,$toolbelt->Users_Have_Roles,$toolbelt->Programs_Have_Sessions->Get_Column('user_id'),$toolbelt->Users_Have_Roles->Get_Column('user_id'),'\Authentication\User_Role');
         parent::__construct();
     }
     /**
@@ -149,6 +149,21 @@ class Program_Session extends Active_Record implements \Authentication\iUser
         }
         throw new \Active_Record\Active_Record_Object_Failed_To_Load($company_role->Get_Friendly_Name().' does not appear to belong to '.$this->Get_Username());
     }
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
+    function Get_API_Response_Collection(): array
+    {
+        return $this->Get_Response_Collection(app()->request->input('include_details',0),app()->request->input('details_offset',0),app()->request->input('details_limit',1));
+    }
+    public function Delete_Active_Record() : void
+    {
+        app()->request->validate([
+            'active_status' => ['required','bool']
+        ]);
+
+    }
+
 }
 
 ?>

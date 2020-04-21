@@ -181,6 +181,7 @@ abstract class Active_Record extends ADODB_Active_Record
             $this->Set_Object_Inactive();
         }
     }
+
     /**
      * @throws \DatabaseLink\Column_Does_Not_Exist if table does not support this option
      */
@@ -215,7 +216,7 @@ abstract class Active_Record extends ADODB_Active_Record
      * @throws \DatabaseLink\Column_Does_Not_Exist if table does not support this option
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
-    private function Get_Active_Status() : bool
+    public function Get_Active_Status() : bool
     {
         if(!$this->table_dblink->Does_Column_Exist('active_status'))
         {
@@ -225,17 +226,20 @@ abstract class Active_Record extends ADODB_Active_Record
     }
     /**
      * @throws UpdateFailed if adodb->save method fails
+     * @return bool true if this is a new object, false if this is just updating
      */
-    protected function Create_Object() : void
+    protected function Create_Object() : bool
     {
+        $new_object = !$this->Is_Loaded();
         try
         {
-            $this->Set_Object_Active();
-        } catch (\DatabaseLink\Column_Does_Not_Exist $e)
-        {
-
-        }
+            if($new_object)
+            {
+                $this->Set_Object_Active();
+            }    
+        } catch (\DatabaseLink\Column_Does_Not_Exist $e){}
         $this->Update_Object();
+        return $new_object;
     }
     /**
      * @throws UpdateFailed if adodb->save method fails
@@ -346,5 +350,14 @@ abstract class Active_Record extends ADODB_Active_Record
             $this->LoadRelations($child_table_name,'',$offset,$limit);
         }
     }
+
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
+    function Get_API_Response_Collection(): array
+    {
+        return $this->Get_Response_Collection(app()->request->input('include_details',0),app()->request->input('details_offset',0),app()->request->input('details_limit',1));
+    }
+
 }
 ?>

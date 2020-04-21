@@ -10,11 +10,12 @@ $toolbelt_base->Company_Configs->Load_Columns();
 //ADODB_Active_Record::TableHasMany('Company_Configs','Configs','config_id','\Company\Config');
 function company_config_Validate_ID_Column(\DatabaseLink\Table $company_config_table)
 {
-    if($column = $company_config_table->Get_Column('id'))
+    try
     {
+        $column = $company_config_table->Get_Column('id');
         if($column->Get_Column_Key() != "PRI")
         {
-            $column->Set_Column_Key("PRI"); 
+            $column->Set_Column_Key("PRI");
         }
         if($column->Get_Data_Type() != "int(11)")
         {
@@ -32,7 +33,7 @@ function company_config_Validate_ID_Column(\DatabaseLink\Table $company_config_t
         {
             $column->Column_Auto_Increments();
         }
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('id',$company_config_table,array(
             'COLUMN_TYPE' => 'int(11)',
@@ -45,11 +46,12 @@ function company_config_Validate_ID_Column(\DatabaseLink\Table $company_config_t
 }
 function company_config_Validate_Company_ID_Column(\DatabaseLink\Table $company_config_table)
 {
-    if($column = $company_config_table->Get_Column('company_id'))
+    try
     {
+        $column = $company_config_table->Get_Column('company_id');
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "int(11)")
         {
@@ -68,7 +70,7 @@ function company_config_Validate_Company_ID_Column(\DatabaseLink\Table $company_
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('company_id',$company_config_table,array(
             'COLUMN_TYPE' => 'int(11)',
@@ -81,11 +83,12 @@ function company_config_Validate_Company_ID_Column(\DatabaseLink\Table $company_
 }
 function company_config_Validate_Config_ID(\DatabaseLink\Table $company_config_table)
 {
-    if($column = $company_config_table->Get_Column('config_id'))
+    try
     {
+        $column = $company_config_table->Get_Column('config_id');
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "int(11)")
         {
@@ -104,7 +107,7 @@ function company_config_Validate_Config_ID(\DatabaseLink\Table $company_config_t
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('config_id',$company_config_table,array(
             'COLUMN_TYPE' => 'int(11)',
@@ -117,11 +120,12 @@ function company_config_Validate_Config_ID(\DatabaseLink\Table $company_config_t
 }
 function company_config_Validate_Config_Value(\DatabaseLink\Table $company_config_table)
 {
-    if($column = $company_config_table->Get_Column('config_value'))
+    try
     {
+        $column = $company_config_table->Get_Column('config_value');
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "varchar(200)")
         {
@@ -140,7 +144,7 @@ function company_config_Validate_Config_Value(\DatabaseLink\Table $company_confi
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('config_value',$company_config_table,array(
             'COLUMN_TYPE' => 'varchar(200)',
@@ -154,11 +158,12 @@ function company_config_Validate_Config_Value(\DatabaseLink\Table $company_confi
 function company_config_Validate_Active_Status_Column(\DatabaseLink\Table $company_config_table)
 {
     global $cConfigs;
-    if($column = $company_config_table->Get_Column('active_status'))
+    try
     {
+        $column = $company_config_table->Get_Column('active_status');
         if($column->Get_Column_Key() != "")
         {
-            $column->Set_Column_Key(""); 
+            $column->Set_Column_Key("");
         }
         if($column->Get_Data_Type() != "INT(11)")
         {
@@ -177,7 +182,7 @@ function company_config_Validate_Active_Status_Column(\DatabaseLink\Table $compa
             $column->Column_Does_Not_Auto_Increments();
         }
         $column->Update_Column();
-    }else
+    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
         $column = new \DatabaseLink\Column('active_status',$company_config_table,array(
             'COLUMN_TYPE' => 'INT(11)',

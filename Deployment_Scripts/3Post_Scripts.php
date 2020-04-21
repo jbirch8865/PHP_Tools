@@ -12,6 +12,9 @@ Create_Backend_Program_For_API($toolbelt_base);
 Create_Configs();
 Create_System_If_Not_Already();
 Create_Backend_User_If_Not_Already($toolbelt_base->cConfigs);
+Override_Master_Role();
+Build_Routes();
+
 function Create_System_If_Not_Already()
 {
     $toolbelt = new \Test_Tools\toolbelt;
@@ -110,7 +113,10 @@ function Add_All_Constraints()
         array(array('Programs_Have_Sessions','client_id'),array('Programs','client_id')),
         array(array('Company_Roles','company_id'),array('Companies','id')),
         [['Users_Have_Roles','user_id'],['Users','id']],
-        [['Users_Have_Roles','role_id'],['Company_Roles','id']]
+        [['Users_Have_Roles','role_id'],['Company_Roles','id']],
+        [['Routes_Have_Roles','route_id'],['Routes','id']],
+        [['Routes_Have_Roles','role_id'],['Company_Roles','id']],
+        [['Routes_Have_Roles','right_id'],['Rights','id']]
     );
 
     ForEach($from_to_columns as $index => $value)
@@ -132,6 +138,55 @@ function Add_All_Multi_Column_Unique_Indexes()
     $toolbelt_base->Company_Roles->Add_Unique_Columns(array('company_id','role_name'));
     $toolbelt_base->Users->Add_Unique_Columns(array('company_id','username','project_name'));
     $toolbelt_base->Users_Have_Roles->Add_Unique_Columns(array('user_id','role_id'));
+    $toolbelt_base->Routes_Have_Roles->Add_Unique_Columns(array('route_id','role_id'));
 
 }
+
+function Override_Master_Role()
+{
+    $company = new \Company\Company;
+    $company->Load_Object_By_ID(1);
+    $role = $company->Get_Master_Role();
+    $role->Delete_Role(false);
+    $company->Create_Company_Role('master');
+    $user = new \Authentication\User('default',$company->cConfigs->Get_Client_ID(),$company,false);
+    $user->Assign_Company_Role($company->Get_Master_Role());
+}
+
+function Build_Routes()
+{
+    Create_Route_If_Not_Exist('User_Signin','',true);
+    Create_Route_If_Not_Exist('List_Users','Company',false);
+    Create_Route_If_Not_Exist('Create_User','Company',false);
+    Create_Route_If_Not_Exist('List_Companies','',true);
+    Create_Route_If_Not_Exist('Create_Company','',true);
+    Create_Route_If_Not_Exist('List_Roles','Company',false);
+    Create_Route_If_Not_Exist('Update_User','Company',false);
+    Create_Route_If_Not_Exist('List_Routes','',true);
+    Create_Route_If_Not_Exist('apidoc.json','',true);
+    Create_Route_If_Not_Exist('Delete_User','Company',false);
+    Create_Route_If_Not_Exist('Enable_Default_User','',true);
+    Create_Route_If_Not_Exist('Create_Role','Company',false);
+    Create_Route_If_Not_Exist('Delete_Role','Company',false);
+    Create_Route_If_Not_Exist('Edit_Role','Company',false);
+    Create_Route_If_Not_Exist('User_Signout','',true);
+
+}
+
+function Create_Route_If_Not_Exist(string $name,string $module,bool $implicit_allow = false)
+{
+    try
+    {
+        $route = new \app\Helpers\Route;
+        $route->Load_From_Route_Name($name);
+        $route->Set_Implicit_Allow($implicit_allow);
+        $route->Set_Module_Name($module);
+    } catch (\Active_Record\Active_Record_Object_Failed_To_Load $e)
+    {
+        $route->Set_Name($name,false);
+        $route->Set_Module_Name($module,false);
+        $route->Set_Implicit_Allow($implicit_allow,true);
+    }
+}
+
 ?>
