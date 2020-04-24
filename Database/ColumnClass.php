@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
-namespace databaseLink;
+namespace DatabaseLink;
 use DatabaseLink\Column_Does_Not_Exist;
 use DatabaseLink\SQLQueryError;
 
 
-class Column
+class Column extends MySQL_Equation_Strings
 {
 	public Table $table_dblink;
 	private ?string $verified_column_name = NULL;
@@ -14,7 +14,7 @@ class Column
 	private string $auto_increment = "auto_increment";
 	private bool $is_nullable = false;
 	private string $column_key = "PRI";
-	private $field_value = NULL;
+	private ?string $field_value = NULL;
 	private bool $include_in_response = true;
 
 	/**
@@ -239,14 +239,12 @@ class Column
 	}
 	/**
 	 * @throws SQLQueryError
+	 * Escapes Strings
 	 */
-	function Set_Field_Value($value,bool $update_now = true):void
+	function Set_Field_Value(?string $value):void
 	{
+		$this->table_dblink->database_dblink->dblink->Escape_String($value);
 		$this->field_value = $value;
-		if($update_now)
-		{
-			$this->Create_Column($this->verified_column_name);
-		}
 	}
 	function Get_Data_Length() : ?int
 	{
@@ -395,5 +393,90 @@ class Column
 		}
 	}
 
+}
+
+abstract class MySQL_Equation_Strings
+{
+	protected string $field_value;
+	public \DatabaseLink\Table $table_dblink;
+
+	public function Equals(?string $value) : \DatabaseLink\Safe_Strings
+	{
+		$this->Set_Field_Value($value);
+		if(is_null($this->Get_Field_Value()))
+		{
+			$string = "`".$this->table_dblink->Get_Table_Name()."`.`".$this->Get_Column_Name()."`IS NULL ";
+			$safestring = new \DatabaseLink\Safe_Strings($string);
+		}else
+		{
+			$string = "`".$this->table_dblink->Get_Table_Name()."`.`".$this->Get_Column_Name()."`='".$this->Get_Field_Value()."'";
+			$safestring = new \DatabaseLink\Safe_Strings($string);
+		}
+		return $safestring;
+	}
+
+	public function NotEquals(?string $value) : \DatabaseLink\Safe_Strings
+	{
+		$this->Set_Field_Value($value);
+		if(is_null($this->Get_Field_Value()))
+		{
+			$string = "`".$this->table_dblink->Get_Table_Name()."`.`".$this->Get_Column_Name()."`IS NOT NULL ";
+			$safestring = new \DatabaseLink\Safe_Strings($string);
+		}else
+		{
+			$string = "`".$this->table_dblink->Get_Table_Name()."`.`".$this->Get_Column_Name()."`<>'".$this->Get_Field_Value()."'";
+			$safestring = new \DatabaseLink\Safe_Strings($string);
+		}
+		return $safestring;
+	}
+
+	public function GreaterThan(string $value) : \DatabaseLink\Safe_Strings
+	{
+		$this->Set_Field_Value($value);
+		$string = "`".$this->table_dblink->Get_Table_Name()."`.`".$this->Get_Column_Name()."`>'".$this->Get_Field_Value()."'";
+		$safestring = new \DatabaseLink\Safe_Strings($string);
+		return $safestring;
+	}
+
+	public function GreaterThanOrEqual(string $value) : \DatabaseLink\Safe_Strings
+	{
+		$this->Set_Field_Value($value);
+		$string = "`".$this->table_dblink->Get_Table_Name()."`.`".$this->Get_Column_Name()."`>='".$this->Get_Field_Value()."'";
+		$safestring = new \DatabaseLink\Safe_Strings($string);
+		return $safestring;
+	}
+
+	public function LessThan(string $value) : \DatabaseLink\Safe_Strings
+	{
+		$this->Set_Field_Value($value);
+		$string = "`".$this->table_dblink->Get_Table_Name()."`.`".$this->Get_Column_Name()."`<'".$this->Get_Field_Value()."'";
+		$safestring = new \DatabaseLink\Safe_Strings($string);
+		return $safestring;
+	}
+
+	public function LessThanOrEqual(string $value) : \DatabaseLink\Safe_Strings
+	{
+		$this->Set_Field_Value($value);
+		$string = "`".$this->table_dblink->Get_Table_Name()."`.`".$this->Get_Column_Name()."`<='".$this->Get_Field_Value()."'";
+		$safestring = new \DatabaseLink\Safe_Strings($string);
+		return $safestring;
+	}
+	abstract function Set_Field_Value(?string $value) : void;
+	abstract function Get_Field_Value() : string;
+	abstract function Get_Column_Name() : string;
+}
+
+class Safe_Strings
+{
+	private $safestring;
+	function __construct(string $string)
+	{
+		$this->safestring = $string;
+	}
+
+	function Print_String() : string
+	{
+		return $this->safestring;
+	}
 }
 ?>
