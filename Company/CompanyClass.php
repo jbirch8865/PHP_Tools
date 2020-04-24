@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace Company;
+namespace app\Helpers;
 
 use Active_Record\Active_Record;
 use Active_Record\iActiveRecord;
@@ -12,8 +12,8 @@ class Company extends Active_Record implements iActiveRecord
     {
         parent::__construct();
         global $toolbelt_base;
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Company_Configs,$toolbelt_base->Company_Configs->Get_Column('company_id'),'\Company\Company_Config');
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Company_Roles,$toolbelt_base->Company_Roles->Get_Column('company_id'),'\Company\Company_Role');
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Company_Configs,$toolbelt_base->Company_Configs->Get_Column('company_id'),'\app\Helpers\Company_Config');
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Company_Roles,$toolbelt_base->Company_Roles->Get_Column('company_id'),'\app\Helpers\Company_Role');
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
@@ -157,7 +157,7 @@ class Company extends Active_Record implements iActiveRecord
      */
     private function Create_Or_Update_Config(\Company\Config $config,string $config_value) : void
     {
-        $company_config = new \Company\Company_Config;
+        $company_config = new \app\Helpers\Company_Config;
         $company_config->Create_Or_Update_Config($config,$this,$config_value);
         $this->LoadRelations('Company_Configs');
     }
@@ -167,13 +167,13 @@ class Company extends Active_Record implements iActiveRecord
      */
     Private function Create_Role(string $role_name) : void
     {
-        $company_role = new \Company\Company_Role;
+        $company_role = new \app\Helpers\Company_Role;
         $company_role->Set_Company_ID($this->Get_Verified_ID(),false);
         $company_role->Set_Role_Name($role_name);
         $this->LoadRelations('Company_Roles');
     }
 
-    function Get_Master_Role() : ?\Company\Company_Role
+    function Get_Master_Role() : ?\app\Helpers\Company_Role
     {
         ForEach($this->Company_Roles as $company_role)
         {

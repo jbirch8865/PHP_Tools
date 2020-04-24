@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace Company;
+namespace app\Helpers;
 
 use Active_Record\Active_Record;
 use Active_Record\iActiveRecord;
@@ -12,7 +12,7 @@ class Company_Config extends Active_Record implements iActiveRecord
     {
         parent::__construct();
         global $toolbelt_base;
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\Company\Company');
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\app\Helpers\Company');
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('config_id'),$toolbelt_base->Configs,$toolbelt_base->Configs->Get_Column('id'),'\Company\Config');
     }
     /**
@@ -20,7 +20,7 @@ class Company_Config extends Active_Record implements iActiveRecord
      * @throws UpdateFailed
      * @throws Varchar_Too_Long_To_Set
      */
-    public function Create_Or_Update_Config(\Company\Config $config,\Company\Company $company,string $config_value) : void
+    public function Create_Or_Update_Config(\Company\Config $config,\app\Helpers\Company $company,string $config_value) : void
     {
         $config_id = $config->Get_Verified_ID();
         $company_id = $company->Get_Verified_ID();

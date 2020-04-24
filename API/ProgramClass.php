@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace API;
+namespace app\Helpers;
 
 use Active_Record\Object_Is_Already_Loaded;
 use Active_Record\Active_Record;

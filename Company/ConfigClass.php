@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace Company;
+namespace app\Helpers;
 
 use Active_Record\Active_Record;
 use Active_Record\iActiveRecord;

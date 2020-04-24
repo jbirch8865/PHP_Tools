@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
-namespace API;
+namespace app\Helpers;
 
 use Active_Record\Active_Record;
 use Active_Record\Object_Is_Already_Loaded;
 use Active_Record\Object_Is_Currently_Inactive;
 use Active_Record\Active_Record_Object_Failed_To_Load;
 use Active_Record\iActiveRecord;
-use Company\Company;
+use app\Helpers\Company;
 use API\Session_Not_Established;
 
 class Program_Session extends Active_Record
@@ -127,7 +127,7 @@ class Program_Session extends Active_Record
      * @throws \Active_Record\Object_Has_Not_Been_Loaded — for user
      * @throws \Active_Record\UpdateFailed if role already assigned
      */
-    public function Assign_Company_Role(\Company\Company_Role $company_role): void
+    public function Assign_Company_Role(\app\Helpers\Company_Role $company_role): void
     {
         $user_role = new \Authentication\User_Role;
         $user_role->Set_Role($company_role,false);
@@ -137,7 +137,7 @@ class Program_Session extends Active_Record
      * @throws \Active_Record\Active_Record_Object_Failed_To_Load if role is not currently assigned
      * @throws \Active_Record\Object_Has_Not_Been_Loaded for company_role
      */
-    public function Remove_Company_Role(\Company\Company_Role $company_role): void
+    public function Remove_Company_Role(\app\Helpers\Company_Role $company_role): void
     {
         ForEach($this->Users_Roles as $user_role)
         {

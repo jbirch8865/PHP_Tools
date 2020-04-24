@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace Authentication;
+namespace app\Helpers;
 
 use Active_Record\Active_Record;
 use Active_Record\Object_Is_Currently_Inactive;
@@ -20,11 +20,11 @@ class User extends Active_Record implements iUser
      * @throws Object_Is_Currently_Inactive
      * @param string $unverified_password to skip checking the password use 'skip_check' as the password
      */
-    function __construct(string $unverified_username,string $unverified_password,\Company\Company $company,bool $create_user = false,bool $only_if_active = true)
+    function __construct(string $unverified_username,string $unverified_password,\app\Helpers\Company $company,bool $create_user = false,bool $only_if_active = true)
     {
         parent::__construct();
         global $toolbelt_base;
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\Company\Company');
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\app\Helpers\Company');
         $this->cConfigs = $toolbelt_base->cConfigs;
         $this->table_dblink = new \DatabaseLink\Table($this->_table,$toolbelt_base->dblink);
         $this->company_id = $company->Get_Verified_ID();
@@ -127,7 +127,7 @@ class User extends Active_Record implements iUser
      * @throws \Active_Record\Object_Has_Not_Been_Loaded — for user
      * @throws \Active_Record\UpdateFailed if role already assigned
      */
-    public function Assign_Company_Role(\Company\Company_Role $company_role): void
+    public function Assign_Company_Role(\app\Helpers\Company_Role $company_role): void
     {
         $user_role = new \Authentication\User_Role;
         $user_role->Set_Role($company_role,false);
@@ -137,7 +137,7 @@ class User extends Active_Record implements iUser
      * @throws \Active_Record\Object_Has_Not_Been_Loaded — for user and company_role
      * @throws Active_Record_Object_Failed_To_Load
      */
-    public function Remove_Company_Role(\Company\Company_Role $company_role): void
+    public function Remove_Company_Role(\app\Helpers\Company_Role $company_role): void
     {
         $user_role = new \Authentication\User_Role;
         $user_role->Load_User_Role_From_User_And_Company_Role($this,$company_role);

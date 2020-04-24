@@ -14,7 +14,7 @@ class Column extends MySQL_Equation_Strings
 	private string $auto_increment = "auto_increment";
 	private bool $is_nullable = false;
 	private string $column_key = "PRI";
-	private ?string $field_value = NULL;
+	protected ?string $field_value = NULL;
 	private bool $include_in_response = true;
 
 	/**
@@ -397,7 +397,7 @@ class Column extends MySQL_Equation_Strings
 
 abstract class MySQL_Equation_Strings
 {
-	protected string $field_value;
+	protected ?string $field_value;
 	public \DatabaseLink\Table $table_dblink;
 
 	public function Equals(?string $value) : \DatabaseLink\Safe_Strings

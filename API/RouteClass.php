@@ -169,7 +169,7 @@ class Route extends Active_Record implements \Active_Record\iActiveRecord
         $toolbelt->Companies->Reset_Queried_Data();
         while($row = $toolbelt->Companies->Get_Queried_Data())
         {
-            $company = new \Company\Company;
+            $company = new \app\Helpers\Company;
             $company->Load_Object_By_ID((int) $row['id']);
             $role = $company->Get_Master_Role();
             $route_role = new \app\Helpers\Route_Role;

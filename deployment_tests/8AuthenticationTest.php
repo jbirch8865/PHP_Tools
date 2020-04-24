@@ -7,14 +7,14 @@ class AuthenticationTest extends \PHPUnit\Framework\TestCase
 {
     private \DatabaseLink\Table $table_dblink;
     public \config\ConfigurationFile $cConfigs;
-    private \Company\Company $company;
+    private \app\Helpers\Company $company;
 
 	public function setUp() :void
 	{
         $toolbelt = new \Test_Tools\toolbelt();;
         $this->cConfigs = $toolbelt->cConfigs;
         $this->table_dblink = $toolbelt->Users;
-        $this->company = new \Company\Company;
+        $this->company = new \app\Helpers\Company;
         $this->company->Load_Object_By_ID(1);
     }
     
@@ -54,7 +54,7 @@ class AuthenticationTest extends \PHPUnit\Framework\TestCase
     {
         $toolbelt = new \Test_Tools\toolbelt;
         $session = new \API\Program_Session();
-        $company = new \Company\Company;
+        $company = new \app\Helpers\Company;
         $company->Load_Object_By_ID(1);
         $session_time_limit = $company->Get_Session_Time_Limit();
         $company->Set_Session_Time_Limit(1);

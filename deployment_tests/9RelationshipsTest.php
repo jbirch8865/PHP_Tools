@@ -6,7 +6,7 @@ use DatabaseLink\SQLQueryError;
 class RelationshipsTest extends \PHPUnit\Framework\TestCase
 {
     private \Test_Tools\toolbelt $toolbelt;
-    private \Company\Company $company;
+    private \app\Helpers\Company $company;
     private \Authentication\User $user1;
     private \Authentication\User $user2;
     private \Authentication\User $user3;
@@ -18,7 +18,7 @@ class RelationshipsTest extends \PHPUnit\Framework\TestCase
         parent::__construct();
         $toolbelt = new \Test_Tools\toolbelt();
         $this->toolbelt = $toolbelt;        
-        $this->company = new \Company\Company;
+        $this->company = new \app\Helpers\Company;
         try
         {
             $this->company->Set_Company_Name('relationship_test');

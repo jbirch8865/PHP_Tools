@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 namespace databaseLink;
 use DatabaseLink\Column_Does_Not_Exist;
+use DatabaseLink\Safe_Strings;
 use DatabaseLink\SQLQueryError;
-
+use League\Flysystem\SafeStorage;
 
 class Table
 {
@@ -13,7 +14,7 @@ class Table
 	private array $columns = array();
 	private \ArrayIterator $row_iterator;
 	private \ArrayIterator $column_iterator;
-	private string $where_section;
+	private string $where_section = '';
 
 	/**
 	 * @param string $unverified_table_name if does not exist will automatically create it
@@ -347,49 +348,52 @@ class Table
 
 	public function LimitBy(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section.$string;
+		$this->where_section = $this->where_section.$string->Print_String();
 	}
-
 	public function LimitByGroup(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section."(".$string;
+		$this->where_section = $this->where_section."(".$string->Print_String();
 	}
-
 	public function LimitByEndGroup(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section.$string.")";
+		$this->where_section = $this->where_section.$string->Print_String().")";
 	}
-
 	public function AndLimitBy(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section."AND".$string;
+		$this->where_section = $this->where_section."AND".$string->Print_String();
 	}
-
 	public function AndLimitByGroup(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section."AND(".$string;
+		$this->where_section = $this->where_section."AND(".$string->Print_String();
 	}
-
 	public function AndLimitByEndGroup(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section."AND".$string.")";
+		$this->where_section = $this->where_section."AND".$string->Print_String().")";
 	}
-
 	public function OrLimitBy(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section."OR".$string;
+		$this->where_section = $this->where_section."OR".$string->Print_String();
 	}
-
 	public function OrLimitByGroup(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section."OR(".$string;
+		$this->where_section = $this->where_section."OR(".$string->Print_String();
 	}
-
 	public function OrLimitByEndGroup(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section."OR".$string.")";
+		$this->where_section = $this->where_section."LIMIT".$string->Print_String().")";
 	}
-
+    public function LimitLimitBy(\DatabaseLink\Safe_Strings $string)
+	{
+		$this->where_section = $this->where_section."LIMIT".$string->Print_String();
+	}
+	public function LimitLimitByGroup(\DatabaseLink\Safe_Strings $string)
+	{
+		$this->where_section = $this->where_section."LIMIT(".$string->Print_String();
+	}
+	public function LimitLimitByEndGroup(\DatabaseLink\Safe_Strings $string)
+	{
+		$this->where_section = $this->where_section."LIMIT".$string->Print_String().")";
+	}
 	private function Get_Where_Clause() : string
 	{
 		return "WHERE".$this->where_section;
@@ -399,126 +403,41 @@ class Table
      */
     public function Get_All_Objects(string $object_class,\Illuminate\Http\Request $request) : \Illuminate\Http\JsonResponse
     {
-         if($request->input('include_disabled',false))
-         {
-             $this->Query_Single_Table(array('id'),false,"LIMIT ".$request->input('offset',0).", ".$request->input('limit',50));
-         }else
-         {
-             $this->Query_Single_Table(array('id'),false,"WHERE `Active_Status` = '1' LIMIT ".$request->input('offset',0).", ".$request->input('limit',50));
-         }
-         $objects = array();
-         While($row = $this->Get_Queried_Data())
-         {
-             $class = '\\app\\Helpers\\'.$object_class;
-             $object = new $class;
-             $object->Load_Object_By_ID($row['id']);
-             if($request->input('include_details',false))
-             {
-                 $objects[$object->Get_Friendly_Name()] = $object->Get_API_Response_Collection();
-             }else
-             {
-                 $objects[$object->Get_Friendly_Name()] = $object->Get_Verified_ID();
-             }
-         }
-         return Response_200([
-             'message' => 'Response Objects',
-             $object_class => $objects
-         ],$request);
+        if(is_null($this->where_section))
+        {
+            if($request->input('include_disabled',false))
+            {
+                $this->LimitBy($this->Get_Column('Active_Status')->Equals((string) $request->input('include_disabled',false)));
+            }
+        }else
+        {
+            if($request->input('include_disabled',false))
+            {
+                $this->AndLimitBy($this->Get_Column('Active_Status')->Equals((string) $request->input('include_disabled',false)));
+            }
+        }
+        $this->LimitBy(new Safe_Strings($request->input('offset',0).", ".$request->input('limit',50)));
+        $this->Query_Table(['id']);
+        $objects = array();
+        While($row = $this->Get_Queried_Data())
+        {
+            $class = '\\app\\Helpers\\'.$object_class;
+            $object = new $class;
+            $object->Load_Object_By_ID($row['id']);
+            if($request->input('include_details',false))
+            {
+                $objects[$object->Get_Friendly_Name()] = $object->Get_API_Response_Collection();
+            }else
+            {
+                $objects[$object->Get_Friendly_Name()] = $object->Get_Verified_ID();
+            }
+        }
+        return Response_200([
+            'message' => 'Response Objects',
+            $object_class => $objects
+        ],$request);
 
 	}
 }
 
-class Where
-{
-	private array $sections;
-
-	function Add_Section(Where_Section $where_section)
-	{
-		$this->sections[] = $where_section;
-	}
-
-	function Print_Statement() : string
-	{
-		$return = 'WHERE';
-		ForEach($this->sections as $where_section)
-		{
-			$return = $return.$where_section->Print_Statement();
-		}
-		return $return;
-	}
-}
-/**
- * For any values, real_escap_string is taken care of for you
- */
-class Where_Section
-{
-	private \Test_Tools\toolbelt_base $toolbelt;
-	private array $sections;
-	private string $type;
-	/**
-	 * @param string $type 'and'||'or'||''
-	 */
-	function __construct(string $type)
-	{
-		if($type == 'and' || $type == 'or' || $type == "")
-		{
-			$this->type = $type;
-		}else
-		{
-			throw new \Exception('Where statement type can only be "and" or "or" or "" '.$type.' given');
-		}
-		$this->toolbelt = new \Test_Tools\toolbelt_base;
-	}
-	function And_Section(\DatabaseLink\Where_Section $where_section)
-	{
-		$this->sections['and'] = [$where_section];
-	}
-
-	function And_Column(\DatabaseLink\Column $column, string $value)
-	{
-		$value = $this->toolbelt->dblink->dblink->Escape_String($value);
-		$this->sections['and'] = ['column' => $column,'value' => $value];
-	}
-
-	function Or_Section(\DatabaseLink\Where_Section $where_section)
-	{
-		$this->sections['or'] = [$where_section];
-	}
-
-	function Or_Column(\DatabaseLink\Column $column, string $value)
-	{
-		$value = $this->toolbelt->dblink->dblink->Escape_String($value);
-		$this->sections['or'] = ['column' => $column,'value' => $value];
-	}
-
-	function Print_Statement() : string
-	{
-		$return = $this->type.'(';
-		$first_run = true;
-		ForEach($this->sections as $method => $section)
-		{
-			if(!$first_run)
-			{
-				if(count($section) > 1)
-				{
-					$return = $return."`".$section['column']."`='".$section['value']."'";
-				}else
-				{
-					$return = $return.$section[0]->Print_Statement();
-				}
-			}else
-			{
-				if(count($section) > 1)
-				{
-					$return = $return.strtoupper($method)."`".$section['column']."`='".$section['value']."'";
-				}else
-				{
-					$return = $return.$section[0]->Print_Statement();
-				}
-			}
-		}
-		$return = $return.')';
-		return $return;
-	}
-}
 ?>

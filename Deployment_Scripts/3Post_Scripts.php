@@ -21,7 +21,7 @@ function Create_System_If_Not_Already()
     if($toolbelt->cConfigs->Is_Prod()){return;}
     try
     {
-        $company = new \Company\Company();
+        $company = new \app\Helpers\Company();
         $company->Load_Object_By_ID(1);
         if($company->Get_Friendly_Name() != 'System')
         {
@@ -31,12 +31,12 @@ function Create_System_If_Not_Already()
     {
         try
         {
-            $company = new \Company\Company();
+            $company = new \app\Helpers\Company();
             $company->Load_Company_By_Name('System');
             $company->Change_Primary_Key(1,$company->Get_Verified_ID());
         } catch (\Active_Record\Active_Record_Object_Failed_To_Load $e)
         {
-            $company = new \Company\Company();
+            $company = new \app\Helpers\Company();
             $company->Set_Company_Name('System',true,false);
             $company->Create_Object();
             $company->Change_Primary_Key(1,$company->Get_Verified_ID());
@@ -91,7 +91,7 @@ function Create_Backend_User_If_Not_Already(\config\ConfigurationFile $cConfigs)
 {
     $toolbelt = new \Test_Tools\toolbelt;
     if($toolbelt->cConfigs->Is_Prod()){return;}
-    $company = new \Company\Company;
+    $company = new \app\Helpers\Company;
     $company->Load_Object_By_ID(1);
     $user = new \Authentication\User('default',$toolbelt->cConfigs->Get_Client_ID(),$company,true);
     try
@@ -144,7 +144,7 @@ function Add_All_Multi_Column_Unique_Indexes()
 
 function Override_Master_Role()
 {
-    $company = new \Company\Company;
+    $company = new \app\Helpers\Company;
     $company->Load_Object_By_ID(1);
     $role = $company->Get_Master_Role();
     $role->Delete_Role(false);

@@ -58,7 +58,7 @@ class toolbelt extends toolbelt_base
     public \DatabaseLink\Table $Rights;
     public \DatabaseLink\Table $Routes;
     public \DatabaseLink\Table $Routes_Have_Roles;
-    public ?\Company\Company $Company = null;
+    public ?\app\Helpers\Company $Company = null;
     public ?\API\Program $Program = null;
     public ?\API\Program_Session $Program_Session = null;
     public ?\app\Helpers\Route $Route = null;
@@ -96,7 +96,7 @@ class toolbelt extends toolbelt_base
         return $this->Program;
     }
 
-    public function Get_Company() : \Company\Company
+    public function Get_Company() : \app\Helpers\Company
     {
         if(is_null($this->Company))
         {

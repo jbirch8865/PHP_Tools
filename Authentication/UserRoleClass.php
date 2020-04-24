@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
-namespace Authentication;
+namespace app\Helpers;
 
 use Authentication\iUser;
-use Company\Company_Role;
+use app\Helpers\Company_Role;
 use Active_Record\Active_Record;
 use Active_Record\iActiveRecord;
-use Company\Company;
+use app\Helpers\Company;
 
 class User_Role extends Active_Record implements iActiveRecord
 {
@@ -15,7 +15,7 @@ class User_Role extends Active_Record implements iActiveRecord
     {
         parent::__construct();
         global $toolbelt_base;
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('role_id'),$toolbelt_base->Company_Roles,$toolbelt_base->Company_Roles->Get_Column('id'),'\Company\Company_Role');
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('role_id'),$toolbelt_base->Company_Roles,$toolbelt_base->Company_Roles->Get_Column('id'),'\app\Helpers\Company_Role');
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded

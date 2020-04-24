@@ -1,5 +1,5 @@
 <?php
-namespace Authentication;
+namespace app\Helpers;
 interface iUser 
 {
     /**
@@ -13,13 +13,13 @@ interface iUser
      * @throws \Active_Record\UpdateFailed if role already assigned
      */
 
-    public function Assign_Company_Role(\Company\Company_Role $company_role) : void;
+    public function Assign_Company_Role(\app\Helpers\Company_Role $company_role) : void;
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded — for user and company_role
      * @throws Active_Record_Object_Failed_To_Load
      */
 
-    public function Remove_Company_Role(\Company\Company_Role $company_role) : void;
+    public function Remove_Company_Role(\app\Helpers\Company_Role $company_role) : void;
     public function Get_Verified_ID() : int;
 }
 
