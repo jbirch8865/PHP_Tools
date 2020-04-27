@@ -59,10 +59,10 @@ class toolbelt extends toolbelt_base
     public \DatabaseLink\Table $Routes;
     public \DatabaseLink\Table $Routes_Have_Roles;
     public ?\app\Helpers\Company $Company = null;
-    public ?\API\Program $Program = null;
-    public ?\API\Program_Session $Program_Session = null;
+    public ?\app\Helpers\Program $Program = null;
+    public ?\app\Helpers\Program_Session $Program_Session = null;
     public ?\app\Helpers\Route $Route = null;
-    public ?\Authentication\User $User = null;
+    public ?\app\Helpers\User $User = null;
 
     function __construct()
     {
