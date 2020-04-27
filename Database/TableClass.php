@@ -168,7 +168,8 @@ class Table
 		$this->database_dblink->dblink->Execute_Any_SQL_Query("SELECT ".$columns_to_select." FROM `".$this->Get_Table_Name()."`".$this->Get_Where_Clause());
 		$rows = $this->database_dblink->dblink->Get_Results();
 		$arrayObject = new \ArrayObject($rows);
-		$this->row_iterator = $arrayObject->getIterator();
+        $this->row_iterator = $arrayObject->getIterator();
+        $this->where_section = '';
 	}
 
 	/**
@@ -348,15 +349,15 @@ class Table
 
 	public function LimitBy(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section.$string->Print_String();
+		$this->where_section = $this->where_section."AND".$string->Print_String();
 	}
 	public function LimitByGroup(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section."(".$string->Print_String();
+		$this->where_section = $this->where_section."AND(".$string->Print_String();
 	}
 	public function LimitByEndGroup(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section.$string->Print_String().")";
+		$this->where_section = $this->where_section."AND".$string->Print_String().")";
 	}
 	public function AndLimitBy(\DatabaseLink\Safe_Strings $string)
 	{
@@ -380,50 +381,46 @@ class Table
 	}
 	public function OrLimitByEndGroup(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section."LIMIT".$string->Print_String().")";
+		$this->where_section = $this->where_section."LIMIT ".$string->Print_String().")";
 	}
     public function LimitLimitBy(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section."LIMIT".$string->Print_String();
+		$this->where_section = $this->where_section."LIMIT ".$string->Print_String();
 	}
 	public function LimitLimitByGroup(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section."LIMIT(".$string->Print_String();
+		$this->where_section = $this->where_section."LIMIT (".$string->Print_String();
 	}
 	public function LimitLimitByEndGroup(\DatabaseLink\Safe_Strings $string)
 	{
-		$this->where_section = $this->where_section."LIMIT".$string->Print_String().")";
+		$this->where_section = $this->where_section."LIMIT ".$string->Print_String().")";
 	}
 	private function Get_Where_Clause() : string
 	{
-		return "WHERE".$this->where_section;
+		return "WHERE 1 ".$this->where_section;
 	}
 	/**
      * @param string $object_class Company must be a valid app\Helpers\ class
      */
     public function Get_All_Objects(string $object_class,\Illuminate\Http\Request $request) : \Illuminate\Http\JsonResponse
     {
-        if(is_null($this->where_section))
+        if($this->Does_Column_Exist('active_status'))
         {
-            if($request->input('include_disabled',false))
+            if($request->input('include_disabled_objects',false))
             {
-                $this->LimitBy($this->Get_Column('Active_Status')->Equals((string) $request->input('include_disabled',false)));
-            }
-        }else
-        {
-            if($request->input('include_disabled',false))
+            }else
             {
-                $this->AndLimitBy($this->Get_Column('Active_Status')->Equals((string) $request->input('include_disabled',false)));
+                $this->AndLimitBy($this->Get_Column('active_status')->Equals('1'));
             }
         }
-        $this->LimitBy(new Safe_Strings($request->input('offset',0).", ".$request->input('limit',50)));
+        $this->LimitLimitBy(new Safe_Strings($request->input('offset',0).", ".$request->input('limit',50)));
         $this->Query_Table(['id']);
         $objects = array();
         While($row = $this->Get_Queried_Data())
         {
             $class = '\\app\\Helpers\\'.$object_class;
             $object = new $class;
-            $object->Load_Object_By_ID($row['id']);
+            $object->Load_Object_By_ID((int) $row['id'],true);
             if($request->input('include_details',false))
             {
                 $objects[$object->Get_Friendly_Name()] = $object->Get_API_Response_Collection();

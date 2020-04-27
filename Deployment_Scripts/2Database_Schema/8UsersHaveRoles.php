@@ -4,8 +4,8 @@ users_have_roles_Validate_ID_Column($toolbelt_base->Users_Have_Roles);
 users_have_roles_Validate_User_ID_Column($toolbelt_base->Users_Have_Roles);
 users_have_roles_Validate_Role_ID_Column($toolbelt_base->Users_Have_Roles);
 $toolbelt_base->Users_Have_Roles->Load_Columns();
-//ADODB_Active_Record::TableHasMany('Users','Users_Have_Roles','user_id','\Authentication\User_Role');
-//ADODB_Active_Record::TableKeyHasMany('Programs_Have_Sessions','user_id','Users_Have_Roles','user_id','\Authentication\User_Role');
+//ADODB_Active_Record::TableHasMany('Users','Users_Have_Roles','user_id','\app\Helpers\User_Role');
+//ADODB_Active_Record::TableKeyHasMany('Programs_Have_Sessions','user_id','Users_Have_Roles','user_id','\app\Helpers\User_Role');
 //ADODB_Active_Record::TableBelongsTo('Users_Have_Roles','Company_Roles','id','id','\app\Helpers\Company');
 
 function users_have_roles_Validate_ID_Column(\DatabaseLink\Table $Users_Have_Roles)

@@ -5,7 +5,7 @@ class CustomException Extends \Exception {
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}		
+	}
 }
 namespace config;
 
@@ -39,115 +39,89 @@ class Config_Missing Extends \exception\CustomException {
 	}
 }
 
-namespace Authentication;
-class User_Session_Expired Extends \exception\CustomException{
-	function __contruct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-class User_Not_Logged_In Extends \exception\CustomException{
-	function __contruct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-class User_Does_Not_Exist Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-class Incorrect_Password Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
 namespace DatabaseLink;
 class Table_Does_Not_Exist Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}		
+	}
 }
 
 class Field_Is_Locked Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}		
+	}
 }
 
 class Not_A_Primary_Key Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}		
+	}
 }
 
 class Primary_Key_Auto_Increments Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}		
+	}
 }
 
 class Row_Not_Ready_To_Update Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}		
+	}
 }
 
 class Fields_Are_Not_Set_Properly Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}		
+	}
 }
 
 class Column_Does_Not_Exist Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}		
+	}
 }
 
 class Column_Is_Required Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}		
+	}
 }
 
 class SQL_Search_Returned_Null Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}		
+	}
 }
 
 Class SQLConnectionError Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}		
+	}
 }
 
 Class SQLQueryError Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}		
+	}
 }
 
 Class DuplicatePrimaryKeyRequest Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}		
+	}
 }
 
 namespace Active_Record;
@@ -193,7 +167,13 @@ Class Object_Is_Currently_Inactive Extends \exception\CustomException{
 	}
 }
 
-namespace api;
+Class Relationship_Miss_Match Extends \exception\CustomException{
+    function __construct($message = Null)
+    {
+        parent::__construct($message);
+    }
+}
+namespace app\Helpers;
 
 Class User_Not_Set Extends \exception\CustomException{
 	function __construct($message = Null)
@@ -202,6 +182,32 @@ Class User_Not_Set Extends \exception\CustomException{
 	}
 }
 Class Session_Not_Established Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}
+}
+
+class User_Session_Expired Extends \exception\CustomException{
+	function __contruct($message = Null)
+	{
+		parent::__construct($message);
+	}
+}
+class User_Not_Logged_In Extends \exception\CustomException{
+	function __contruct($message = Null)
+	{
+		parent::__construct($message);
+	}
+}
+class User_Does_Not_Exist Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}
+}
+
+class Incorrect_Password Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);

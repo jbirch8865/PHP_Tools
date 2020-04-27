@@ -74,7 +74,7 @@ function Prepend_To_Array_Except_Last_Element_With_String(string $string_to_add,
  */
 function is_connected() : bool
 {
-    $connected = @fsockopen("www.google.com", 80); 
+    $connected = @fsockopen("www.google.com", 80);
                                         //website, port  (try 80 or 443)
     if ($connected){
         $is_conn = true; //action when connected
@@ -110,7 +110,7 @@ function Ask_User_For_Credentials() : void
     $root_username = Send_Message_To_Stdin_Get_Response("Database root username?");
 	$root_password = Send_Message_To_Stdin_Get_Response("Database root password?");
     $root_hostname = Send_Message_To_Stdin_Get_Response("Database hostname, leave blank for localhost?");
-    if ($root_hostname == "") 
+    if ($root_hostname == "")
     {
         $root_hostname = 'localhost';
     }
@@ -143,11 +143,22 @@ function Create_Config_File(string $root_username,string $root_password,string $
     fwrite($file_handle,$ini_string);
     fclose($file_handle);
 }
-function The_Stupidest_Problem_Ever()
+function Validate_Array_Types(array $array,string $objecttype) :void
 {
-    \ADODB_Active_Record::TableKeyHasMany('Programs_Have_Sessions','user_id','Users_Have_Roles','user_id','\Authentication\User_Role');
+    ForEach($array as $object)
+    {
+        try
+        {
+            if(get_class($object) == $objecttype)
+            {
+                throw new \Exception(get_class($object).' is not a valid '.$objecttype);
+            }
+        } catch (\Exception $e)
+        {
+            throw new \Exception(get_class($object).' is not a valid '.$objecttype);
+        }
+    }
 }
-
 
 
 use Illuminate\Http\Request;
@@ -196,5 +207,5 @@ use Illuminate\Http\Request;
      return response()->json($payload,500);
  }
 
- 
+
 ?>

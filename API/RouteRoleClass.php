@@ -92,14 +92,6 @@ class Route_Role extends Active_Record implements iActiveRecord
     {
         $this->Load_From_Multiple_Vars([['route_id',$route->Get_Verified_ID()],['role_id',$role->Get_Verified_ID()]]);
     }
-    /**
-     * @throws \Active_Record\Object_Has_Not_Been_Loaded
-     */
-    function Get_API_Response_Collection(): array
-    {
-        return $this->Get_Response_Collection(app()->request->input('include_details',0),app()->request->input('details_offset',0),app()->request->input('details_limit',1));
-    }
-
     public function Delete_Active_Record() : void
     {
         $this->Delete_Object('destroy');

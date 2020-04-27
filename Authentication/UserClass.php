@@ -10,6 +10,7 @@ class User extends Active_Record implements iUser
     public \DatabaseLink\Table $table_dblink;
     private string $password;
     var $_table = "Users";
+    private \Test_Tools\toolbelt $toolbelt;
 
     /**
      * @throws Incorrect_Password
@@ -31,6 +32,7 @@ class User extends Active_Record implements iUser
         $this->Set_Username($unverified_username);
         $this->password = $unverified_password;
         $this->project_name = $this->cConfigs->Get_Name_Of_Project();
+        $this->toolbelt = new \Test_Tools\toolbelt;
         if($this->Load_User_If_Exists())
         {
             $this->password = $this->Hash_Password($this->password);
@@ -129,9 +131,24 @@ class User extends Active_Record implements iUser
      */
     public function Assign_Company_Role(\app\Helpers\Company_Role $company_role): void
     {
-        $user_role = new \Authentication\User_Role;
+        if($company_role->Companies->Get_Verified_ID() != $this->company_id)
+        {
+            throw new \Active_Record\Relationship_Miss_Match('Company Role '.$company_role->Get_Verified_ID().' belongs to company'.$company_role->Companies->Get_Verified_ID().' you are working with company '.$this->company_id);
+        }
+        $user_role = new \app\Helpers\User_Role;
         $user_role->Set_Role($company_role,false);
         $user_role->Set_User($this,true);
+    }
+    public function Remove_All_Roles():void
+    {
+        $this->toolbelt->Users_Have_Roles->LimitBy($this->toolbelt->Users_Have_Roles->Get_Column('user_id')->Equals((string) $this->Get_Verified_ID()));
+        $this->toolbelt->Users_Have_Roles->Query_Table(['role_id']);
+        While($row = $this->toolbelt->Users_Have_Roles->Get_Queried_Data())
+        {
+            $role = new Company_Role;
+            $role->Load_Object_By_ID((int) $row['role_id']);
+            $this->Remove_Company_Role($role);
+        }
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded — for user and company_role
@@ -139,7 +156,7 @@ class User extends Active_Record implements iUser
      */
     public function Remove_Company_Role(\app\Helpers\Company_Role $company_role): void
     {
-        $user_role = new \Authentication\User_Role;
+        $user_role = new \app\Helpers\User_Role;
         $user_role->Load_User_Role_From_User_And_Company_Role($this,$company_role);
         $user_role->Delete_User_Role();
     }
@@ -170,7 +187,7 @@ class User extends Active_Record implements iUser
         app()->request->validate([
             'active_status' => ['required','bool']
         ]);
-        $this->Delete_User(app()->request->input('active_status'));
+        $this->Delete_User((bool) app()->request->input('active_status'));
     }
 
 

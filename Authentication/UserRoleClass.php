@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace app\Helpers;
 
-use Authentication\iUser;
+use app\Helpers\iUser;
 use app\Helpers\Company_Role;
 use Active_Record\Active_Record;
 use Active_Record\iActiveRecord;
@@ -20,7 +20,7 @@ class User_Role extends Active_Record implements iActiveRecord
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
-    public function Get_Role_ID() : int 
+    public function Get_Role_ID() : int
     {
         return (int) $this->Get_Value_From_Name('role_id');
     }
@@ -66,14 +66,6 @@ class User_Role extends Active_Record implements iActiveRecord
     /**
      * @throws Active_Record_Object_Failed_To_Load
      * @throws Object_Is_Already_Loaded
-     */
-    public function Load_Object_By_ID(int $user_role_id) : void
-    {
-        $this->Load_From_Int('id',$user_role_id);
-    }
-    /**
-     * @throws Active_Record_Object_Failed_To_Load
-     * @throws Object_Is_Already_Loaded
      * @throws \Active_Record\Object_Has_Not_Been_Loaded for user and company_role
      */
     public function Load_User_Role_From_User_And_Company_Role(iUser $user,Company_Role $company_role):void
@@ -83,7 +75,7 @@ class User_Role extends Active_Record implements iActiveRecord
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
-    private function Delete_User_Role() : void
+    public function Delete_User_Role() : void
     {
         $this->Delete_Object('destroy');
     }

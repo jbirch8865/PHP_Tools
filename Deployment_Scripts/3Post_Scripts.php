@@ -53,7 +53,7 @@ function Create_Backend_Program_For_API(\Test_Tools\toolbelt_base $toolbelt_base
     if($toolbelt->cConfigs->Is_Prod()){return;}
     try
     {
-        $program = new \API\Program();
+        $program = new \app\Helpers\Program();
         $program->Load_Object_By_ID(1);
         if(!$program->Get_Friendly_Name() == 'Sandbox')
         {
@@ -63,12 +63,12 @@ function Create_Backend_Program_For_API(\Test_Tools\toolbelt_base $toolbelt_base
     {
         try
         {
-            $program = new \API\Program();
+            $program = new \app\Helpers\Program();
             $program->Load_Program_By_Name('Sandbox');
             $program->Change_Primary_Key(1,$program->Get_Verified_ID());
         } catch (\Active_Record\Active_Record_Object_Failed_To_Load $e)
         {
-            $program = new \API\Program();
+            $program = new \app\Helpers\Program();
             $program->Create_Project('Sandbox');
         }
     }
@@ -81,9 +81,9 @@ function Add_Column_Constraint(\DatabaseLink\Column $from_column,\DatabaseLink\C
 }
 function Create_Configs()
 {
-    $config = new \Company\Config();
+    $config = new \app\Helpers\Config();
     $config->Create_Or_Update_Config('company_time_zone','UTC');
-    $config = new \Company\Config();
+    $config = new \app\Helpers\Config();
     $config->Create_Or_Update_Config('session_time_limit','300');
 
 }
@@ -93,7 +93,7 @@ function Create_Backend_User_If_Not_Already(\config\ConfigurationFile $cConfigs)
     if($toolbelt->cConfigs->Is_Prod()){return;}
     $company = new \app\Helpers\Company;
     $company->Load_Object_By_ID(1);
-    $user = new \Authentication\User('default',$toolbelt->cConfigs->Get_Client_ID(),$company,true);
+    $user = new \app\Helpers\User('default',$toolbelt->cConfigs->Get_Client_ID(),$company,true);
     try
     {
         $user->Assign_Company_Role($company->Get_Master_Role());
@@ -149,7 +149,7 @@ function Override_Master_Role()
     $role = $company->Get_Master_Role();
     $role->Delete_Role(false);
     $company->Create_Company_Role('master');
-    $user = new \Authentication\User('default',$company->cConfigs->Get_Client_ID(),$company,false);
+    $user = new \app\Helpers\User('default',$company->cConfigs->Get_Client_ID(),$company,false);
     $user->Assign_Company_Role($company->Get_Master_Role());
 }
 
@@ -169,7 +169,7 @@ function Build_Routes()
     Create_Route_If_Not_Exist('Create_Role','Company',false);
     Create_Route_If_Not_Exist('Delete_Role','Company',false);
     Create_Route_If_Not_Exist('Edit_Role','Company',false);
-    Create_Route_If_Not_Exist('User_Signout','',true);
+    Create_Route_If_Not_Exist('User_Signout','',false);
 
 }
 

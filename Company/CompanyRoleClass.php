@@ -13,7 +13,7 @@ class Company_Role extends Active_Record implements iActiveRecord
         parent::__construct();
         global $toolbelt_base;
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\app\Helpers\Company');
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Users_Have_Roles,$toolbelt_base->Users_Have_Roles->Get_Column('role_id'),'\Authentication\User_Role');
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Users_Have_Roles,$toolbelt_base->Users_Have_Roles->Get_Column('role_id'),'\app\Helpers\User_Role');
         $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Routes_Have_Roles,$toolbelt_base->Routes_Have_Roles->Get_Column('role_id'),'\app\Helpers\Route_Role');
     }
     /**
@@ -48,14 +48,6 @@ class Company_Role extends Active_Record implements iActiveRecord
         $this->Set_Int($this->table_dblink->Get_Column('company_id'),$company_id,$update_immediately);
     }
     /**
-     * @throws \Active_Record\Active_Record_Object_Failed_To_Load if adodb->load method fails
-     * @throws Object_Is_Already_Loaded
-     */
-    public function Load_Object_By_ID(int $role_id) : void
-    {
-        $this->Load_From_Int('id',$role_id);
-    }
-    /**
      * @throws Object_Is_Already_Loaded
      * @throws Active_Record_Object_Failed_To_Load — if adodb->load method fails
      */
@@ -65,7 +57,7 @@ class Company_Role extends Active_Record implements iActiveRecord
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
-     * 
+     *
      */
     public function Delete_Role(bool $mark_inactive = true) : void
     {
@@ -77,14 +69,6 @@ class Company_Role extends Active_Record implements iActiveRecord
             $this->Delete_Object('destroy');
 
         }
-    }
-
-    /**
-     * @throws \Active_Record\Object_Has_Not_Been_Loaded
-     */
-    function Get_API_Response_Collection(): array
-    {
-        return $this->Get_Response_Collection(app()->request->input('include_details',0),app()->request->input('details_offset',0),app()->request->input('details_limit',1));
     }
 
     /**

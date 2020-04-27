@@ -243,7 +243,7 @@ class Column extends MySQL_Equation_Strings
 	 */
 	function Set_Field_Value(?string $value):void
 	{
-		$this->table_dblink->database_dblink->dblink->Escape_String($value);
+		$value = $this->table_dblink->database_dblink->dblink->Escape_String($value);
 		$this->field_value = $value;
 	}
 	function Get_Data_Length() : ?int

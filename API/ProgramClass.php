@@ -30,14 +30,6 @@ class Program extends Active_Record implements iActiveRecord
         $this->Load_From_Varchar('client_id',$client_id);
     }
     /**
-     * @throws Active_Record_Object_Failed_To_Load
-     * @throws Object_Is_Already_Loaded
-     */
-    public function Load_Object_By_ID(int $id) : void
-    {
-        $this->Load_From_Int('id',$id);
-    }
-    /**
      * @throws Object_Is_Already_Loaded
      */
     public function Create_Project(string $program_name) : void
@@ -116,17 +108,10 @@ class Program extends Active_Record implements iActiveRecord
      * this function does nothing
      */
     public function Is_Object_Active() : bool
-    {  
-        return false;
+    {
+        return true;
     }
 
-    /**
-     * @throws \Active_Record\Object_Has_Not_Been_Loaded
-     */
-    function Get_API_Response_Collection(): array
-    {
-        return $this->Get_Response_Collection(app()->request->input('include_details',0),app()->request->input('details_offset',0),app()->request->input('details_limit',1));
-    }
     public function Delete_Active_Record() : void
     {
         app()->request->validate([

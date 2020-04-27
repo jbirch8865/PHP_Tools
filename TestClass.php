@@ -19,7 +19,25 @@ class toolbelt_base
     public \DatabaseLink\Table $Rights;
     public \DatabaseLink\Table $Routes;
     public \DatabaseLink\Table $Routes_Have_Roles;
+    public ?\app\Helpers\Program_Session $documentation_session = null;
+    public ?\app\Helpers\Company $Company = null;
+    public ?\app\Helpers\Program $Program = null;
+    public ?\app\Helpers\Program_Session $Program_Session = null;
+    public ?\app\Helpers\Route $Route = null;
+    public ?\app\Helpers\User $User = null;
 
+    public function Create_Sessions_Token_For_Documentation()
+    {
+        if(is_null($this->documentation_session))
+        {
+            $session = new \app\Helpers\Program_Session;
+            $company = new \app\Helpers\Company;
+            $company->Load_Object_By_ID(1);
+            $session->Create_New_Session($session->cConfigs->Get_Client_ID(),$company,'default',$session->cConfigs->Get_Client_ID());
+            $this->documentation_session = $session;
+        }
+        return $this->documentation_session;
+    }
 
     /**
      * Call protected/private method of a class.
@@ -38,56 +56,8 @@ class toolbelt_base
 
         return $method->invokeArgs($object, $parameters);
     }
-}
 
-class toolbelt extends toolbelt_base
-{
-    public \config\ConfigurationFile $cConfigs;
-    public \DatabaseLink\MySQLLink $root_dblink;
-    public \DatabaseLink\Database $dblink;
-    public \DatabaseLink\Database $read_only_dblink;
-    public \DatabaseLink\Table $Companies;
-    public \DatabaseLink\Table $Programs;
-    public \DatabaseLink\Table $Configs;
-    public \DatabaseLink\Table $Company_Configs;
-    public \DatabaseLink\Table $Users;
-    public \DatabaseLink\Table $Programs_Have_Sessions;
-    public \DatabaseLink\Table $Users_Have_Roles;
-    public \DatabaseLink\Table $Company_Roles;
-    public \Active_Record\RelationshipManager $active_record_relationship_manager;
-    public \DatabaseLink\Table $Rights;
-    public \DatabaseLink\Table $Routes;
-    public \DatabaseLink\Table $Routes_Have_Roles;
-    public ?\app\Helpers\Company $Company = null;
-    public ?\API\Program $Program = null;
-    public ?\API\Program_Session $Program_Session = null;
-    public ?\app\Helpers\Route $Route = null;
-    public ?\Authentication\User $User = null;
-
-    function __construct()
-    {
-        global $toolbelt_base;
-        $this->cConfigs = $toolbelt_base->cConfigs;
-        $this->root_dblink = $toolbelt_base->root_dblink;
-        $this->dblink = $toolbelt_base->dblink;
-        $this->read_only_dblink = $toolbelt_base->read_only_dblink;
-        $this->Companies = $toolbelt_base->Companies;
-        $this->Programs = $toolbelt_base->Programs;
-        $this->Configs = $toolbelt_base->Configs;
-        $this->Company_Configs = $toolbelt_base->Company_Configs;
-        $this->Users = $toolbelt_base->Users;
-        $this->Programs_Have_Sessions = $toolbelt_base->Programs_Have_Sessions;
-        $this->Users_Have_Roles = $toolbelt_base->Users_Have_Roles;
-        $this->Company_Roles = $toolbelt_base->Company_Roles;
-        $this->active_record_relationship_manager = $toolbelt_base->active_record_relationship_manager;
-        $this->Rights = $toolbelt_base->Rights;
-        $this->Routes = $toolbelt_base->Routes;
-        $this->Routes_Have_Roles = $toolbelt_base->Routes_Have_Roles;
-
-    }
-
-
-    public function Get_Program() : \API\Program
+    public function Get_Program() : \app\Helpers\Program
     {
         if(is_null($this->Program) || $this->cConfigs->Is_Dev())
         {
@@ -96,16 +66,22 @@ class toolbelt extends toolbelt_base
         return $this->Program;
     }
 
-    public function Get_Company() : \app\Helpers\Company
+    public function Get_Company(bool $access_token = true) : \app\Helpers\Company
     {
-        if(is_null($this->Company))
+        if(is_null($this->Company) || $this->cConfigs->Is_Dev())
         {
-            $this->Company = app()->make('Company');
+            if($access_token)
+            {
+                $this->Company = app()->make('Company_Access_Token');
+            }else
+            {
+                $this->Company = app()->make('Company');
+            }
         }
         return $this->Company;
     }
 
-    public function Get_Program_Session($username = false) : \API\Program_Session
+    public function Get_Program_Session(bool $username = false) : \app\Helpers\Program_Session
     {
         if(is_null($this->Program_Session) || $this->cConfigs->Is_Dev())
         {
@@ -132,7 +108,7 @@ class toolbelt extends toolbelt_base
     /**
      * @param int $user_object_type 0 = Get_Active_User, 1 = Get_Any_User, 2 = Create_User, 3 = Update_User
      */
-    public function Get_User(int $user_object_type) : \Authentication\User
+    public function Get_User(int $user_object_type) : \app\Helpers\User
     {
         if(is_null($this->User) || $this->cConfigs->Is_Dev())
         {
@@ -154,6 +130,87 @@ class toolbelt extends toolbelt_base
             }
         }
         return $this->User;
+    }
+}
+
+class toolbelt extends toolbelt_base
+{
+    public \config\ConfigurationFile $cConfigs;
+    public \DatabaseLink\MySQLLink $root_dblink;
+    public \DatabaseLink\Database $dblink;
+    public \DatabaseLink\Database $read_only_dblink;
+    public \DatabaseLink\Table $Companies;
+    public \DatabaseLink\Table $Programs;
+    public \DatabaseLink\Table $Configs;
+    public \DatabaseLink\Table $Company_Configs;
+    public \DatabaseLink\Table $Users;
+    public \DatabaseLink\Table $Programs_Have_Sessions;
+    public \DatabaseLink\Table $Users_Have_Roles;
+    public \DatabaseLink\Table $Company_Roles;
+    public \Active_Record\RelationshipManager $active_record_relationship_manager;
+    public \DatabaseLink\Table $Rights;
+    public \DatabaseLink\Table $Routes;
+    public \DatabaseLink\Table $Routes_Have_Roles;
+
+    function __construct()
+    {
+        global $toolbelt_base;
+        $this->cConfigs = $toolbelt_base->cConfigs;
+        $this->root_dblink = $toolbelt_base->root_dblink;
+        $this->dblink = $toolbelt_base->dblink;
+        $this->read_only_dblink = $toolbelt_base->read_only_dblink;
+        $this->Companies = $toolbelt_base->Companies;
+        $this->Programs = $toolbelt_base->Programs;
+        $this->Configs = $toolbelt_base->Configs;
+        $this->Company_Configs = $toolbelt_base->Company_Configs;
+        $this->Users = $toolbelt_base->Users;
+        $this->Programs_Have_Sessions = $toolbelt_base->Programs_Have_Sessions;
+        $this->Users_Have_Roles = $toolbelt_base->Users_Have_Roles;
+        $this->Company_Roles = $toolbelt_base->Company_Roles;
+        $this->active_record_relationship_manager = $toolbelt_base->active_record_relationship_manager;
+        $this->Rights = $toolbelt_base->Rights;
+        $this->Routes = $toolbelt_base->Routes;
+        $this->Routes_Have_Roles = $toolbelt_base->Routes_Have_Roles;
+
+    }
+
+    public function Create_Sessions_Token_For_Documentation() : \app\Helpers\Program_Session
+    {
+        global $toolbelt_base;
+        return $toolbelt_base->Create_Sessions_Token_For_Documentation();
+    }
+
+    public function Get_Program() : \app\Helpers\Program
+    {
+        global $toolbelt_base;
+        return $toolbelt_base->Get_Program();
+    }
+
+    public function Get_Company(bool $access_token = true) : \app\Helpers\Company
+    {
+        global $toolbelt_base;
+        return $toolbelt_base->Get_Company($access_token);
+    }
+
+    public function Get_Program_Session(bool $username = false) : \app\Helpers\Program_Session
+    {
+        global $toolbelt_base;
+        return $toolbelt_base->Get_Program_Session($username);
+    }
+
+    public function Get_Route() : \app\Helpers\Route
+    {
+        global $toolbelt_base;
+        return $toolbelt_base->Get_Route();
+    }
+
+    /**
+     * @param int $user_object_type 0 = Get_Active_User, 1 = Get_Any_User, 2 = Create_User, 3 = Update_User
+     */
+    public function Get_User(int $user_object_type) : \app\Helpers\User
+    {
+        global $toolbelt_base;
+        return $toolbelt_base->Get_User($user_object_type);
     }
 }
 

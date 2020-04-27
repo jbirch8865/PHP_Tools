@@ -25,11 +25,11 @@ class Config extends Active_Record implements iActiveRecord
 
         } catch (\Active_Record\Object_Is_Already_Loaded $e)
         {
-            
+
         }
         $this->Set_Config_Name($config_name);
         $this->Set_Config_Default_Value($config_default_value);
-        $this->Create_Object();    
+        $this->Create_Object();
     }
     /**
      * @throws Varchar_Too_Long_To_Set
@@ -76,14 +76,6 @@ class Config extends Active_Record implements iActiveRecord
     public function Load_Config_By_Name(string $config_name) : void
     {
         $this->Load_From_Varchar('config_name',$config_name);
-    }
-    /**
-     * @throws Active_Record_Object_Failed_To_Load
-     * @throws Object_Is_Already_Loaded
-     */
-    public function Load_Object_By_ID(int $config_id) : void
-    {
-        $this->Load_From_Int('id',$config_id);
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded

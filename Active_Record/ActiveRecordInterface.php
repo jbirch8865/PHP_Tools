@@ -18,6 +18,7 @@ interface iActiveRecord
 
     public function Delete_Active_Record() : void;
 
+
 }
 
 ?>

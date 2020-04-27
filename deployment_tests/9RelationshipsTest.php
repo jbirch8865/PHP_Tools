@@ -1,75 +1,75 @@
 <?php declare(strict_types=1);
 
-use Authentication\User_Session;
+use app\Helpers\User_Session;
 use DatabaseLink\SQLQueryError;
 
 class RelationshipsTest extends \PHPUnit\Framework\TestCase
 {
     private \Test_Tools\toolbelt $toolbelt;
     private \app\Helpers\Company $company;
-    private \Authentication\User $user1;
-    private \Authentication\User $user2;
-    private \Authentication\User $user3;
-    private \Authentication\User $user4;
-    private \API\Program_Session $session;
-    
+    private \app\Helpers\User $user1;
+    private \app\Helpers\User $user2;
+    private \app\Helpers\User $user3;
+    private \app\Helpers\User $user4;
+    private \app\Helpers\Program_Session $session;
+
     public function __construct()
     {
         parent::__construct();
         $toolbelt = new \Test_Tools\toolbelt();
-        $this->toolbelt = $toolbelt;        
+        $this->toolbelt = $toolbelt;
         $this->company = new \app\Helpers\Company;
         try
         {
             $this->company->Set_Company_Name('relationship_test');
-            $this->user1 = new \Authentication\User('relationship_user_1','some_password',$this->company,true);
-            $this->user2 = new \Authentication\User('relationship_user_2','some_password',$this->company,true);
-            $this->user3 = new \Authentication\User('relationship_user_3','some_password',$this->company,true);
-            $this->user4 = new \Authentication\User('relationship_user_4','some_password',$this->company,true);
+            $this->user1 = new \app\Helpers\User('relationship_user_1','some_password',$this->company,true);
+            $this->user2 = new \app\Helpers\User('relationship_user_2','some_password',$this->company,true);
+            $this->user3 = new \app\Helpers\User('relationship_user_3','some_password',$this->company,true);
+            $this->user4 = new \app\Helpers\User('relationship_user_4','some_password',$this->company,true);
             $this->company->Create_Company_Role('test_role_1');
             $this->company->Create_Company_Role('test_role_2');
             $this->company->Create_Company_Role('test_role_3');
             $this->company->Create_Company_Role('test_role_4');
-            $user_role = new \Authentication\User_Role;
+            $user_role = new \app\Helpers\User_Role;
             $user_role->Set_Role($this->company->Company_Roles[0],false);
             $user_role->Set_User($this->user1,true);
-            $user_role = new \Authentication\User_Role;
+            $user_role = new \app\Helpers\User_Role;
             $user_role->Set_Role($this->company->Company_Roles[1],false);
             $user_role->Set_User($this->user1,true);
-            $user_role = new \Authentication\User_Role;
+            $user_role = new \app\Helpers\User_Role;
             $user_role->Set_Role($this->company->Company_Roles[2],false);
             $user_role->Set_User($this->user2,true);
-            $user_role = new \Authentication\User_Role;
+            $user_role = new \app\Helpers\User_Role;
             $user_role->Set_Role($this->company->Company_Roles[0],false);
             $user_role->Set_User($this->user3,true);
-            $user_role = new \Authentication\User_Role;
+            $user_role = new \app\Helpers\User_Role;
             $user_role->Set_Role($this->company->Company_Roles[3],false);
             $user_role->Set_User($this->user4,true);
-            $user_role = new \Authentication\User_Role;
+            $user_role = new \app\Helpers\User_Role;
             $user_role->Set_Role($this->company->Company_Roles[2],false);
             $user_role->Set_User($this->user4,true);
-            $this->session = new \API\Program_Session();
+            $this->session = new \app\Helpers\Program_Session();
             $this->session->Create_New_Session($this->toolbelt->cConfigs->Get_Client_ID(),$this->company,'relationship_user_1','some_password');
 
         } catch (\Active_Record\UpdateFailed $e)
         {
             $this->company->Load_Company_By_Name('relationship_test');
-            $this->user1 = new \Authentication\User('relationship_user_1','some_password',$this->company);
-            $this->user2 = new \Authentication\User('relationship_user_2','some_password',$this->company);
-            $this->user3 = new \Authentication\User('relationship_user_3','some_password',$this->company);
-            $this->user4 = new \Authentication\User('relationship_user_4','some_password',$this->company);
-            $this->session = new \API\Program_Session();
+            $this->user1 = new \app\Helpers\User('relationship_user_1','some_password',$this->company);
+            $this->user2 = new \app\Helpers\User('relationship_user_2','some_password',$this->company);
+            $this->user3 = new \app\Helpers\User('relationship_user_3','some_password',$this->company);
+            $this->user4 = new \app\Helpers\User('relationship_user_4','some_password',$this->company);
+            $this->session = new \app\Helpers\Program_Session();
             $this->session->Create_New_Session($this->toolbelt->cConfigs->Get_Client_ID(),$this->company,'relationship_user_1','some_password');
         }
     }
 	public function setUp() :void
 	{
     }
-    
+
     public function tearDown() :void
     {
     }
-    
+
     function test_Companies_Roles()
     {
         $this->assertIsArray($this->company->Company_Roles);
@@ -91,7 +91,7 @@ class RelationshipsTest extends \PHPUnit\Framework\TestCase
         $this->assertIsArray($this->company->Company_Configs);
         $this->assertGreaterThanOrEqual(2,count($this->company->Company_Configs));
         $config_exists = false;
-        $config = new \Company\Config;
+        $config = new \app\Helpers\Config;
         $config->Load_Config_By_Name('session_time_limit');
         ForEach($this->company->Company_Configs as $company_config)
         {
@@ -129,7 +129,7 @@ class RelationshipsTest extends \PHPUnit\Framework\TestCase
     {
         $this->assertIsArray($this->session->Users_Have_Roles);
         $this->assertEquals(2,count($this->session->Users_Have_Roles));
-        $this->assertGreaterThan(0,$this->session->Users_Have_Roles[0]->Get_Verified_ID());        
+        $this->assertGreaterThan(0,$this->session->Users_Have_Roles[0]->Get_Verified_ID());
     }
 
     function test_Users_Company()

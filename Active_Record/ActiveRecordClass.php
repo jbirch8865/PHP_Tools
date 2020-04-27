@@ -18,23 +18,33 @@ abstract class Active_Record extends ADODB_Active_Record
         $table_name = $this->_table;
         $this->table_dblink = $toolbelt_base->$table_name;
     }
+
+    /**
+     * @throws Active_Record_Object_Failed_To_Load
+     * @throws Object_Is_Already_Loaded
+     */
+    public function Load_Object_By_ID(int $id,bool $inactive = false) : void
+    {
+        $this->Load_From_Int('id',$id,$inactive);
+    }
+
     /**
      * @throws Object_Is_Already_Loaded
      * @throws \DatabaseLink\Column_Does_Not_Exist
      * @throws \Active_Record\Active_Record_Object_Failed_To_Load if adodb->load method fails
      */
-    protected function Load_From_Int(string $column_name,int $int_to_search) : void
+    protected function Load_From_Int(string $column_name,int $int_to_search,bool $inactive = false) : void
     {
-        $this->Load_Object($column_name,$int_to_search);
+        $this->Load_Object($column_name,$int_to_search,$inactive);
     }
     /**
      * @throws Object_Is_Already_Loaded
      * @throws \DatabaseLink\Column_Does_Not_Exist
      * @throws Active_Record_Object_Failed_To_Load if adodb->load method fails
      */
-    protected function Load_From_Varchar(string $column_name,string $varchar_to_search) : void
+    protected function Load_From_Varchar(string $column_name,string $varchar_to_search,bool $inactive = false) : void
     {
-        $this->Load_Object($column_name,$varchar_to_search);
+        $this->Load_Object($column_name,$varchar_to_search,$inactive);
     }
     /**
      * @param array $load_from array(array('column_name','value'),array('column_name','value))
@@ -42,11 +52,11 @@ abstract class Active_Record extends ADODB_Active_Record
      * @throws \DatabaseLink\Column_Does_Not_Exist
      * @throws Active_Record_Object_Failed_To_Load if adodb->load method fails
      */
-    protected function Load_From_Multiple_Vars(array $load_from) : void
+    protected function Load_From_Multiple_Vars(array $load_from,bool $inactive = false) : void
     {
-        $this->Load_Object("",$load_from);
+        $this->Load_Object("",$load_from,$inactive);
     }
-    private function Load_Object(string $column_name,$var_to_search) : void
+    private function Load_Object(string $column_name,$var_to_search,bool $inactive = false) : void
     {
         if($this->Is_Loaded())
         {
@@ -83,6 +93,14 @@ abstract class Active_Record extends ADODB_Active_Record
                 throw new Active_Record_Object_Failed_To_Load("Failed loading ".$var_to_search." from column ".$column_name." in table ".$this->Get_Table_Name());
             }
         }
+        if(!$inactive)
+        {
+            if(!$this->Is_Object_Active())
+            {
+                throw new Object_Is_Currently_Inactive($this->Get_Verified_ID().' is currently inactive');
+            }
+        }
+
     }
     public function Is_Loaded():bool
     {
@@ -220,7 +238,7 @@ abstract class Active_Record extends ADODB_Active_Record
     {
         if(!$this->table_dblink->Does_Column_Exist('active_status'))
         {
-            throw new \DatabaseLink\Column_Does_Not_Exist('This table doesn\'t support active_status.');
+            return true;
         }
         return (bool) $this->Get_Value_From_Name('active_status');
     }
@@ -236,7 +254,7 @@ abstract class Active_Record extends ADODB_Active_Record
             if($new_object)
             {
                 $this->Set_Object_Active();
-            }    
+            }
         } catch (\DatabaseLink\Column_Does_Not_Exist $e){}
         $this->Update_Object();
         return $new_object;
@@ -310,7 +328,7 @@ abstract class Active_Record extends ADODB_Active_Record
         $collection = [];
         ForEach($this as $property_name => $property_value)
         {
-            if(is_string($property_value))
+            if(!is_array($property_value))
             {
                 $this->table_dblink->Reset_Columns();
                 while($column = $this->table_dblink->Get_Columns())
@@ -356,7 +374,7 @@ abstract class Active_Record extends ADODB_Active_Record
      */
     function Get_API_Response_Collection(): array
     {
-        return $this->Get_Response_Collection(app()->request->input('include_details',0),app()->request->input('details_offset',0),app()->request->input('details_limit',1));
+        return $this->Get_Response_Collection((int) app()->request->input('include_details',0),(int) app()->request->input('details_offset',0),(int) app()->request->input('details_limit',1));
     }
 
 }

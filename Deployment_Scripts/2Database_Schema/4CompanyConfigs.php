@@ -7,7 +7,7 @@ company_config_Validate_Config_Value($toolbelt_base->Company_Configs);
 company_config_Validate_Active_Status_Column($toolbelt_base->Company_Configs);
 $toolbelt_base->Company_Configs->Load_Columns();
 //ADODB_Active_Record::TableHasMany('Companies','Company_Configs','company_id','\app\Helpers\Company_Config');
-//ADODB_Active_Record::TableHasMany('Company_Configs','Configs','config_id','\Company\Config');
+//ADODB_Active_Record::TableHasMany('Company_Configs','Configs','config_id','\app\Helpers\Config');
 function company_config_Validate_ID_Column(\DatabaseLink\Table $company_config_table)
 {
     try

@@ -69,14 +69,6 @@ class Company extends Active_Record implements iActiveRecord
         $this->Load_From_Varchar('company_name',$name_to_search);
     }
     /**
-     * @throws Object_Is_Already_Loaded
-     * @throws \Active_Record\Active_Record_Object_Failed_To_Load
-     */
-    public function Load_Object_By_ID(int $id_to_search) : void
-    {
-        $this->Load_From_Int('id',$id_to_search);
-    }
-    /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
     public function Get_Session_Time_Limit() : ?int
@@ -88,7 +80,7 @@ class Company extends Active_Record implements iActiveRecord
      */
     public function Set_Session_Time_Limit(int $time_in_seconds) : void
     {
-        $config = new \Company\Config();
+        $config = new \app\Helpers\Config();
         $config->Load_Config_By_Name('session_time_limit');
         $this->Create_Or_Update_Config($config,(string)$time_in_seconds);
     }
@@ -99,7 +91,7 @@ class Company extends Active_Record implements iActiveRecord
     public function Set_Time_Zone(string $timezone,bool $company_has_no_users = false) : void
     {
         new \DateTimeZone($timezone);
-        $config = new \Company\Config();
+        $config = new \app\Helpers\Config();
         $config->Load_Config_By_Name('company_time_zone');
         $this->Create_Or_Update_Config($config,$timezone);
     }
@@ -119,7 +111,7 @@ class Company extends Active_Record implements iActiveRecord
         if(parent::Create_Object())
         {
             $this->Set_Default_Configs();
-            $this->Create_Company_Role('master',true,true,true,true,true);    
+            $this->Create_Company_Role('master',true,true,true,true,true);
             return true;
         }
         return false;
@@ -129,15 +121,15 @@ class Company extends Active_Record implements iActiveRecord
      */
     private function Set_Default_Configs() : void
     {
-        $time_limit = new \Company\Config();
+        $time_limit = new \app\Helpers\Config();
         $time_limit->Load_Config_By_Name('session_time_limit');
-        $time_zone = new \Company\Config();
-        $time_zone->Load_Config_By_Name('company_time_zone');        
+        $time_zone = new \app\Helpers\Config();
+        $time_zone->Load_Config_By_Name('company_time_zone');
         $this->Set_Session_Time_Limit((int) $time_limit->Get_Default_Config_Value(),true);
         $this->Set_Time_Zone($time_zone->Get_Default_Config_Value(),true);
     }
     /**
-     * @throws \Active_Record\Object_Has_Not_Been_Loaded 
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
     private function Get_Config_Value_By_Name(string $config_name) : ?string
     {
@@ -155,7 +147,7 @@ class Company extends Active_Record implements iActiveRecord
      * @throws \Active_Record\Object_Has_Not_Been_Loaded — for config and this
      * @throws Varchar_Too_Long_To_Set
      */
-    private function Create_Or_Update_Config(\Company\Config $config,string $config_value) : void
+    private function Create_Or_Update_Config(\app\Helpers\Config $config,string $config_value) : void
     {
         $company_config = new \app\Helpers\Company_Config;
         $company_config->Create_Or_Update_Config($config,$this,$config_value);
@@ -208,7 +200,7 @@ class Company extends Active_Record implements iActiveRecord
         while($row = $toolbelt->Routes->Get_Queried_Data())
         {
             $route = new \app\Helpers\Route;
-            $route->Load_From_Route_ID((int) $row['id']);
+            $route->Load_Object_By_ID((int) $row['id']);
             if($route->Am_I_Implicitly_Allowed())
             {
                 continue;
@@ -263,12 +255,5 @@ class Company extends Active_Record implements iActiveRecord
 
     }
 
-    /**
-     * @throws \Active_Record\Object_Has_Not_Been_Loaded
-     */
-    function Get_API_Response_Collection(): array
-    {
-        return $this->Get_Response_Collection(app()->request->input('include_details',0),app()->request->input('details_offset',0),app()->request->input('details_limit',1));
-    }
 }
 ?>

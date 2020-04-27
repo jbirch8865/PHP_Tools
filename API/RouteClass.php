@@ -49,29 +49,6 @@ class Route extends Active_Record implements \Active_Record\iActiveRecord
         $this->Set_Varchar($this->table_dblink->Get_Column('module'),$module_name,false,$update_immediately);
     }
 
-
-    /**
-     * @throws Object_Is_Already_Loaded
-     * @throws Active_Record_Object_Failed_To_Load — if id doesn't exist
-     */
-    public function Load_From_Route_ID(int $route_id) : void
-    {
-        $this->Load_From_Int('id',$route_id);
-    }
-
-
-
-    /**
-     * @throws Object_Is_Already_Loaded
-     * @throws Active_Record_Object_Failed_To_Load — if id doesn't exist
-     */
-    public function Load_Object_By_ID(int $object_id): void
-    {
-        $this->Load_From_Route_ID($object_id);
-    }
-
-
-
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
@@ -152,14 +129,13 @@ class Route extends Active_Record implements \Active_Record\iActiveRecord
         }
     }
 
-
-    /**
-     * @throws \Active_Record\Object_Has_Not_Been_Loaded
-     */
-    function Get_API_Response_Collection(): array
+    function Get_Current_Route_Method() : string
     {
-        return $this->Get_Response_Collection(app()->request->input('include_details',0),app()->request->input('details_offset',0),app()->request->input('details_limit',1));
+        $method = app()->request->method();
+        if($method == 'DELETE'){$method = 'destroy';}
+        return $method;
     }
+
 
 
     private function Add_To_All_Companies_Master_Role() : void
