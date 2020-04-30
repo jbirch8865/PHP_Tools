@@ -15,8 +15,11 @@ class Table
 	private \ArrayIterator $row_iterator;
 	private \ArrayIterator $column_iterator;
 	private string $where_section = '';
+	private string $join_section = '';
+	private string $validate_where_section = '';
+	private string $validate_join_section = '';
 
-	/**
+    /**
 	 * @param string $unverified_table_name if does not exist will automatically create it
 	 * @throws SQLQueryError
 	 */
@@ -162,10 +165,20 @@ class Table
 	 * @throws SQLQueryError
 	 * @return void Use $->Get_Queried_Data() to get results or $->Get_Number_Of_Rows_In_Query() to see the number of results
 	 */
-	function Query_Table(array $select_data = []) : void
+	function Query_Table(array $select_data = [],bool $validate = false) : void
 	{
-		$columns_to_select = implode(", ",$select_data);
-		$this->database_dblink->dblink->Execute_Any_SQL_Query("SELECT ".$columns_to_select." FROM `".$this->Get_Table_Name()."`".$this->Get_Where_Clause());
+        $columns_to_select = implode(", ",$select_data);
+        if($validate)
+        {
+            $this->database_dblink->dblink->Execute_Any_SQL_Query("SELECT ".$columns_to_select." FROM `".$this->Get_Table_Name()."`".$this->Get_Validate_Where_Clause());
+        }else
+        {
+            $this->database_dblink->dblink->Execute_Any_SQL_Query("SELECT ".$columns_to_select." FROM `".$this->Get_Table_Name()."`".$this->Get_Where_Clause());
+        }
+        $this->validate_join_section = '';
+        $this->validate_where_section = '';
+        $this->where_section = '';
+        $this->join_section = '';
 		$rows = $this->database_dblink->dblink->Get_Results();
 		$arrayObject = new \ArrayObject($rows);
         $this->row_iterator = $arrayObject->getIterator();
@@ -345,60 +358,215 @@ class Table
 				throw new \DatabaseLink\SQLQueryError($e->getMessage());
 			}
 		}
-	}
-
-	public function LimitBy(\DatabaseLink\Safe_Strings $string)
+    }
+    /**
+     * InnerJoinWith = ' INNER JOIN `join_to_column_table_name` ON `join_to_column_table_name`.`join_to_column_name` =
+     * `join_from_column_table_name`.`join_from_column_name`
+     */
+    public function InnerJoinWith(\DatabaseLink\Column $join_to_column,\DatabaseLink\Column $join_from_column,bool $validate = false)
+    {
+        if($validate)
+        {
+            $this->validate_join_section = $this->validate_join_section.' INNER JOIN `'.
+            $join_to_column->table_dblink->Get_Table_Name().'` ON `'.$join_to_column->table_dblink->Get_Table_Name().'`.`'.
+            $join_to_column->Get_Column_Name().'` = `'.$join_from_column->table_dblink->Get_Table_Name().'`.`'.
+            $join_from_column->Get_Column_Name().'` ';
+        }else
+        {
+            $this->join_section = $this->join_section.' INNER JOIN `'.
+            $join_to_column->table_dblink->Get_Table_Name().'` ON `'.$join_to_column->table_dblink->Get_Table_Name().'`.`'.
+            $join_to_column->Get_Column_Name().'` = `'.$join_from_column->table_dblink->Get_Table_Name().'`.`'.
+            $join_from_column->Get_Column_Name().'` ';
+        }
+    }
+    /**
+     * LimitBy = '`table_name`.`column_name` = `column_field_value`
+     */
+	public function LimitBy(\DatabaseLink\Safe_Strings $string,bool $validate = false)
 	{
-		$this->where_section = $this->where_section."AND".$string->Print_String();
+        if($validate)
+        {
+            $this->validate_where_section = $this->validate_where_section.$string->Print_String();
+        }else
+        {
+            $this->where_section = $this->where_section.$string->Print_String();
+        }
 	}
-	public function LimitByGroup(\DatabaseLink\Safe_Strings $string)
+    /**
+     * LimitByGroup = ' ( `table_name`.`column_name` = `column_field_value`
+     */
+	public function LimitByGroup(\DatabaseLink\Safe_Strings $string,bool $validate = false)
 	{
-		$this->where_section = $this->where_section."AND(".$string->Print_String();
+        if($validate)
+        {
+            $this->validate_where_section = $this->validate_where_section." ( ".$string->Print_String();
+        }else
+        {
+            $this->where_section = $this->where_section." ( ".$string->Print_String();
+        }
 	}
-	public function LimitByEndGroup(\DatabaseLink\Safe_Strings $string)
+    /**
+     * LimitByEndGroup = '`table_name`.`column_name` = `column_field_value` )
+     */
+	public function LimitByEndGroup(\DatabaseLink\Safe_Strings $string,bool $validate = false)
 	{
-		$this->where_section = $this->where_section."AND".$string->Print_String().")";
+        if($validate)
+        {
+            $this->validate_where_section = $this->validate_where_section.$string->Print_String()." ) ";
+        }else
+        {
+            $this->where_section = $this->where_section.$string->Print_String()." ) ";
+        }
 	}
-	public function AndLimitBy(\DatabaseLink\Safe_Strings $string)
+    /**
+     * AndLimitBy = ' AND `table_name`.`column_name` = `column_field_value`
+     */
+	public function AndLimitBy(\DatabaseLink\Safe_Strings $string,bool $validate = false)
 	{
-		$this->where_section = $this->where_section."AND".$string->Print_String();
+        if($validate)
+        {
+            $this->validate_where_section = $this->validate_where_section." AND ".$string->Print_String();
+        }else
+        {
+            $this->where_section = $this->where_section." AND ".$string->Print_String();
+        }
 	}
-	public function AndLimitByGroup(\DatabaseLink\Safe_Strings $string)
+    /**
+     * AndLimitByGroup = ' AND ( `table_name`.`column_name` = `column_field_value`
+     */
+	public function AndLimitByGroup(\DatabaseLink\Safe_Strings $string,bool $validate = false)
 	{
-		$this->where_section = $this->where_section."AND(".$string->Print_String();
+        if($validate)
+        {
+            $this->validate_where_section = $this->validate_where_section." AND ( ".$string->Print_String();
+        }else
+        {
+            $this->where_section = $this->where_section." AND ( ".$string->Print_String();
+        }
 	}
-	public function AndLimitByEndGroup(\DatabaseLink\Safe_Strings $string)
+    /**
+     * AndLimitByGroup = ' AND `table_name`.`column_name` = `column_field_value` )
+     */
+	public function AndLimitByEndGroup(\DatabaseLink\Safe_Strings $string,bool $validate = false)
 	{
-		$this->where_section = $this->where_section."AND".$string->Print_String().")";
+        if($validate)
+        {
+            $this->validate_where_section = $this->validate_where_section." AND ".$string->Print_String()." ) ";
+        }else
+        {
+            $this->where_section = $this->where_section." AND ".$string->Print_String()." ) ";
+        }
 	}
-	public function OrLimitBy(\DatabaseLink\Safe_Strings $string)
+    /**
+     * OrLimitBy = ' OR `table_name`.`column_name` = `column_field_value`
+     */
+	public function OrLimitBy(\DatabaseLink\Safe_Strings $string,bool $validate = false)
 	{
-		$this->where_section = $this->where_section."OR".$string->Print_String();
+        if($validate)
+        {
+            $this->validate_where_section = $this->validate_where_section." OR ".$string->Print_String();
+        }else
+        {
+            $this->where_section = $this->where_section." OR ".$string->Print_String();
+        }
 	}
-	public function OrLimitByGroup(\DatabaseLink\Safe_Strings $string)
+    /**
+     * OrLimitByGroup = ' OR ( `table_name`.`column_name` = `column_field_value`
+     */
+	public function OrLimitByGroup(\DatabaseLink\Safe_Strings $string,bool $validate = false)
 	{
-		$this->where_section = $this->where_section."OR(".$string->Print_String();
+        if($validate)
+        {
+            $this->validate_where_section = $this->validate_where_section." OR ( ".$string->Print_String();
+        }else
+        {
+            $this->where_section = $this->where_section." OR ( ".$string->Print_String();
+        }
 	}
-	public function OrLimitByEndGroup(\DatabaseLink\Safe_Strings $string)
+    /**
+     * OrLimitByEndGroup = ' OR `table_name`.`column_name` = `column_field_value` )
+     */
+	public function OrLimitByEndGroup(\DatabaseLink\Safe_Strings $string,bool $validate = false)
 	{
-		$this->where_section = $this->where_section."LIMIT ".$string->Print_String().")";
+        if($validate)
+        {
+            $this->validate_where_section = $this->validate_where_section." OR ".$string->Print_String()." ) ";
+        }else
+        {
+            $this->where_section = $this->where_section." OR ".$string->Print_String()." ) ";
+        }
 	}
-    public function LimitLimitBy(\DatabaseLink\Safe_Strings $string)
+    /**
+     * OrLimitByEndGroup = ' LIMIT `table_name`.`column_name` = `column_field_value`
+     */
+    public function LimitLimitBy(\DatabaseLink\Safe_Strings $string,bool $validate = false)
 	{
-		$this->where_section = $this->where_section."LIMIT ".$string->Print_String();
+        if($validate)
+        {
+            $this->validate_where_section = $this->validate_where_section." LIMIT ".$string->Print_String();
+        }else
+        {
+            $this->where_section = $this->where_section." LIMIT ".$string->Print_String();
+        }
 	}
-	public function LimitLimitByGroup(\DatabaseLink\Safe_Strings $string)
+    /**
+     * OrLimitByEndGroup = ' LIMIT ( `table_name`.`column_name` = `column_field_value`
+     */
+	public function LimitLimitByGroup(\DatabaseLink\Safe_Strings $string,bool $validate = false)
 	{
-		$this->where_section = $this->where_section."LIMIT (".$string->Print_String();
+        if($validate)
+        {
+            $this->validate_where_section = $this->validate_where_section." LIMIT ( ".$string->Print_String();
+        }else
+        {
+            $this->where_section = $this->where_section." LIMIT ( ".$string->Print_String();
+        }
 	}
-	public function LimitLimitByEndGroup(\DatabaseLink\Safe_Strings $string)
+    /**
+     * OrLimitByEndGroup = ' LIMIT `table_name`.`column_name` = `column_field_value` )
+     */
+	public function LimitLimitByEndGroup(\DatabaseLink\Safe_Strings $string,bool $validate = false)
 	{
-		$this->where_section = $this->where_section."LIMIT ".$string->Print_String().")";
+        if($validate)
+        {
+            $this->validate_where_section = $this->validate_where_section." LIMIT ".$string->Print_String()." ) ";
+        }else
+        {
+            $this->where_section = $this->where_section." LIMIT ".$string->Print_String()." ) ";
+        }
 	}
 	private function Get_Where_Clause() : string
 	{
-		return "WHERE 1 ".$this->where_section;
-	}
+        if(strpos(trim($this->where_section),'LIMIT') === 0)
+        {
+            return $this->join_section.$this->where_section;
+        }else
+        {
+            return $this->join_section."WHERE".$this->where_section;
+        }
+    }
+    private function Get_Validate_Where_Clause() : string
+	{
+        if(strpos(trim($this->validate_where_section),'LIMIT') === 0)
+        {
+            return $this->validate_join_section.$this->validate_where_section;
+        }else
+        {
+            return $this->validate_join_section."WHERE".$this->validate_where_section;
+        }
+    }
+    public function Clear_Where_Statement(bool $validate) : void
+    {
+        if($validate)
+        {
+            $this->validate_join_section = '';
+            $this->validate_where_section = '';
+        }else
+        {
+            $this->join_section = '';
+            $this->validate_where_section = '';
+        }
+    }
 	/**
      * @param string $object_class Company must be a valid app\Helpers\ class
      */
@@ -410,11 +578,17 @@ class Table
             {
             }else
             {
-                $this->AndLimitBy($this->Get_Column('active_status')->Equals('1'));
+                if($this->validate_where_section == '')
+                {
+                    $this->LimitBy($this->Get_Column('active_status')->Equals('1'),true);
+                }else
+                {
+                    $this->AndLimitBy($this->Get_Column('active_status')->Equals('1'),true);
+                }
             }
         }
-        $this->LimitLimitBy(new Safe_Strings($request->input('offset',0).", ".$request->input('limit',50)));
-        $this->Query_Table(['id']);
+        $this->LimitLimitBy(new Safe_Strings($request->input('offset',0).", ".$request->input('limit',50)),true);
+        $this->Query_Table(['`'.$this->Get_Table_Name().'`.`id`'],true);
         $objects = array();
         While($row = $this->Get_Queried_Data())
         {
@@ -423,10 +597,10 @@ class Table
             $object->Load_Object_By_ID((int) $row['id'],true);
             if($request->input('include_details',false))
             {
-                $objects[$object->Get_Friendly_Name()] = $object->Get_API_Response_Collection();
+                $objects[$object->Get_Friendly_Name().' - '.$object->Get_Verified_ID()] = $object->Get_API_Response_Collection();
             }else
             {
-                $objects[$object->Get_Friendly_Name()] = $object->Get_Verified_ID();
+                $objects[$object->Get_Friendly_Name().' - '.$object->Get_Verified_ID()] = $object->Get_Verified_ID();
             }
         }
         return Response_200([

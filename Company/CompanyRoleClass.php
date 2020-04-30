@@ -30,7 +30,7 @@ class Company_Role extends Active_Record implements iActiveRecord
      */
     public function Load_By_Friendly_Name(string $friendly_name,?\Active_Record\Active_Record $company = null): void
     {
-        $this->Load_From_Multiple_Vars([['role_name',$friendly_name],['company_id',$company->Get_Verified_ID()]]);
+        throw new \Exception('Sorry this doesn\'t work for role name');
     }
 
     /**

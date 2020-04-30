@@ -116,7 +116,9 @@ function Add_All_Constraints()
         [['Users_Have_Roles','role_id'],['Company_Roles','id']],
         [['Routes_Have_Roles','route_id'],['Routes','id']],
         [['Routes_Have_Roles','role_id'],['Company_Roles','id']],
-        [['Routes_Have_Roles','right_id'],['Rights','id']]
+        [['Routes_Have_Roles','right_id'],['Rights','id']],
+        [['People_Belong_To_Company','company_id'],['Companies','id']],
+        [['People_Belong_To_Company','people_id'],['People','id']],
     );
 
     ForEach($from_to_columns as $index => $value)
@@ -148,7 +150,7 @@ function Override_Master_Role()
     $company->Load_Object_By_ID(1);
     $role = $company->Get_Master_Role();
     $role->Delete_Role(false);
-    $company->Create_Company_Role('master');
+    $company->Create_Company_Role('master',true,true,true,true,true);
     $user = new \app\Helpers\User('default',$company->cConfigs->Get_Client_ID(),$company,false);
     $user->Assign_Company_Role($company->Get_Master_Role());
 }
@@ -169,6 +171,10 @@ function Build_Routes()
     Create_Route_If_Not_Exist('Create_Role','Company',false);
     Create_Route_If_Not_Exist('Delete_Role','Company',false);
     Create_Route_If_Not_Exist('Edit_Role','Company',false);
+    Create_Route_If_Not_Exist('List_Employees','CDM',false);
+    Create_Route_If_Not_Exist('Create_Employee','CDM',false);
+    Create_Route_If_Not_Exist('Update_Employee','CDM',false);
+    Create_Route_If_Not_Exist('Delete_Employee','CDM',false);
     Create_Route_If_Not_Exist('User_Signout','',false);
 
 }

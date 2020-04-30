@@ -10,5 +10,8 @@ $toolbelt_base->Users_Have_Roles = new \DatabaseLink\Table('Users_Have_Roles',$t
 $toolbelt_base->Rights = new \DatabaseLink\Table('Rights',$toolbelt_base->dblink);
 $toolbelt_base->Routes = new \DatabaseLink\Table('Routes',$toolbelt_base->dblink);
 $toolbelt_base->Routes_Have_Roles = new \DatabaseLink\Table('Routes_Have_Roles',$toolbelt_base->dblink);
+$toolbelt_base->People = new \DatabaseLink\Table('People',$toolbelt_base->dblink);
+$toolbelt_base->People_Belong_To_Company = new \DatabaseLink\Table('People_Belong_To_Company',$toolbelt_base->dblink);
+
 
 ?>

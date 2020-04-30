@@ -157,12 +157,13 @@ class Company extends Active_Record implements iActiveRecord
      * @throws \Active_Record\UpdateFailed if the role already exists
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
-    Private function Create_Role(string $role_name) : void
+    Private function Create_Role(string $role_name) : int
     {
         $company_role = new \app\Helpers\Company_Role;
         $company_role->Set_Company_ID($this->Get_Verified_ID(),false);
         $company_role->Set_Role_Name($role_name);
         $this->LoadRelations('Company_Roles');
+        return $company_role->Get_Verified_ID();
     }
 
     function Get_Master_Role() : ?\app\Helpers\Company_Role
@@ -192,9 +193,9 @@ class Company extends Active_Record implements iActiveRecord
     */
     function Create_Company_Role(string $role_name,bool $get = true,bool $delete = false,bool $post = true,bool $patch = true,bool $put = true): void
     {
-        $this->Create_Role($role_name);
+        $role_id = $this->Create_Role($role_name);
         $new_role = new Company_Role;
-        $new_role->Load_By_Friendly_Name($role_name,$this);
+        $new_role->Load_Object_By_ID($role_id);
         $toolbelt = new \test_tools\toolbelt;
         $toolbelt->Routes->Query_Single_Table(['id'],false);
         while($row = $toolbelt->Routes->Get_Queried_Data())

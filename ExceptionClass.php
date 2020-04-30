@@ -173,6 +173,13 @@ Class Relationship_Miss_Match Extends \exception\CustomException{
         parent::__construct($message);
     }
 }
+
+Class Email_Address_Not_Valid Extends \exception\CustomException{
+    function __construct($message = Null)
+    {
+        parent:: __construct($message);
+    }
+}
 namespace app\Helpers;
 
 Class User_Not_Set Extends \exception\CustomException{

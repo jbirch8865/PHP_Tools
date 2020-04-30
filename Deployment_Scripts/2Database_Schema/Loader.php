@@ -10,4 +10,6 @@ require '8UsersHaveRoles.php';
 require '9Rights.php';
 require '91Routes.php';
 require '92RoutesHaveRoles.php';
+require '93PeopleTable.php';
+require '94PeopleBelongToCompany.php';
 ?>

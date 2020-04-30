@@ -328,7 +328,7 @@ abstract class Active_Record extends ADODB_Active_Record
         $collection = [];
         ForEach($this as $property_name => $property_value)
         {
-            if(!is_array($property_value))
+            if(!is_array($property_value) && !is_object($property_value))
             {
                 $this->table_dblink->Reset_Columns();
                 while($column = $this->table_dblink->Get_Columns())

@@ -19,12 +19,15 @@ class toolbelt_base
     public \DatabaseLink\Table $Rights;
     public \DatabaseLink\Table $Routes;
     public \DatabaseLink\Table $Routes_Have_Roles;
+    public \DatabaseLink\Table $People;
+    public \DatabaseLink\Table $People_Belong_To_Company;
     public ?\app\Helpers\Program_Session $documentation_session = null;
     public ?\app\Helpers\Company $Company = null;
     public ?\app\Helpers\Program $Program = null;
     public ?\app\Helpers\Program_Session $Program_Session = null;
     public ?\app\Helpers\Route $Route = null;
     public ?\app\Helpers\User $User = null;
+    public ?\app\Helpers\Employee $Employee = null;
 
     public function Create_Sessions_Token_For_Documentation()
     {
@@ -59,16 +62,20 @@ class toolbelt_base
 
     public function Get_Program() : \app\Helpers\Program
     {
-        if(is_null($this->Program) || $this->cConfigs->Is_Dev())
+        if(is_null($this->Program))
         {
             $this->Program = app()->make('Program');
         }
         return $this->Program;
     }
+    private function Null_Program() : void
+    {
+        $this->Program = null;
+    }
 
     public function Get_Company(bool $access_token = true) : \app\Helpers\Company
     {
-        if(is_null($this->Company) || $this->cConfigs->Is_Dev())
+        if(is_null($this->Company))
         {
             if($access_token)
             {
@@ -80,10 +87,14 @@ class toolbelt_base
         }
         return $this->Company;
     }
+    private function Null_Company() : void
+    {
+        $this->Company = null;
+    }
 
     public function Get_Program_Session(bool $username = false) : \app\Helpers\Program_Session
     {
-        if(is_null($this->Program_Session) || $this->cConfigs->Is_Dev())
+        if(is_null($this->Program_Session))
         {
             if($username)
             {
@@ -95,22 +106,30 @@ class toolbelt_base
         }
         return $this->Program_Session;
     }
+    private function Null_Program_Session() : void
+    {
+        $this->Program_Session = null;
+    }
 
     public function Get_Route() : \app\Helpers\Route
     {
-        if(is_null($this->Route) || $this->cConfigs->Is_Dev())
+        if(is_null($this->Route))
         {
             $this->Route = app()->make('Route');
         }
         return $this->Route;
     }
+    private function Null_Route() : void
+    {
+        $this->Route = null;
+    }
 
     /**
      * @param int $user_object_type 0 = Get_Active_User, 1 = Get_Any_User, 2 = Create_User, 3 = Update_User
      */
-    public function Get_User(int $user_object_type) : \app\Helpers\User
+    public function Get_User(int $user_object_type) : ?\app\Helpers\User
     {
-        if(is_null($this->User) || $this->cConfigs->Is_Dev())
+        if(is_null($this->User))
         {
             if($user_object_type == 0)
             {
@@ -131,6 +150,50 @@ class toolbelt_base
         }
         return $this->User;
     }
+    private function Null_User() : void
+    {
+        $this->User = null;
+    }
+
+    /**
+     * @param int $user_object_type 1 = Get_Any_Employee, 2 = Create_Employee, 3 = Update_Employee
+     */
+    public function Get_Employee(int $user_object_type) : ?\app\Helpers\Employee
+    {
+        if(is_null($this->Employee))
+        {
+            if($user_object_type == 1)
+            {
+                $this->Employee = app()->make('Get_Any_Employee');
+            }elseif($user_object_type == 2)
+            {
+                $this->Employee = app()->make('Create_Employee');
+            }elseif($user_object_type == 3)
+            {
+                $this->Employee = app()->make('Update_Employee');
+            }else
+            {
+                throw new \Exception('sorry '.$user_object_type.' is not a valid employee_object_type for $toolbelt->Get_Employee');
+            }
+        }
+        return $this->Employee;
+    }
+    private function Null_Employee() : void
+    {
+        $this->Employee = null;
+    }
+
+
+    public function Null_All() : void
+    {
+        $this->Null_Company();
+        $this->Null_Program();
+        $this->Null_Program_Session();
+        $this->Null_Employee();
+        $this->Null_Route();
+        $this->Null_User();
+    }
+
 }
 
 class toolbelt extends toolbelt_base
@@ -151,6 +214,9 @@ class toolbelt extends toolbelt_base
     public \DatabaseLink\Table $Rights;
     public \DatabaseLink\Table $Routes;
     public \DatabaseLink\Table $Routes_Have_Roles;
+    public \DatabaseLink\Table $People;
+    public \DatabaseLink\Table $People_Belong_To_Company;
+
 
     function __construct()
     {
@@ -171,6 +237,8 @@ class toolbelt extends toolbelt_base
         $this->Rights = $toolbelt_base->Rights;
         $this->Routes = $toolbelt_base->Routes;
         $this->Routes_Have_Roles = $toolbelt_base->Routes_Have_Roles;
+        $this->People = $toolbelt_base->People;
+        $this->People_Belong_To_Company = $toolbelt_base->People_Belong_To_Company;
 
     }
 
@@ -207,10 +275,18 @@ class toolbelt extends toolbelt_base
     /**
      * @param int $user_object_type 0 = Get_Active_User, 1 = Get_Any_User, 2 = Create_User, 3 = Update_User
      */
-    public function Get_User(int $user_object_type) : \app\Helpers\User
+    public function Get_User(int $user_object_type) : ?\app\Helpers\User
     {
         global $toolbelt_base;
         return $toolbelt_base->Get_User($user_object_type);
+    }
+    /**
+     * @param int $user_object_type 1 = Get_Any_User, 2 = Create_User, 3 = Update_User
+     */
+    public function Get_Employee(int $user_object_type) : ?\app\Helpers\Employee
+    {
+        global $toolbelt_base;
+        return $toolbelt_base->Get_Employee($user_object_type);
     }
 }
 
