@@ -18,6 +18,10 @@ class Table
 	private string $join_section = '';
 	private string $validate_where_section = '';
 	private string $validate_join_section = '';
+	private string $saved_where_section = '';
+	private string $saved_join_section = '';
+	private string $saved_validate_where_section = '';
+	private string $saved_validate_join_section = '';
 
     /**
 	 * @param string $unverified_table_name if does not exist will automatically create it
@@ -160,7 +164,6 @@ class Table
 	}
 
 	/**
-	 * This is now depricated use the LimitBy functions to build a query and use the Query_Table function to run
 	 * @param array $select_data ["column_name","column2_name"]
 	 * @throws SQLQueryError
 	 * @return void Use $->Get_Queried_Data() to get results or $->Get_Number_Of_Rows_In_Query() to see the number of results
@@ -171,18 +174,15 @@ class Table
         if($validate)
         {
             $this->database_dblink->dblink->Execute_Any_SQL_Query("SELECT ".$columns_to_select." FROM `".$this->Get_Table_Name()."`".$this->Get_Validate_Where_Clause());
+            $this->validate_where_section = '';
         }else
         {
             $this->database_dblink->dblink->Execute_Any_SQL_Query("SELECT ".$columns_to_select." FROM `".$this->Get_Table_Name()."`".$this->Get_Where_Clause());
+            $this->where_section = '';
         }
-        $this->validate_join_section = '';
-        $this->validate_where_section = '';
-        $this->where_section = '';
-        $this->join_section = '';
 		$rows = $this->database_dblink->dblink->Get_Results();
 		$arrayObject = new \ArrayObject($rows);
         $this->row_iterator = $arrayObject->getIterator();
-        $this->where_section = '';
 	}
 
 	/**
@@ -367,6 +367,10 @@ class Table
     {
         if($validate)
         {
+            if(!$this->Validate_Where_Logic_Started())
+            {
+                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
+            }
             $this->validate_join_section = $this->validate_join_section.' INNER JOIN `'.
             $join_to_column->table_dblink->Get_Table_Name().'` ON `'.$join_to_column->table_dblink->Get_Table_Name().'`.`'.
             $join_to_column->Get_Column_Name().'` = `'.$join_from_column->table_dblink->Get_Table_Name().'`.`'.
@@ -386,6 +390,10 @@ class Table
 	{
         if($validate)
         {
+            if(!$this->Validate_Where_Logic_Started())
+            {
+                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
+            }
             $this->validate_where_section = $this->validate_where_section.$string->Print_String();
         }else
         {
@@ -399,6 +407,10 @@ class Table
 	{
         if($validate)
         {
+            if(!$this->Validate_Where_Logic_Started())
+            {
+                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
+            }
             $this->validate_where_section = $this->validate_where_section." ( ".$string->Print_String();
         }else
         {
@@ -412,6 +424,10 @@ class Table
 	{
         if($validate)
         {
+            if(!$this->Validate_Where_Logic_Started())
+            {
+                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
+            }
             $this->validate_where_section = $this->validate_where_section.$string->Print_String()." ) ";
         }else
         {
@@ -425,6 +441,10 @@ class Table
 	{
         if($validate)
         {
+            if(!$this->Validate_Where_Logic_Started())
+            {
+                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
+            }
             $this->validate_where_section = $this->validate_where_section." AND ".$string->Print_String();
         }else
         {
@@ -438,6 +458,10 @@ class Table
 	{
         if($validate)
         {
+            if(!$this->Validate_Where_Logic_Started())
+            {
+                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
+            }
             $this->validate_where_section = $this->validate_where_section." AND ( ".$string->Print_String();
         }else
         {
@@ -451,6 +475,10 @@ class Table
 	{
         if($validate)
         {
+            if(!$this->Validate_Where_Logic_Started())
+            {
+                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
+            }
             $this->validate_where_section = $this->validate_where_section." AND ".$string->Print_String()." ) ";
         }else
         {
@@ -464,6 +492,10 @@ class Table
 	{
         if($validate)
         {
+            if(!$this->Validate_Where_Logic_Started())
+            {
+                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
+            }
             $this->validate_where_section = $this->validate_where_section." OR ".$string->Print_String();
         }else
         {
@@ -477,6 +509,10 @@ class Table
 	{
         if($validate)
         {
+            if(!$this->Validate_Where_Logic_Started())
+            {
+                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
+            }
             $this->validate_where_section = $this->validate_where_section." OR ( ".$string->Print_String();
         }else
         {
@@ -490,6 +526,10 @@ class Table
 	{
         if($validate)
         {
+            if(!$this->Validate_Where_Logic_Started())
+            {
+                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
+            }
             $this->validate_where_section = $this->validate_where_section." OR ".$string->Print_String()." ) ";
         }else
         {
@@ -503,6 +543,10 @@ class Table
 	{
         if($validate)
         {
+            if(!$this->Validate_Where_Logic_Started())
+            {
+                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
+            }
             $this->validate_where_section = $this->validate_where_section." LIMIT ".$string->Print_String();
         }else
         {
@@ -516,6 +560,10 @@ class Table
 	{
         if($validate)
         {
+            if(!$this->Validate_Where_Logic_Started())
+            {
+                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
+            }
             $this->validate_where_section = $this->validate_where_section." LIMIT ( ".$string->Print_String();
         }else
         {
@@ -529,6 +577,10 @@ class Table
 	{
         if($validate)
         {
+            if(!$this->Validate_Where_Logic_Started())
+            {
+                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
+            }
             $this->validate_where_section = $this->validate_where_section." LIMIT ".$string->Print_String()." ) ";
         }else
         {
@@ -539,6 +591,10 @@ class Table
 	{
         if(strpos(trim($this->where_section),'LIMIT') === 0)
         {
+            if(!$this->Validate_Where_Logic_Started())
+            {
+                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
+            }
             return $this->join_section.$this->where_section;
         }else
         {
@@ -549,6 +605,10 @@ class Table
 	{
         if(strpos(trim($this->validate_where_section),'LIMIT') === 0)
         {
+            if(!$this->Validate_Where_Logic_Started())
+            {
+                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
+            }
             return $this->validate_join_section.$this->validate_where_section;
         }else
         {
@@ -567,10 +627,80 @@ class Table
             $this->validate_where_section = '';
         }
     }
-	/**
-     * @param string $object_class Company must be a valid app\Helpers\ class
+    public function Save_Where_Statement(bool $validate) : void
+    {
+        if($validate)
+        {
+            $this->saved_validate_join_section = $this->validate_join_section;
+            $this->saved_validate_where_section = $this->validate_where_section;
+        }else
+        {
+            $this->saved_join_section = $this->join_section;
+            $this->saved_where_section = $this->where_section;
+        }
+    }
+    public function revert_to_saved_where_statement(bool $validate) : void
+    {
+        if($validate)
+        {
+            $this->validate_join_section = $this->saved_validate_join_section;
+            $this->validate_where_section = $this->saved_validate_where_section;
+        }else
+        {
+            $this->join_section = $this->saved_join_section;
+            $this->where_section = $this->saved_where_section;
+        }
+
+    }
+    public function Validate_Where_Logic_Started() : bool
+    {
+        if($this->validate_join_section == '' && $this->validate_where_section == '')
+        {
+            return false;
+        }else
+        {
+            return true;
+        }
+    }
+    /**
+     * @param Column $column requires field value to be set as the equals parameter
+     * This will include the previously specified validated where and inner join logic if any
      */
-    public function Get_All_Objects(string $object_class,\Illuminate\Http\Request $request) : \Illuminate\Http\JsonResponse
+    public function Does_This_Exist_In_Context(Column $column,bool $include_inactive = false) : bool
+    {
+        $this->Save_Where_Statement(true);
+        if($this->Validate_Where_Logic_Started())
+        {
+            $this->AndLimitBy($column->Equals($column->Get_Field_Value()),true);
+        }else
+        {
+            $this->LimitBy($column->Equals($column->Get_Field_Value()),true);
+		}
+		if(!$include_inactive)
+		{
+			try
+			{
+				$this->AndLimitBy($this->Get_Column('active_status')->Equals('1'),true);
+			} catch (Column_Does_Not_Exist $e)
+			{
+
+			}
+		}
+		$this->Query_Table(['id'],true);
+		$this->revert_to_saved_where_statement(true);
+		if($this->Get_Number_Of_Rows_In_Query())
+		{
+			return true;
+		}else
+		{
+			return false;
+		}
+    }
+
+	/**
+     * @param string $object_class must be a valid app\Helpers\ class
+     */
+    public function Get_All_Objects(string $object_class,\Illuminate\Http\Request $request,?\DatabaseLink\Column $load_from_column = null) : \Illuminate\Http\JsonResponse
     {
         if($this->Does_Column_Exist('active_status'))
         {
@@ -588,13 +718,27 @@ class Table
             }
         }
         $this->LimitLimitBy(new Safe_Strings($request->input('offset',0).", ".$request->input('limit',50)),true);
-        $this->Query_Table(['`'.$this->Get_Table_Name().'`.`id`'],true);
+        if(is_null($load_from_column))
+        {
+            $column_name = '`'.$this->Get_Table_Name().'`.`id`';
+            $column_short_name = 'id';
+        }else
+        {
+            $column_name = '`'.$load_from_column->table_dblink->Get_Table_Name().'`.`'.$load_from_column->Get_Column_Name().'`';
+            $column_short_name = $load_from_column->Get_Column_Name();
+        }
+        $this->Query_Table([$column_name],true);
         $objects = array();
         While($row = $this->Get_Queried_Data())
         {
             $class = '\\app\\Helpers\\'.$object_class;
             $object = new $class;
-            $object->Load_Object_By_ID((int) $row['id'],true);
+
+            $object->Load_Object_By_ID((int) $row[$column_short_name],true);
+            if($object->Do_I_Have_Any_Inactive_Required_Relationships() && !$request->input('include_disabled_objects',false))
+            {
+                continue;
+            }
             if($request->input('include_details',false))
             {
                 $objects[$object->Get_Friendly_Name().' - '.$object->Get_Verified_ID()] = $object->Get_API_Response_Collection();

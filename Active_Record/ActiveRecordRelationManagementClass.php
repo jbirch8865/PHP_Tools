@@ -16,12 +16,13 @@ class RelationshipManager
     \DatabaseLink\Table $called_table,
     \DatabaseLink\Table $linked_to,
     \DatabaseLink\Column $linked_column,
-    string $object_to_create)
+    string $object_to_create,
+    bool $required_to_be_active)
     {
         $create = false;
         if(!key_exists($called_table->Get_Table_Name(),$this->table_has_many))
         {
-            $create = true;            
+            $create = true;
         }elseif(!key_exists($linked_to->Get_Table_Name(),$this->table_has_many[$called_table->Get_Table_Name()]))
         {
             $create = true;
@@ -31,13 +32,14 @@ class RelationshipManager
             $this->table_has_many[$called_table->Get_Table_Name()][$linked_to->Get_Table_Name()] = [$called_table->Get_Table_Name(),
                 $linked_to->Get_Table_Name(),
                 $linked_column->Get_Column_Name(),
-                $object_to_create];
+                $object_to_create,
+                $required_to_be_active];
             \ADODB_Active_Record::TableHasMany($this->table_has_many[$called_table->Get_Table_Name()][$linked_to->Get_Table_Name()][0],
                 $this->table_has_many[$called_table->Get_Table_Name()][$linked_to->Get_Table_Name()][1],
                 $this->table_has_many[$called_table->Get_Table_Name()][$linked_to->Get_Table_Name()][2],
                 $this->table_has_many[$called_table->Get_Table_Name()][$linked_to->Get_Table_Name()][3]);
         }
-        
+
     }
 
     /**
@@ -47,13 +49,14 @@ class RelationshipManager
     \DatabaseLink\Table $parent_table,
     \DatabaseLink\Table $linked_to,
     \DatabaseLink\Column $parent_column,
-    \DatabaseLink\Column $linked_column, 
-    string $object_to_create)
+    \DatabaseLink\Column $linked_column,
+    string $object_to_create,
+    bool $required_to_be_active)
     {
         $create = false;
         if(!key_exists($parent_table->Get_Table_Name(),$this->table_key_has_many))
         {
-            $create = true;            
+            $create = true;
         }elseif(!key_exists($linked_to->Get_Table_Name(),$this->table_key_has_many[$parent_table->Get_Table_Name()]))
         {
             $create = true;
@@ -63,8 +66,9 @@ class RelationshipManager
             $this->table_key_has_many[$parent_table->Get_Table_Name()][$linked_to->Get_Table_Name()] = [$parent_table->Get_Table_Name(),
                 $linked_to->Get_Table_Name(),
                 $parent_column->Get_Column_Name(),
-                $linked_column->Get_Column_Name(), 
-                $object_to_create];
+                $linked_column->Get_Column_Name(),
+                $object_to_create,
+                $required_to_be_active];
             \ADODB_Active_Record::TableKeyHasMany(
                 $this->table_key_has_many[$parent_table->Get_Table_Name()][$linked_to->Get_Table_Name()][0],
                 $this->table_key_has_many[$parent_table->Get_Table_Name()][$linked_to->Get_Table_Name()][2],
@@ -81,13 +85,14 @@ class RelationshipManager
     \DatabaseLink\Table $parent_table,
     \DatabaseLink\Column $column_named,
     \DatabaseLink\Table $belongs_to,
-    \DatabaseLink\Column $belongs_to_column, 
-    string $object_to_create)
+    \DatabaseLink\Column $belongs_to_column,
+    string $object_to_create,
+    bool $required_to_be_active)
     {
         $create = false;
         if(!key_exists($parent_table->Get_Table_Name(),$this->table_belongs_to))
         {
-            $create = true;            
+            $create = true;
         }elseif(!key_exists($belongs_to->Get_Table_Name(),$this->table_belongs_to[$parent_table->Get_Table_Name()]))
         {
             $create = true;
@@ -98,8 +103,9 @@ class RelationshipManager
                 $parent_table->Get_Table_Name(),
                 $belongs_to->Get_Table_Name(),
                 $column_named->Get_Column_Name(),
-                $belongs_to_column->Get_Column_Name(), 
-                $object_to_create];
+                $belongs_to_column->Get_Column_Name(),
+                $object_to_create,
+                $required_to_be_active];
             \ADODB_Active_Record::TableBelongsTo(
                 $this->table_belongs_to[$parent_table->Get_Table_Name()][$belongs_to->Get_Table_Name()][0],
                 $this->table_belongs_to[$parent_table->Get_Table_Name()][$belongs_to->Get_Table_Name()][1],
@@ -118,20 +124,55 @@ class RelationshipManager
             ForEach($this->table_belongs_to[$parent_table->Get_Table_Name()] as $child_name => $relationship)
             {
                 $children[] = $child_name;
-            }    
+            }
         }
-        if (isset($this->table_has_many[$parent_table->Get_Table_Name()])) 
+        if (isset($this->table_has_many[$parent_table->Get_Table_Name()]))
         {
             foreach ($this->table_has_many[$parent_table->Get_Table_Name()] as $child_name => $relationship) {
                 $children[] = $child_name;
             }
         }
-        if (isset($this->table_key_has_many[$parent_table->Get_Table_Name()])) 
+        if (isset($this->table_key_has_many[$parent_table->Get_Table_Name()]))
         {
             foreach ($this->table_key_has_many[$parent_table->Get_Table_Name()] as $child_name => $relationship) {
                 $children[] = $child_name;
             }
-        }    
+        }
+        return $children;
+    }
+
+    function Get_Required_Active_Relationships_From_Parent_Table(\DatabaseLink\Table $parent_table)
+    {
+
+        $children = [];
+        if(isset($this->table_belongs_to[$parent_table->Get_Table_Name()]))
+        {
+            ForEach($this->table_belongs_to[$parent_table->Get_Table_Name()] as $child_name => $relationship)
+            {
+                if($relationship[5])
+                {
+                    $children[] = $child_name;
+                }
+            }
+        }
+        if (isset($this->table_has_many[$parent_table->Get_Table_Name()]))
+        {
+            foreach ($this->table_has_many[$parent_table->Get_Table_Name()] as $child_name => $relationship) {
+                if($relationship[4])
+                {
+                    $children[] = $child_name;
+                }
+            }
+        }
+        if (isset($this->table_key_has_many[$parent_table->Get_Table_Name()]))
+        {
+            foreach ($this->table_key_has_many[$parent_table->Get_Table_Name()] as $child_name => $relationship) {
+                if($relationship[4])
+                {
+                    $children[] = $child_name;
+                }
+            }
+        }
         return $children;
     }
 

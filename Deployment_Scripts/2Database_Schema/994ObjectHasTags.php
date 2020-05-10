@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
-$toolbelt_base->Company_Configs = new \DatabaseLink\Table('Company_Configs',$toolbelt_base->dblink);
-company_config_Validate_ID_Column($toolbelt_base->Company_Configs);
-company_config_Validate_Company_ID_Column($toolbelt_base->Company_Configs);
-company_config_Validate_Config_ID($toolbelt_base->Company_Configs);
-company_config_Validate_Config_Value($toolbelt_base->Company_Configs);
-company_config_Validate_Active_Status_Column($toolbelt_base->Company_Configs);
-$toolbelt_base->Company_Configs->Load_Columns();
-function company_config_Validate_ID_Column(\DatabaseLink\Table $company_config_table)
+$toolbelt_base->Object_Has_Tags = new \DatabaseLink\Table('Tags',$toolbelt_base->dblink);
+object_has_tags_Validate_ID_Column($toolbelt_base->Object_Has_Tags);
+object_has_tags_Validate_Tag_ID_Column($toolbelt_base->Object_Has_Tags);
+object_has_tags_Validate_Object_ID_Column($toolbelt_base->Object_Has_Tags);
+object_has_tags_Validate_Object_Table_Name_Column($toolbelt_base->Object_Has_Tags);
+$toolbelt_base->Object_Has_Tags->Load_Columns();
+
+function object_has_tags_Validate_ID_Column(\DatabaseLink\Table $Tags)
 {
     try
     {
-        $column = $company_config_table->Get_Column('id');
+        $column = $Tags->Get_Column('id');
         if($column->Get_Column_Key() != "PRI")
         {
             $column->Set_Column_Key("PRI");
@@ -33,20 +33,21 @@ function company_config_Validate_ID_Column(\DatabaseLink\Table $company_config_t
         }
     } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
-        $column = new \DatabaseLink\Column('id',$company_config_table,array(
+        $column = new \DatabaseLink\Column('id',$Tags,array(
             'COLUMN_TYPE' => 'int(11)',
             'COLUMN_DEFAULT' => null,
             'is_nullable' => false,
             'column_key' => "PRI",
-            'EXTRA' => "AUTO_INCREMENT")
+            'EXTRA' => "AUTO_INCREMENT",
+            'COLUMN_COMMENT' => 'exclude')
         );
     }
 }
-function company_config_Validate_Company_ID_Column(\DatabaseLink\Table $company_config_table)
+function object_has_tags_Validate_Tag_ID_Column(\DatabaseLink\Table $Tags)
 {
     try
     {
-        $column = $company_config_table->Get_Column('company_id');
+        $column = $Tags->Get_Column('tag_id');
         if($column->Get_Column_Key() != "")
         {
             $column->Set_Column_Key("");
@@ -70,7 +71,7 @@ function company_config_Validate_Company_ID_Column(\DatabaseLink\Table $company_
         $column->Update_Column();
     } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
-        $column = new \DatabaseLink\Column('company_id',$company_config_table,array(
+        $column = new \DatabaseLink\Column('tag_id',$Tags,array(
             'COLUMN_TYPE' => 'int(11)',
             'COLUMN_DEFAULT' => null,
             'is_nullable' => false,
@@ -79,11 +80,10 @@ function company_config_Validate_Company_ID_Column(\DatabaseLink\Table $company_
         );
     }
 }
-function company_config_Validate_Config_ID(\DatabaseLink\Table $company_config_table)
+function object_has_tags_Validate_Object_ID_Column(\DatabaseLink\Table $Tags)
 {
-    try
-    {
-        $column = $company_config_table->Get_Column('config_id');
+    try{ $column = $Tags->Get_Column('object_id');
+
         if($column->Get_Column_Key() != "")
         {
             $column->Set_Column_Key("");
@@ -107,7 +107,7 @@ function company_config_Validate_Config_ID(\DatabaseLink\Table $company_config_t
         $column->Update_Column();
     } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
-        $column = new \DatabaseLink\Column('config_id',$company_config_table,array(
+        $column = new \DatabaseLink\Column('object_id',$Tags,array(
             'COLUMN_TYPE' => 'int(11)',
             'COLUMN_DEFAULT' => null,
             'is_nullable' => false,
@@ -116,18 +116,18 @@ function company_config_Validate_Config_ID(\DatabaseLink\Table $company_config_t
         );
     }
 }
-function company_config_Validate_Config_Value(\DatabaseLink\Table $company_config_table)
+function object_has_tags_Validate_Object_Table_Name_Column(\DatabaseLink\Table $Tags)
 {
     try
     {
-        $column = $company_config_table->Get_Column('config_value');
+        $column = $Tags->Get_Column('object_table_name');
         if($column->Get_Column_Key() != "")
         {
             $column->Set_Column_Key("");
         }
-        if($column->Get_Data_Type() != "varchar(200)")
+        if($column->Get_Data_Type() != "varchar(75)")
         {
-            $column->Set_Data_Type("varchar(200)");
+            $column->Set_Data_Type("varchar(75)");
         }
         if($column->Get_Default_Value() != null)
         {
@@ -144,8 +144,8 @@ function company_config_Validate_Config_Value(\DatabaseLink\Table $company_confi
         $column->Update_Column();
     } catch (\DatabaseLink\Column_Does_Not_Exist $e)
     {
-        $column = new \DatabaseLink\Column('config_value',$company_config_table,array(
-            'COLUMN_TYPE' => 'varchar(200)',
+        $column = new \DatabaseLink\Column('object_table_name',$Tags,array(
+            'COLUMN_TYPE' => 'varchar(75)',
             'COLUMN_DEFAULT' => null,
             'is_nullable' => false,
             'column_key' => "",
@@ -153,42 +153,5 @@ function company_config_Validate_Config_Value(\DatabaseLink\Table $company_confi
         );
     }
 }
-function company_config_Validate_Active_Status_Column(\DatabaseLink\Table $company_config_table)
-{
-    global $cConfigs;
-    try
-    {
-        $column = $company_config_table->Get_Column('active_status');
-        if($column->Get_Column_Key() != "")
-        {
-            $column->Set_Column_Key("");
-        }
-        if($column->Get_Data_Type() != "INT(11)")
-        {
-            $column->Set_Data_Type("INT(11)");
-        }
-        if($column->Get_Default_Value() != "1")
-        {
-            $column->Set_Default_Value("1");
-        }
-        if($column->Is_Column_Nullable())
-        {
-            $column->Column_Is_Not_Nullable();
-        }
-        if($column->Does_Auto_Increment())
-        {
-            $column->Column_Does_Not_Auto_Increments();
-        }
-        $column->Update_Column();
-    } catch (\DatabaseLink\Column_Does_Not_Exist $e)
-    {
-        $column = new \DatabaseLink\Column('active_status',$company_config_table,array(
-            'COLUMN_TYPE' => 'INT(11)',
-            'COLUMN_DEFAULT' => "1",
-            'is_nullable' => false,
-            'column_key' => "",
-            'EXTRA' => "")
-        );
-    }
-}
+
 ?>

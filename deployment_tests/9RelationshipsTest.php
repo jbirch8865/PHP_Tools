@@ -58,6 +58,8 @@ class RelationshipsTest extends \PHPUnit\Framework\TestCase
             $this->user2 = new \app\Helpers\User('relationship_user_2','some_password',$this->company);
             $this->user3 = new \app\Helpers\User('relationship_user_3','some_password',$this->company);
             $this->user4 = new \app\Helpers\User('relationship_user_4','some_password',$this->company);
+            $this->company->LoadRelations('Company_Roles');
+            $this->company->LoadRelations('Company_Configs');
             $this->session = new \app\Helpers\Program_Session();
             $this->session->Create_New_Session($this->toolbelt->cConfigs->Get_Client_ID(),$this->company,'relationship_user_1','some_password');
         }

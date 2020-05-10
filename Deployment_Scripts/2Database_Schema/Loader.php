@@ -12,4 +12,13 @@ require '91Routes.php';
 require '92RoutesHaveRoles.php';
 require '93PeopleTable.php';
 require '94PeopleBelongToCompany.php';
+require '95CustomerTable.php';
+require '96CreditStatus.php';
+require '97EquipmentTable.php';
+require '98AddressesTable.php';
+require '99CustomerHasAddresses.php';
+require '991PhoneNumberTable.php';
+require '992TagTable.php';
+require '993CustomerHasPhoneNumber.php';
+require '994ObjectHasTags.php';
 ?>

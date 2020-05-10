@@ -13,7 +13,7 @@ Create_Configs();
 Create_System_If_Not_Already();
 Create_Backend_User_If_Not_Already($toolbelt_base->cConfigs);
 Override_Master_Role();
-Build_Routes();
+Register_Routes();
 
 function Create_System_If_Not_Already()
 {
@@ -118,7 +118,15 @@ function Add_All_Constraints()
         [['Routes_Have_Roles','role_id'],['Company_Roles','id']],
         [['Routes_Have_Roles','right_id'],['Rights','id']],
         [['People_Belong_To_Company','company_id'],['Companies','id']],
-        [['People_Belong_To_Company','people_id'],['People','id']],
+        [['People_Belong_To_Company','people_id'],['Peoples','id']],
+        [['Credit_Statuses','company_id'],['Companies','id']],
+        [['Customers','credit_status'],['Credit_Statuses','id']],
+        [['Customer_Has_Addresses','address_id'],['Addresses','id']],
+        [['Customer_Has_Addresses','customer_id'],['Customers','id']],
+        [['Addresses','company_id'],['Companies','id']],
+        [['Phone_Numbers','company_id'],['Companies','id']],
+        [['Customer_Has_Phone_Numbers','phone_number_id'],['Phone_Numbers','id']],
+        [['Customer_Has_Phone_Numbers','customer_id'],['Customers','id']],
     );
 
     ForEach($from_to_columns as $index => $value)
@@ -155,7 +163,7 @@ function Override_Master_Role()
     $user->Assign_Company_Role($company->Get_Master_Role());
 }
 
-function Build_Routes()
+function Register_Routes()
 {
     Create_Route_If_Not_Exist('User_Signin','',true);
     Create_Route_If_Not_Exist('List_Users','Company',false);
@@ -173,10 +181,31 @@ function Build_Routes()
     Create_Route_If_Not_Exist('Edit_Role','Company',false);
     Create_Route_If_Not_Exist('List_Employees','CDM',false);
     Create_Route_If_Not_Exist('Create_Employee','CDM',false);
-    Create_Route_If_Not_Exist('Update_Employee','CDM',false);
-    Create_Route_If_Not_Exist('Delete_Employee','CDM',false);
+    Create_Route_If_Not_Exist('Update_People','Global',false);
+    Create_Route_If_Not_Exist('Delete_People','Global',false);
     Create_Route_If_Not_Exist('User_Signout','',false);
-
+    Create_Route_If_Not_Exist('List_Customers','CDM',false);
+    Create_Route_If_Not_Exist('Create_Customer','CDM',false);
+    Create_Route_If_Not_Exist('Update_Customer','CDM',false);
+    Create_Route_If_Not_Exist('Delete_Customer','CDM',false);
+    Create_Route_If_Not_Exist('List_Credit_Statuses','CDM',false);
+    Create_Route_If_Not_Exist('Create_Credit_Status','CDM',false);
+    Create_Route_If_Not_Exist('Update_Credit_Status','CDM',false);
+    Create_Route_If_Not_Exist('Delete_Credit_Status','CDM',false);
+    Create_Route_If_Not_Exist('List_Equipment','CDM',false);
+    Create_Route_If_Not_Exist('Create_Equipment','CDM',false);
+    Create_Route_If_Not_Exist('Update_Equipment','CDM',false);
+    Create_Route_If_Not_Exist('Delete_Equipment','CDM',false);
+    Create_Route_If_Not_Exist('List_Customer_Addresses','CDM',false);
+    Create_Route_If_Not_Exist('Create_Customer_Address','CDM',false);
+    Create_Route_If_Not_Exist('Update_Address','Global',false);
+    Create_Route_If_Not_Exist('Delete_Address','Global',false);
+    Create_Route_If_Not_Exist('Delete_Company','',true);
+    Create_Route_If_Not_Exist('List_Customer_Phone_Numbers','CDM',false);
+    Create_Route_If_Not_Exist('Create_Customer_Phone_Number','CDM',false);
+    Create_Route_If_Not_Exist('Update_Phone_Number','Global',false);
+    Create_Route_If_Not_Exist('Delete_Phone_Number','Global',false);
+    Create_Route_If_Not_Exist('twilio_token_rotate','',true);
 }
 
 function Create_Route_If_Not_Exist(string $name,string $module,bool $implicit_allow = false)

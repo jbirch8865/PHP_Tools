@@ -25,7 +25,8 @@ class User extends Active_Record implements iUser
     {
         parent::__construct();
         global $toolbelt_base;
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\app\Helpers\Company');
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\app\Helpers\Company',true);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Users_Have_Roles,$toolbelt_base->Users_Have_Roles->Get_Column('user_id'),'\app\Helpers\User_Role',false);
         $this->cConfigs = $toolbelt_base->cConfigs;
         $this->table_dblink = new \DatabaseLink\Table($this->_table,$toolbelt_base->dblink);
         $this->company_id = $company->Get_Verified_ID();
@@ -187,9 +188,24 @@ class User extends Active_Record implements iUser
         app()->request->validate([
             'active_status' => ['required','bool']
         ]);
+        $this->Revoke_Access_Tokens();
         $this->Delete_User((bool) app()->request->input('active_status'));
     }
 
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
+    public function Revoke_Access_Tokens() : void
+    {
+        $this->toolbelt->Get_Programs_Have_Sessions()->LimitBy($this->toolbelt->Get_Programs_Have_Sessions()->Get_Column('user_id')->Equals((string) $this->Get_Verified_ID()));
+        $this->toolbelt->Get_Programs_Have_Sessions()->Query_Table(['access_token']);
+        While($row = $this->toolbelt->Get_Programs_Have_Sessions()->Get_Queried_Data())
+        {
+            $program_session = new Program_Session;
+            $program_session->Load_Session_By_Access_Token($row['access_token']);
+            $program_session->Revoke_Session();
+        }
+    }
 
 }
 ?>

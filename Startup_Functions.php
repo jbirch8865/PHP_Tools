@@ -1,4 +1,8 @@
 <?php
+
+use Active_Record\Email_Address_Not_Valid;
+use App\Rules\Does_This_Exist_In_Context;
+
 /**
  * @throws Exception if you use a different keyspace it has to be more than two characters long
  */
@@ -160,6 +164,38 @@ function Validate_Array_Types(array $array,string $objecttype) :void
     }
 }
 
+function stringEndsWith($haystack,$needle) {
+    $expectedPosition = strlen($haystack) - strlen($needle);
+    return strrpos($haystack, $needle, 0) === $expectedPosition;
+}
+
+function Enable_Disabled_Object(\DatabaseLink\Column $column,\Active_Record\Active_Record $object) : void
+{
+    $toolbelt = new \Test_Tools\toolbelt;
+    if($toolbelt->Get_Route()->Get_Current_Route_Method() == "patch")
+    {
+        app()->request->validate(['id' => new Does_This_Exist_In_Context($column,true)]);
+        $object->Load_Object_By_ID($column->Get_Field_Value(),true);
+        $object->Set_Object_Active(true);
+    }
+}
+
+function Validate_Email(string $email,bool $send_response = true) : void
+{
+    $pattern = '/^(?!(?:(?:\\x22?\\x5C[\\x00-\\x7E]\\x22?)|(?:\\x22?[^\\x5C\\x22]\\x22?)){255,})(?!(?:(?:\\x22?\\x5C[\\x00-\\x7E]\\x22?)|(?:\\x22?[^\\x5C\\x22]\\x22?)){65,}@)(?:(?:[\\x21\\x23-\\x27\\x2A\\x2B\\x2D\\x2F-\\x39\\x3D\\x3F\\x5E-\\x7E]+)|(?:\\x22(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7F]|(?:\\x5C[\\x00-\\x7F]))*\\x22))(?:\\.(?:(?:[\\x21\\x23-\\x27\\x2A\\x2B\\x2D\\x2F-\\x39\\x3D\\x3F\\x5E-\\x7E]+)|(?:\\x22(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7F]|(?:\\x5C[\\x00-\\x7F]))*\\x22)))*@(?:(?:(?!.*[^.]{64,})(?:(?:(?:xn--)?[a-z0-9]+(?:-+[a-z0-9]+)*\\.){1,126}){1,}(?:(?:[a-z][a-z0-9]*)|(?:(?:xn--)[a-z0-9]+))(?:-+[a-z0-9]+)*)|(?:\\[(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})|(?:(?!(?:.*[a-f0-9][:\\]]){7,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?)))|(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){5}:)|(?:(?!(?:.*[a-f0-9]:){5,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3}:)?)))?(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))(?:\\.(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))){3}))\\]))$/iD';
+    if (preg_match($pattern, $email) === 0) {
+        if($send_response)
+        {
+            Response_422(['message' => 'Sorry '.$email.' is not a valid email address'],app()->request)->send();
+            exit();
+        }else
+        {
+            throw new Email_Address_Not_Valid('Sorry '.$email.' is not a valid email address');
+        }
+    }
+
+}
+
 
 use Illuminate\Http\Request;
 
@@ -218,6 +254,4 @@ use Illuminate\Http\Request;
     $toolbelt_base->Null_All();
     return response()->json($payload,500);
  }
-
-
 ?>

@@ -221,4 +221,13 @@ class Incorrect_Password Extends \exception\CustomException{
 	}
 }
 
+namespace sms;
+
+class Twilio_Connection_Error Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}
+}
+
 ?>

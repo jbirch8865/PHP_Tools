@@ -12,8 +12,8 @@ class Company_Config extends Active_Record implements iActiveRecord
     {
         parent::__construct();
         global $toolbelt_base;
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\app\Helpers\Company');
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('config_id'),$toolbelt_base->Configs,$toolbelt_base->Configs->Get_Column('id'),'\app\Helpers\Config');
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\app\Helpers\Company',true);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('config_id'),$toolbelt_base->Configs,$toolbelt_base->Configs->Get_Column('id'),'\app\Helpers\Config',true);
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded for config and company
@@ -61,7 +61,7 @@ class Company_Config extends Active_Record implements iActiveRecord
      */
     public function Load_By_Friendly_Name(string $friendly_name,?\Active_Record\Active_Record $object = null): void
     {
-        throw new \Exception('Load_By_Friendly_Name does not work on Company Config Class for name '.$friendly_name.'.');
+        throw new \Exception(debug_backtrace()[1]['function'].' does not work on '.get_class($this).'.');
     }
 
     /**

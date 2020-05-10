@@ -14,7 +14,7 @@ class ConfigurationFile
 	{
 		$this->save_environment = false;
 		if($filename == "config.local.ini" || $filename == "ConfigFileClass.php")
-		{			
+		{
 			$this->filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . $filename;
 		}else
 		{
@@ -34,7 +34,7 @@ class ConfigurationFile
 			$this->Add_Or_Update_Config('project_name',$project_folder_name);
 		}
 	}
-	
+
 	private function DoesFileExist()
 	{
 		if(file_exists($this->filename))
@@ -175,7 +175,7 @@ class ConfigurationFile
 			return 'Y-m-d H:i:s';
 		}
 	}
-	
+
 	/**
 	 * @param string $date_format follow php date recognized character format
 	 * @link https://www.php.net/manual/en/function.date.php
@@ -197,8 +197,8 @@ class ConfigurationFile
 			return 'H:i:s';
 		}
 	}
-	
-	
+
+
 	function Set_Client_ID(string $client_id) : void
 	{
 		$this->Add_Or_Update_Config('client_id',$client_id);
@@ -207,6 +207,14 @@ class ConfigurationFile
 	{
 		$this->Add_Or_Update_Config('secret',$secret);
 	}
+	function Set_Twilio_SID(string $twilio_sid) : void
+	{
+		$this->Add_Or_Update_Config('twilio_sid',$twilio_sid);
+	}
+	function Set_Twilio_Token(string $twilio_token) : void
+	{
+		$this->Add_Or_Update_Config('twilio_token',$twilio_token);
+	}
 	function Get_Client_ID() : string
 	{
 		return $this->Get_Value_If_Enabled('client_id');
@@ -214,6 +222,14 @@ class ConfigurationFile
 	function Get_Secret_ID() : string
 	{
 		return $this->Get_Value_If_Enabled('secret');
+	}
+	function Get_Twilio_SID() : string
+	{
+		return $this->Get_Value_If_Enabled('twilio_sid');
+	}
+	function Get_Twilio_Token() : string
+	{
+		return $this->Get_Value_If_Enabled('twilio_token');
 	}
 
 
@@ -417,6 +433,11 @@ class ConfigurationFile
 	 */
 	protected function Add_Or_Update_Config(string $key, string $value) : void
 	{
+        if(!$max_length = getenv($this->Get_Name_Of_Project().'_max_config_length')){$max_length = 2000;}
+        if(strlen($value) > $max_length)
+        {
+            throw new \Exception('Max config length exceeded. current length is set to '.$max_length.' recommend setting environment variable '.$this->Get_Name_Of_Project().'_max_config_length to '.strlen($value).' in order to save this as the value for config '.$key.'.');
+        }
 		$this->configurations[$key] = $value;
 		$this->write_php_ini($this->configurations,$this->filename);
 	}
@@ -435,7 +456,7 @@ class ConfigurationFile
 		$filebody = Array_To_Ini($array);
 		$this->safefilerewrite($file, $filebody);
 	}
-	
+
 	private function safefilerewrite(string $fileName,string $dataToSave)
 	{   if ($fp = fopen($fileName, 'w'))
 		{
@@ -445,16 +466,16 @@ class ConfigurationFile
 			   // If lock not obtained sleep for 0 - 100 milliseconds, to avoid collision and CPU load
 			   if(!$canWrite) usleep(round(rand(0, 100)*1000));
 			} while ((!$canWrite)and((microtime(TRUE)-$startTime) < 5));
-	
+
 			//file was locked so now we can store information
 			if ($canWrite)
-			{            
+			{
 				fwrite($fp, $dataToSave);
 				flock($fp, LOCK_UN);
 			}
 			fclose($fp);
 		}
-	
+
 	}
 }
 
@@ -500,17 +521,17 @@ class Public_File
 	}
 
 	private function safefilerewrite(string $dataToSave)
-	{    
+	{
 		if($fp = fopen(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername . DIRECTORY_SEPARATOR . $this->filename, 'w'))
 		{
 			$startTime = microtime(TRUE);
 			do
-			{            
+			{
 			   $canWrite = flock($fp, LOCK_EX);
 			   // If lock not obtained sleep for 0 - 100 milliseconds, to avoid collision and CPU load
 			   if(!$canWrite) usleep(round(rand(0, 100)*1000));
 			} while ((!$canWrite)and((microtime(TRUE)-$startTime) < 5));
-	
+
 			//file was locked so now we can store information
 			if ($canWrite)
 			{            fwrite($fp, $dataToSave);
@@ -528,7 +549,7 @@ class Public_File
 		}else
 		{
 			throw new \config\file_or_folder_does_not_exist("Can't get the contents because the file doesn't exist");
-		}	
+		}
 	}
 
 	function Delete_File()
@@ -574,7 +595,7 @@ class Public_Folder
 			$this->Create_Public_Directory();
 		}
 	}
-	
+
 	private function Create_Public_Directory()
 	{
 		return mkdir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername);
@@ -586,9 +607,9 @@ class Public_Folder
 		{
 			$dir_handle = opendir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername);
 		}
-		while($file = readdir($dir_handle)) 
+		while($file = readdir($dir_handle))
 		{
-			if ($file != "." && $file != "..") 
+			if ($file != "." && $file != "..")
 			{
 				if(!$delete_files)
 				{
@@ -597,7 +618,7 @@ class Public_Folder
 				if (!is_dir(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername . DIRECTORY_SEPARATOR . $file))
 				{
 					unlink(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername . DIRECTORY_SEPARATOR . $file);
-				}else	
+				}else
 				{
 					$this->Delete_Public_Directory(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . $this->foldername . DIRECTORY_SEPARATOR . $file);
 				}

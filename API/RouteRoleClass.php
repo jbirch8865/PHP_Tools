@@ -10,11 +10,12 @@ class Route_Role extends Active_Record implements iActiveRecord
 
     function __construct()
     {
-        $toolbelt = new \test_tools\toolbelt;
+        $toolbelt = new \Test_Tools\toolbelt;
         parent::__construct();
-        $toolbelt->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('route_id'),$toolbelt->Routes,$toolbelt->Routes->Get_Column('id'),'\app\Helpers\Route');
-        $toolbelt->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('role_id'),$toolbelt->Company_Roles,$toolbelt->Company_Roles->Get_Column('id'),'\app\Helpers\Company_Role');
-        $toolbelt->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('right_id'),$toolbelt->Rights,$toolbelt->Rights->Get_Column('id'),'\app\Helpers\Right');
+        global $toolbelt_base;
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('route_id'),$toolbelt->Routes,$toolbelt->Routes->Get_Column('id'),'\app\Helpers\Route',true);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('role_id'),$toolbelt->Company_Roles,$toolbelt->Company_Roles->Get_Column('id'),'\app\Helpers\Company_Role',true);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('right_id'),$toolbelt->Rights,$toolbelt->Rights->Get_Column('id'),'\app\Helpers\Right',false);
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded

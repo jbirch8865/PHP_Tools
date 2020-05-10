@@ -89,28 +89,6 @@ class Program extends Active_Record implements iActiveRecord
     {
         $this->Load_From_Varchar('program_name',$friendly_name);
     }
-    /**
-     * This table doesn't have active status, delete and create are the only options
-     * this function does nothing
-     */
-    public function Set_Object_Active() : void
-    {
-    }
-    /**
-     * This table doesn't have active status, delete and create are the only options
-     * this function does nothing
-     */
-    public function Set_Object_Inactive() : void
-    {
-    }
-    /**
-     * This table doesn't have active status, delete and create are the only options
-     * this function does nothing
-     */
-    public function Is_Object_Active() : bool
-    {
-        return true;
-    }
 
     public function Delete_Active_Record() : void
     {

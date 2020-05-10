@@ -10,7 +10,7 @@ class Route extends Active_Record implements \Active_Record\iActiveRecord
     {
         $toolbelt = new \test_tools\toolbelt;
         parent::__construct();
-        $toolbelt->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt->Routes_Have_Roles,$toolbelt->Routes_Have_Roles->Get_Column('route_id'),'\app\Helpers\Route_Role');
+        $toolbelt->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt->Routes_Have_Roles,$toolbelt->Routes_Have_Roles->Get_Column('route_id'),'\app\Helpers\Route_Role',false);
     }
 
 
@@ -133,7 +133,7 @@ class Route extends Active_Record implements \Active_Record\iActiveRecord
     {
         $method = app()->request->method();
         if($method == 'DELETE'){$method = 'destroy';}
-        return $method;
+        return strtolower($method);
     }
 
 

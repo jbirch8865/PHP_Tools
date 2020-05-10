@@ -17,7 +17,7 @@ class Program_Session extends Active_Record implements iUser
     {
         $toolbelt = new \Test_Tools\toolbelt;
         $this->toolbelt = $toolbelt;
-        $toolbelt->active_record_relationship_manager->Load_Table_Key_Has_Many_If_Empty($toolbelt->Programs_Have_Sessions,$toolbelt->Users_Have_Roles,$toolbelt->Programs_Have_Sessions->Get_Column('user_id'),$toolbelt->Users_Have_Roles->Get_Column('user_id'),'\app\Helpers\User_Role');
+        $toolbelt->active_record_relationship_manager->Load_Table_Key_Has_Many_If_Empty($toolbelt->Programs_Have_Sessions,$toolbelt->Users_Have_Roles,$toolbelt->Programs_Have_Sessions->Get_Column('user_id'),$toolbelt->Users_Have_Roles->Get_Column('user_id'),'\app\Helpers\User_Role',false);
         parent::__construct();
     }
     /**
@@ -59,6 +59,7 @@ class Program_Session extends Active_Record implements iUser
             $this->Set_Timestamp($this->table_dblink->Get_Column('experation_timestamp'),$dateTime,false);
             $this->Set_Int($this->table_dblink->Get_Column('user_id'),$User->Get_Verified_ID(),true);
         }
+        echo '';
     }
     /**
      * @throws \app\Helpers\Session_Not_Established

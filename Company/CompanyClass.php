@@ -12,8 +12,11 @@ class Company extends Active_Record implements iActiveRecord
     {
         parent::__construct();
         global $toolbelt_base;
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Company_Configs,$toolbelt_base->Company_Configs->Get_Column('company_id'),'\app\Helpers\Company_Config');
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Company_Roles,$toolbelt_base->Company_Roles->Get_Column('company_id'),'\app\Helpers\Company_Role');
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Company_Configs,$toolbelt_base->Company_Configs->Get_Column('company_id'),'\app\Helpers\Company_Config',false);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Company_Roles,$toolbelt_base->Company_Roles->Get_Column('company_id'),'\app\Helpers\Company_Role',false);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Equipments,$toolbelt_base->Equipments->Get_Column('company_id'),'\app\Helpers\Equipment',false);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Credit_Statuses,$toolbelt_base->Credit_Statuses->Get_Column('company_id'),'\app\Helpers\Credit_Status',false);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->People_Belong_To_Company,$toolbelt_base->People_Belong_To_Company->Get_Column('company_id'),'\app\Helpers\Employee_Company',false);
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
@@ -64,9 +67,9 @@ class Company extends Active_Record implements iActiveRecord
      * @throws Object_Is_Already_Loaded
      * @throws Active_Record_Object_Failed_To_Load
      */
-    public function Load_Company_By_Name(string $name_to_search) : void
+    public function Load_Company_By_Name(string $name_to_search,bool $inactive = false) : void
     {
-        $this->Load_From_Varchar('company_name',$name_to_search);
+        $this->Load_From_Varchar('company_name',$name_to_search,$inactive);
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
@@ -248,13 +251,5 @@ class Company extends Active_Record implements iActiveRecord
             $route_has_role->Set_Route($route,true);
         }
     }
-    public function Delete_Active_Record() : void
-    {
-        app()->request->validate([
-            'active_status' => ['required','bool']
-        ]);
-
-    }
-
 }
 ?>

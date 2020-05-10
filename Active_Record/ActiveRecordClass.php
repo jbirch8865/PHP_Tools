@@ -9,10 +9,12 @@ abstract class Active_Record extends ADODB_Active_Record
 {
     public \config\ConfigurationFile $cConfigs;
     protected \DatabaseLink\Table $table_dblink;
+    private \Test_Tools\toolbelt $toolbelt;
 
     function __construct()
     {
         parent::__construct();
+        $this->toolbelt = new \Test_Tools\toolbelt;
         global $toolbelt_base;
         $this->cConfigs = $toolbelt_base->cConfigs;
         $table_name = $this->_table;
@@ -97,7 +99,7 @@ abstract class Active_Record extends ADODB_Active_Record
         {
             if(!$this->Is_Object_Active())
             {
-                throw new Object_Is_Currently_Inactive($this->Get_Verified_ID().' is currently inactive');
+                throw new Object_Is_Currently_Inactive($this->Get_Verified_ID().' - '.get_class($this).' is currently inactive');
             }
         }
 
@@ -203,14 +205,20 @@ abstract class Active_Record extends ADODB_Active_Record
     /**
      * @throws \DatabaseLink\Column_Does_Not_Exist if table does not support this option
      */
-    protected function Set_Object_Active() : void
+    public function Set_Object_Active(bool $update_now = false) : void
     {
         try
         {
             $this->Get_Active_Status();
         } catch (\Active_Record\Object_Has_Not_Been_Loaded $e)
-        {}
+        {
+
+        }
         $this->active_status = 1;
+        if($update_now)
+        {
+            $this->Create_Object();
+        }
     }
     /**
      * @throws \DatabaseLink\Column_Does_Not_Exist if table does not support this option
@@ -256,7 +264,18 @@ abstract class Active_Record extends ADODB_Active_Record
                 $this->Set_Object_Active();
             }
         } catch (\DatabaseLink\Column_Does_Not_Exist $e){}
+        if($this->Do_I_Have_Any_Inactive_Required_Relationships())
+        {
+            Response_422(['message' => 'You can\'t update this object because there is a mandatory relationship that is currently inactive'],app()->request)->send();
+            exit();
+        }
         $this->Update_Object();
+        if($this->Do_I_Have_Any_Inactive_Required_Relationships())
+        {
+            $this->Delete_Object('destroy');
+            Response_422(['message' => 'You can\'t create this object because there is a mandatory relationship that is currently inactive'],app()->request)->send();
+            exit();
+        }
         return $new_object;
     }
     /**
@@ -369,12 +388,79 @@ abstract class Active_Record extends ADODB_Active_Record
         }
     }
 
+    public function Do_I_Have_Any_Inactive_Required_Relationships(int $recursive_depth = 4) : bool
+    {
+        if($recursive_depth < 1)
+        {
+            return false;
+        }else
+        {
+            $recursive_depth = $recursive_depth - 1;
+        }
+        $this->Load_All_Relationships(0,5);
+        $required_relationships = $this->toolbelt->active_record_relationship_manager->Get_Required_Active_Relationships_From_Parent_Table($this->table_dblink);
+        ForEach($required_relationships as $child_table_name)
+        {
+            if(is_array($this->$child_table_name))
+            {
+                ForEach($this->$child_table_name as $active_record)
+                {
+                    if(!$active_record->Is_Object_Active())
+                    {
+                        return true;
+                    }else
+                    {
+                        if($active_record->Do_I_Have_Any_Inactive_Required_Relationships($recursive_depth))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }else
+            {
+                if(!$this->$child_table_name->Is_Object_Active())
+                {
+                    return true;
+                }else
+                {
+                    if($this->$child_table_name->Do_I_Have_Any_Inactive_Required_Relationships($recursive_depth))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
     function Get_API_Response_Collection(): array
     {
         return $this->Get_Response_Collection((int) app()->request->input('include_details',0),(int) app()->request->input('details_offset',0),(int) app()->request->input('details_limit',1));
+    }
+
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
+    public function Delete_Active_Record() : void
+    {
+        app()->request->validate([
+            'active_status' => ['required','bool']
+        ]);
+        if($this->Do_I_Have_Any_Inactive_Required_Relationships())
+        {
+            Response_422(['message' => 'You can\'t delete this object because there is a mandatory relationship that is currently inactive'],app()->request)->send();
+            exit();
+        }
+        if(app()->request->input('active_status'))
+        {
+            $this->Set_Object_Inactive();
+        }else
+        {
+            $this->Delete_Object('destroy');
+        }
     }
 
 }
