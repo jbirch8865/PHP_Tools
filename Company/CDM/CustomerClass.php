@@ -7,10 +7,8 @@ use Active_Record\iActiveRecord;
 class Customer extends Active_Record implements iActiveRecord
 {
     public $_table = "Customers";
-    private \Test_Tools\toolbelt $toolbelt;
     function __construct()
     {
-        $this->toolbelt = new \Test_Tools\toolbelt;
         parent::__construct();
         global $toolbelt_base;
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$this->toolbelt->Companies,$this->toolbelt->Companies->Get_Column('id'),'\app\Helpers\Company',true);

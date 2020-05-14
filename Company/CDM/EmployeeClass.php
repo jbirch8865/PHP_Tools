@@ -3,12 +3,10 @@ namespace app\Helpers;
 
 class Employee extends People
 {
-    private \Test_Tools\toolbelt $toolbelt;
     private Employee_Company $link;
 
     function __construct()
     {
-        $this->toolbelt = new \Test_Tools\toolbelt;
         $this->link = new Employee_Company;
         parent::__construct();
         global $toolbelt_base;

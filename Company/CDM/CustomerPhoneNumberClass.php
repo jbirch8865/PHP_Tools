@@ -10,12 +10,10 @@ use app\Helpers\Company;
 class Customer_Has_Phone_Number extends Active_Record implements iActiveRecord
 {
     public $_table = "Customer_Has_Phone_Numbers";
-    private \Test_Tools\toolbelt $toolbelt;
 
     function __construct()
     {
         parent::__construct();
-        $this->toolbelt = new \Test_Tools\toolbelt;
         global $toolbelt_base;
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('customer_id'),$this->toolbelt->Customers,$this->toolbelt->Customers->Get_Column('id'),'\app\Helpers\Customer',true);
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('phone_number_id'),$this->toolbelt->Phone_Numbers,$this->toolbelt->Phone_Numbers->Get_Column('id'),'\app\Helpers\Phone_Number',true);

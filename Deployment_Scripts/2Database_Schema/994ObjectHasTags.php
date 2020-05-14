@@ -1,11 +1,10 @@
 <?php declare(strict_types=1);
-$toolbelt_base->Object_Has_Tags = new \DatabaseLink\Table('Tags',$toolbelt_base->dblink);
+$toolbelt_base->Object_Has_Tags = new \DatabaseLink\Table('Object_Has_Tags',$toolbelt_base->dblink);
 object_has_tags_Validate_ID_Column($toolbelt_base->Object_Has_Tags);
 object_has_tags_Validate_Tag_ID_Column($toolbelt_base->Object_Has_Tags);
 object_has_tags_Validate_Object_ID_Column($toolbelt_base->Object_Has_Tags);
-object_has_tags_Validate_Object_Table_Name_Column($toolbelt_base->Object_Has_Tags);
+object_has_tags_Validate_Object_Table_Name_Column($toolbelt_base->Tags);
 $toolbelt_base->Object_Has_Tags->Load_Columns();
-
 function object_has_tags_Validate_ID_Column(\DatabaseLink\Table $Tags)
 {
     try
@@ -153,5 +152,4 @@ function object_has_tags_Validate_Object_Table_Name_Column(\DatabaseLink\Table $
         );
     }
 }
-
 ?>

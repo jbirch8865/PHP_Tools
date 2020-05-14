@@ -231,7 +231,14 @@ class ConfigurationFile
 	{
 		return $this->Get_Value_If_Enabled('twilio_token');
 	}
-
+	function Set_Multi_Tag_ID(int $id) : void
+	{
+		$this->Add_Or_Update_Config('Allow_Duplicate_Tagging_ID',(string) $id);
+	}
+    function Get_Multi_Tag_ID() : int
+    {
+        return (int) $this->Get_Value_If_Enabled('Allow_Duplicate_Tagging_ID');
+    }
 
 
 	/**

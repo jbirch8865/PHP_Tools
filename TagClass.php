@@ -3,8 +3,9 @@ namespace app\Helpers;
 
 use Active_Record\Active_Record;
 use Active_Record\iActiveRecord;
+use databaseLink\Table;
 
-class Tags extends Active_Record implements iActiveRecord
+class Tag extends Active_Record implements iActiveRecord
 {
     public $_table = "Tags";
 
@@ -13,6 +14,7 @@ class Tags extends Active_Record implements iActiveRecord
         parent::__construct();
         global $toolbelt_base;
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\app\Helpers\Company',true);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Tags_Have_Roles,$toolbelt_base->Tags_Have_Roles->Get_Column('tag_id'),'\app\Helpers\Tags_Have_Role');
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
@@ -51,6 +53,33 @@ class Tags extends Active_Record implements iActiveRecord
     {
         return $this->Get_Value_From_Name('name');
     }
+    /**
+     * @throws \Active_Record\Varchar_Too_Long_To_Set if string too long and trim is false
+     */
+    public function Set_Table_Name(Table $table,bool $update_immediately = true) : void
+    {
+        $this->Set_Varchar($this->table_dblink->Get_Column('object_table_name'),$table->Get_Table_Name(),false,$update_immediately);
+    }
+
+    public function Change_Primary_Key(int $new_key,int $old_key) : void
+    {
+        parent::Change_Primary_Key($new_key,$old_key);
+    }
+
+    public function Allow_Duplicates() : bool
+    {
+        $tag = new Tag;
+        $tag->Load_Object_By_ID($this->toolbelt->cConfigs->Get_Multi_Tag_ID());
+        if(is_null($this->Get_Object_Has_Tag_From_Tag($tag)))
+        {
+            return false;
+        }else
+        {
+            return true;
+        }
+
+    }
+
 }
 
 ?>

@@ -3,11 +3,9 @@ namespace app\Helpers;
 
 class Customer_Phone_Number extends Phone_Number
 {
-    private \Test_Tools\toolbelt $toolbelt;
     private Customer_Has_Phone_Number $link;
     function __construct()
     {
-        $this->toolbelt = new \Test_Tools\toolbelt;
         $this->link = new Customer_Has_Phone_Number;
         parent::__construct();
         global $toolbelt_base;

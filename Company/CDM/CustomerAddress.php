@@ -3,11 +3,9 @@ namespace app\Helpers;
 
 class Customer_Address extends Address
 {
-    private \Test_Tools\toolbelt $toolbelt;
     private Customer_Has_Address $link;
     function __construct()
     {
-        $this->toolbelt = new \Test_Tools\toolbelt;
         $this->link = new Customer_Has_Address;
         parent::__construct();
         global $toolbelt_base;

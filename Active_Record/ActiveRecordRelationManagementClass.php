@@ -17,7 +17,7 @@ class RelationshipManager
     \DatabaseLink\Table $linked_to,
     \DatabaseLink\Column $linked_column,
     string $object_to_create,
-    bool $required_to_be_active)
+    bool $required_to_be_active = false)
     {
         $create = false;
         if(!key_exists($called_table->Get_Table_Name(),$this->table_has_many))
@@ -50,8 +50,7 @@ class RelationshipManager
     \DatabaseLink\Table $linked_to,
     \DatabaseLink\Column $parent_column,
     \DatabaseLink\Column $linked_column,
-    string $object_to_create,
-    bool $required_to_be_active)
+    string $object_to_create)
     {
         $create = false;
         if(!key_exists($parent_table->Get_Table_Name(),$this->table_key_has_many))
@@ -67,8 +66,7 @@ class RelationshipManager
                 $linked_to->Get_Table_Name(),
                 $parent_column->Get_Column_Name(),
                 $linked_column->Get_Column_Name(),
-                $object_to_create,
-                $required_to_be_active];
+                $object_to_create];
             \ADODB_Active_Record::TableKeyHasMany(
                 $this->table_key_has_many[$parent_table->Get_Table_Name()][$linked_to->Get_Table_Name()][0],
                 $this->table_key_has_many[$parent_table->Get_Table_Name()][$linked_to->Get_Table_Name()][2],

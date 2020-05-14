@@ -171,6 +171,7 @@ class Company extends Active_Record implements iActiveRecord
 
     function Get_Master_Role() : ?\app\Helpers\Company_Role
     {
+//        $this->LoadRelations('Company_Roles');
         ForEach($this->Company_Roles as $company_role)
         {
             if($company_role->Get_Friendly_Name() == 'master')

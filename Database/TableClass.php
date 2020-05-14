@@ -727,7 +727,7 @@ class Table
             $column_name = '`'.$load_from_column->table_dblink->Get_Table_Name().'`.`'.$load_from_column->Get_Column_Name().'`';
             $column_short_name = $load_from_column->Get_Column_Name();
         }
-        $this->Query_Table([$column_name],true);
+        $this->Query_Table(['distinct('.$column_name.')'],true);
         $objects = array();
         While($row = $this->Get_Queried_Data())
         {

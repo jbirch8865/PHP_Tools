@@ -14,8 +14,8 @@ Create_System_If_Not_Already();
 Create_Backend_User_If_Not_Already($toolbelt_base->cConfigs);
 Override_Master_Role();
 Register_Routes();
-
-function Create_System_If_Not_Already()
+Create_Global_Tags();
+function Create_System_If_Not_Already() : void
 {
     $toolbelt = new \Test_Tools\toolbelt;
     if($toolbelt->cConfigs->Is_Prod()){return;}
@@ -47,7 +47,7 @@ function Create_System_If_Not_Already()
         $company->Create_Company_Role('master');
     }
 }
-function Create_Backend_Program_For_API(\Test_Tools\toolbelt_base $toolbelt_base)
+function Create_Backend_Program_For_API(\Test_Tools\toolbelt_base $toolbelt_base) : void
 {
     $toolbelt = new \Test_Tools\toolbelt;
     if($toolbelt->cConfigs->Is_Prod()){return;}
@@ -79,7 +79,7 @@ function Add_Column_Constraint(\DatabaseLink\Column $from_column,\DatabaseLink\C
 {
     $from_column->Add_Constraint_If_Does_Not_Exist($to_column);
 }
-function Create_Configs()
+function Create_Configs() : void
 {
     $config = new \app\Helpers\Config();
     $config->Create_Or_Update_Config('company_time_zone','UTC');
@@ -87,7 +87,7 @@ function Create_Configs()
     $config->Create_Or_Update_Config('session_time_limit','300');
 
 }
-function Create_Backend_User_If_Not_Already(\config\ConfigurationFile $cConfigs)
+function Create_Backend_User_If_Not_Already(\config\ConfigurationFile $cConfigs) : void
 {
     $toolbelt = new \Test_Tools\toolbelt;
     if($toolbelt->cConfigs->Is_Prod()){return;}
@@ -102,7 +102,7 @@ function Create_Backend_User_If_Not_Already(\config\ConfigurationFile $cConfigs)
 
     }
 }
-function Add_All_Constraints()
+function Add_All_Constraints() : void
 {
     global $toolbelt_base;
     $from_to_columns = array(
@@ -127,6 +127,10 @@ function Add_All_Constraints()
         [['Phone_Numbers','company_id'],['Companies','id']],
         [['Customer_Has_Phone_Numbers','phone_number_id'],['Phone_Numbers','id']],
         [['Customer_Has_Phone_Numbers','customer_id'],['Customers','id']],
+        [['Tags','company_id'],['Companies','id']],
+        [['Object_Has_Tags','tag_id'],['Tags','id']],
+        [['Tags_Have_Roles','tag_id'],['Tags','id']],
+        [['Tags_Have_Roles','role_id'],['Company_Roles','id']],
     );
 
     ForEach($from_to_columns as $index => $value)
@@ -140,7 +144,7 @@ function Add_All_Constraints()
         Add_Column_Constraint($from_column,$to_column);
     }
 }
-function Add_All_Multi_Column_Unique_Indexes()
+function Add_All_Multi_Column_Unique_Indexes() : void
 {
     global $toolbelt_base;
     $toolbelt_base->Company_Configs->Add_Unique_Columns(array('company_id','config_id'));
@@ -149,10 +153,11 @@ function Add_All_Multi_Column_Unique_Indexes()
     $toolbelt_base->Users->Add_Unique_Columns(array('company_id','username','project_name'));
     $toolbelt_base->Users_Have_Roles->Add_Unique_Columns(array('user_id','role_id'));
     $toolbelt_base->Routes_Have_Roles->Add_Unique_Columns(array('route_id','role_id'));
+    $toolbelt_base->Tags_Have_Roles->Add_Unique_Columns(array('tag_id','role_id'));
 
 }
 
-function Override_Master_Role()
+function Override_Master_Role() : void
 {
     $company = new \app\Helpers\Company;
     $company->Load_Object_By_ID(1);
@@ -163,7 +168,7 @@ function Override_Master_Role()
     $user->Assign_Company_Role($company->Get_Master_Role());
 }
 
-function Register_Routes()
+function Register_Routes() : void
 {
     Create_Route_If_Not_Exist('User_Signin','',true);
     Create_Route_If_Not_Exist('List_Users','Company',false);
@@ -206,9 +211,22 @@ function Register_Routes()
     Create_Route_If_Not_Exist('Update_Phone_Number','Global',false);
     Create_Route_If_Not_Exist('Delete_Phone_Number','Global',false);
     Create_Route_If_Not_Exist('twilio_token_rotate','',true);
-}
+    Create_Route_If_Not_Exist('Update_Tag','Global',false);
+    Create_Route_If_Not_Exist('Delete_Tag','Global',false);
+    Create_Route_If_Not_Exist('List_Customer_Tags','CDM',false);
+    Create_Route_If_Not_Exist('Create_Customer_Tag','CDM',false);
+    Create_Route_If_Not_Exist('Add_Role_To_Tag','Global',false);
+    Create_Route_If_Not_Exist('List_Roles_On_Tag','Global',false);
+    Create_Route_If_Not_Exist('Add_Tag_To_Tag','Global',false);
+    Create_Route_If_Not_Exist('List_Tags_On_Tag','Global',false);
+    Create_Route_If_Not_Exist('Add_Tag_To_Customer','CDM',false);
+    Create_Route_If_Not_Exist('List_Tags_On_Customer','CDM',false);
+    Create_Route_If_Not_Exist('Remove_Tag_From_Customer','CDM',false);
+    Create_Route_If_Not_Exist('Remove_Tag_From_Tag','Global',false);
+    Create_Route_If_Not_Exist('Remove_Role_From_Tag','Global',false);
+ }
 
-function Create_Route_If_Not_Exist(string $name,string $module,bool $implicit_allow = false)
+function Create_Route_If_Not_Exist(string $name,string $module,bool $implicit_allow = false) : void
 {
     try
     {
@@ -223,5 +241,25 @@ function Create_Route_If_Not_Exist(string $name,string $module,bool $implicit_al
         $route->Set_Implicit_Allow($implicit_allow,true);
     }
 }
-
+function Create_Global_Tags() : void
+{
+    $toolbelt = new \Test_Tools\toolbelt;
+    try
+    {
+        $multi_tag = new \app\Helpers\Tag;
+        $multi_tag->Load_Object_By_ID(1);
+        if($multi_tag->Get_Friendly_Name() != 'Allow_Duplicate_Tagging')
+        {
+            $multi_tag->Set_Table_Name($toolbelt->Tags,false);
+            $multi_tag->Set_Tag_Name('Allow_Duplicate_Tagging');
+        }
+    } catch (\Active_Record\Active_Record_Object_Failed_To_Load $e)
+    {
+        $multi_tag = new \app\Helpers\Tag;
+        $multi_tag->Set_Table_Name($toolbelt->Tags,false);
+        $multi_tag->Set_Tag_Name('Allow_Duplicate_Tagging',true,true);
+        $multi_tag->Change_Primary_Key(1,$multi_tag->Get_Verified_ID());
+    }
+    $toolbelt->cConfigs->Set_Multi_Tag_ID(1);
+}
 ?>

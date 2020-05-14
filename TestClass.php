@@ -1,6 +1,9 @@
 <?php
 namespace Test_Tools;
 
+use Active_Record\Active_Record;
+use DatabaseLink\Safe_Strings;
+
 class toolbelt_base
 {
     public \config\ConfigurationFile $cConfigs;
@@ -29,6 +32,8 @@ class toolbelt_base
     public \DatabaseLink\Table $Phone_Numbers;
     public \DatabaseLink\Table $Customer_Has_Phone_Numbers;
     public \DatabaseLink\Table $Tags;
+    public \DatabaseLink\Table $Object_Has_Tags;
+    public \DatabaseLink\Table $Tags_Have_Roles;
     public ?\app\Helpers\Program_Session $documentation_session = null;
     public ?\app\Helpers\Company $Company = null;
     public ?\app\Helpers\Program $Program = null;
@@ -44,6 +49,9 @@ class toolbelt_base
     public ?\app\Helpers\Customer_Address $Customer_Address = null;
     public ?\app\Helpers\Customer_Phone_Number $Customer_Phone_Number = null;
     public ?\app\Helpers\Phone_Number $Phone_Number = null;
+    public ?\app\Helpers\Tag $Tag = null;
+    public ?\app\Helpers\Tag $Add_Tag = null;
+    public ?\app\Helpers\Tags_Have_Role $Tags_Have_Role = null;
 
     public function Create_Sessions_Token_For_Documentation()
     {
@@ -178,7 +186,7 @@ class toolbelt_base
      * @throws \Exception if object_type does not exist
      * @throws \Exception if $object_version is not 1,2 or 3
      */
-    private function Get_Bind_Object(string $object_type,?int $object_version,bool $send_response,?string $name = null) : ?\Active_Record\Active_Record
+    private function Get_Bind_Object(string $object_type,?int $object_version,bool $send_response,?string $name = null,?Active_Record $active_record_to_add_tag_to = null) : ?\Active_Record\Active_Record
     {
         try
         {
@@ -186,7 +194,7 @@ class toolbelt_base
             {
                 if(is_null($this->$name))
                 {
-                    $this->$name = app()->make($object_type);
+                    $this->$name = app()->make($object_type,['object' => $active_record_to_add_tag_to]);
                 }
                 return $this->$name;
             }
@@ -194,13 +202,13 @@ class toolbelt_base
             {
                 if($object_version == 1)
                 {
-                    $this->$object_type = app()->make('Delete_'.$object_type);
+                    $this->$object_type = app()->make('Delete_'.$object_type,['object' => $active_record_to_add_tag_to]);
                 }elseif($object_version == 2)
                 {
-                    $this->$object_type = app()->make('Create_'.$object_type);
+                    $this->$object_type = app()->make('Create_'.$object_type,['object' => $active_record_to_add_tag_to]);
                 }elseif($object_version == 3)
                 {
-                    $this->$object_type = app()->make('Update_'.$object_type);
+                    $this->$object_type = app()->make('Update_'.$object_type,['object' => $active_record_to_add_tag_to]);
                 }else
                 {
                     throw new \Exception('sorry '.$object_version.' is not a valid 1,2, or 3');
@@ -321,6 +329,47 @@ class toolbelt_base
     {
         $this->Customer_Phone_Number = null;
     }
+    /**
+     * @param int $object_type 1 = Delete_Tag, 2 = Create_Tag 3 = Update_Tag
+     */
+    public function Get_Tag(int $object_type,bool $send_response = true) : \app\Helpers\Tag
+    {
+        return $this->Get_Bind_Object('Tag',$object_type,$send_response);
+    }
+    private function Null_Tag() : void
+    {
+        $this->Tag = null;
+    }
+    /**
+     * @param int $object_type 1 = Delete_Role_From_Tag, 2 = Add_Role_To_Tag
+     */
+    public function Get_Tags_Have_Role(int $object_type,bool $send_response = true) : \app\Helpers\Tags_Have_Role
+    {
+        if($object_type == 3)
+        {
+            throw new \Exception('cannot update Tags_Have_Role, must either create, which will override the current role setting or delete tags_have_role and then recreate.');
+        }
+        return $this->Get_Bind_Object('Tags_Have_Role',$object_type,$send_response);
+    }
+    private function Null_Tags_Have_Role() : void
+    {
+        $this->Tags_Have_Role = null;
+    }
+    /**
+     * @param int $object_type 1 = Remove_Tag_From_Object, 2 = Add_Tag_To_Object
+     */
+    public function Get_Add_Tag(int $object_type,bool $send_response = true,?Active_Record $active_record_to_add_tag_to) : \app\Helpers\Tag
+    {
+        if($object_type == 3)
+        {
+            throw new \Exception('Can only Add_tag_to_Object or Remove_Tag_From_Object');
+        }
+        return $this->Get_Bind_Object('Add_Tag',$object_type,$send_response,null,$active_record_to_add_tag_to);
+    }
+    private function Null_Add_Tag() : void
+    {
+        $this->Add_Tag = null;
+    }
     public function Null_All() : void
     {
         $this->Null_Company();
@@ -337,6 +386,9 @@ class toolbelt_base
         $this->Null_Address();
         $this->Null_Phone_Number();
         $this->Null_Customer_Phone_Number();
+        $this->Null_Tag();
+        $this->Null_Tags_Have_Role();
+        $this->Null_Add_Tag();
     }
 
 }
@@ -370,6 +422,7 @@ class toolbelt extends toolbelt_base
     public \DatabaseLink\Table $Customer_Has_Phone_Numbers;
     public \DatabaseLink\Table $Tags;
     public \DatabaseLink\Table $Object_Has_Tags;
+    public \DatabaseLink\Table $Tags_Have_Roles;
 
 
     function __construct()
@@ -402,6 +455,7 @@ class toolbelt extends toolbelt_base
         $this->Customer_Has_Phone_Numbers = $toolbelt_base->Customer_Has_Phone_Numbers;
         $this->Tags = $toolbelt_base->Tags;
         $this->Object_Has_Tags = $toolbelt_base->Object_Has_Tags;
+        $this->Tags_Have_Roles = $toolbelt_base->Tags_Have_Roles;
     }
 
     public function Create_Sessions_Token_For_Documentation() : \app\Helpers\Program_Session
@@ -514,7 +568,30 @@ class toolbelt extends toolbelt_base
         global $toolbelt_base;
         return $toolbelt_base->Get_Customer_Phone_Number($send_response);
     }
-
+    /**
+     * @param int $object_type 1 = Delete_Tag,2 = Create_Tag, 3 = Update_Tag
+     */
+    public function Get_Tag(int $object_type,bool $send_response = true) : \app\Helpers\Tag
+    {
+        global $toolbelt_base;
+        return $toolbelt_base->Get_Tag($object_type,$send_response);
+    }
+    /**
+     * @param int $object_type 1 = Delete_Role_From_Tag, 2 = Add_Role_To_Tag
+     */
+    public function Get_Tags_Have_Role(int $object_type,bool $send_response = true) : \app\Helpers\Tags_Have_Role
+    {
+        global $toolbelt_base;
+        return $toolbelt_base->Get_Tag($object_type,$send_response);
+    }
+    /**
+     * @param int $object_type 1 = Remove_Tag_From_Object, 2 = Add_Tag_To_Object
+     */
+    public function Get_Add_Tag(int $object_type,bool $send_response = true,?Active_Record $active_record_to_add_tag_to = null) : \app\Helpers\Tag
+    {
+        global $toolbelt_base;
+        return $toolbelt_base->Get_Add_Tag($object_type,$send_response,$active_record_to_add_tag_to);
+    }
 
     public function Get_Companies() : \DatabaseLink\Table{return $this->Companies;}
     public function Get_Programs() : \DatabaseLink\Table{return $this->Programs;}
@@ -562,10 +639,10 @@ class toolbelt extends toolbelt_base
     {
         if(!$this->Routes_Have_Roles->Validate_Where_Logic_Started())
         {
-            $this->Routes_Have_Roles->InnerJoinWith($this->Get_Company_Roles()->
+            $this->Routes_Have_Roles->InnerJoinWith($this->Company_Roles->
             Get_Column('id'),$this->Routes_Have_Roles->Get_Column('role_id'),true);
             $this->Routes_Have_Roles->LimitBy(
-            $this->Get_Company_Roles()->Get_Column('company_id')->
+            $this->Company_Roles->Get_Column('company_id')->
             Equals($this->Get_Company($access_token)->Get_Verified_ID()),true);
         }
         return $this->Routes_Have_Roles;
@@ -583,7 +660,7 @@ class toolbelt extends toolbelt_base
     {
         if(!$this->People_Belong_To_Company->Validate_Where_Logic_Started())
         {
-            $this->People_Belong_To_Company->InnerJoinWith($this->Get_Peoples()->
+            $this->People_Belong_To_Company->InnerJoinWith($this->Peoples->
             Get_Column('id'),$this->People_Belong_To_Company->Get_Column('people_id'),true);
             $this->People_Belong_To_Company->LimitBy(
             $this->People_Belong_To_Company->Get_Column('company_id')->
@@ -631,7 +708,7 @@ class toolbelt extends toolbelt_base
     {
         if(!$this->Customer_Has_Addresses->Validate_Where_Logic_Started())
         {
-            $this->Customer_Has_Addresses->InnerJoinWith($this->Get_Addresses()->
+            $this->Customer_Has_Addresses->InnerJoinWith($this->Addresses->
             Get_Column('id'),$this->Customer_Has_Addresses->Get_Column('address_id'),true);
             $this->Customer_Has_Addresses->LimitBy(
             $this->Customer_Has_Addresses->Get_Column('customer_id')->
@@ -652,7 +729,7 @@ class toolbelt extends toolbelt_base
     {
         if(!$this->Customer_Has_Phone_Numbers->Validate_Where_Logic_Started())
         {
-            $this->Customer_Has_Phone_Numbers->InnerJoinWith($this->Get_Phone_Numbers()->
+            $this->Customer_Has_Phone_Numbers->InnerJoinWith($this->Phone_Numbers->
             Get_Column('id'),$this->Customer_Has_Phone_Numbers->Get_Column('phone_number_id'),true);
             $this->Customer_Has_Phone_Numbers->LimitBy(
             $this->Customer_Has_Phone_Numbers->Get_Column('customer_id')->
@@ -660,27 +737,82 @@ class toolbelt extends toolbelt_base
         }
         return $this->Customer_Has_Phone_Numbers;
     }
-    public function Get_Tags() : \DatabaseLink\Table
+    public function Get_Tags(bool $include_global_tags_in_context = true): \DatabaseLink\Table
     {
         if(!$this->Tags->Validate_Where_Logic_Started())
         {
-            $this->Tags->LimitBy(
-            $this->Tags->Get_Column('customer_id')->
-            Equals($this->Get_Customer(3)->Get_Verified_ID()),true);
+            if($include_global_tags_in_context)
+            {
+                $this->Tags->LimitByGroup(
+                    $this->Tags->Get_Column('company_id')->
+                    Equals($this->Get_Company()->Get_Verified_ID()),true);
+                    $this->Tags->OrLimitByEndGroup($this->Tags->Get_Column('company_id')->Equals(null),true);
+            }else
+            {
+                $this->Tags->LimitBy($this->Tags->Get_Column('company_id')->Equals($this->Get_Company()->Get_Verified_ID()),true);
+            }
         }
         return $this->Tags;
     }
-    public function Get_Objects_Have_Tags() : \DatabaseLink\Table
+    public function Get_Object_Tags(\DatabaseLink\Table $object_table) : \DatabaseLink\Table
+    {
+        if(!$this->Tags->Validate_Where_Logic_Started())
+        {
+            $this->Get_Tags()->AndLimitBy(
+            $this->Tags->Get_Column('object_table_name')->
+            Equals($object_table->Get_Table_Name()),true);
+        }
+        return $this->Tags;
+    }
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     * @param Active_Record $active_record_to_limit_by only required on the first call to the function
+     */
+    public function Get_Object_Has_Tags(?Active_Record $active_record_to_limit_by = null) : \DatabaseLink\Table
     {
         if(!$this->Object_Has_Tags->Validate_Where_Logic_Started())
         {
-            $this->Object_Has_Tags->InnerJoinWith($this->Get_Tags()->
-            Get_Column('id'),$this->Customer_Has_Addresses->Get_Column('tag_id'),true);
-            $this->Object_Has_Tags->LimitBy(
-            $this->Object_Has_Tags->Get_Column('company_id')->
-            Equals($this->Get_Company()->Get_Verified_ID()),true);
+            $this->Object_Has_Tags->InnerJoinWith
+            (
+                $this->Tags->Get_Column('id'),$this->Object_Has_Tags->Get_Column('tag_id'),true
+            );
+            $this->Object_Has_Tags->LimitByGroup
+            (
+                $this->Tags->Get_Column('company_id')->
+                Equals($this->Get_Company()->Get_Verified_ID()),true
+            );
+            $this->Object_Has_Tags->OrLimitByEndGroup($this->Tags->Get_Column('company_id')->Equals(null),true);
+            $this->Object_Has_Tags->AndLimitBy
+            (
+                $this->toolbelt->Object_Has_Tags->Get_Column('object_id')->Equals($active_record_to_limit_by->Get_Verified_ID()),true
+            );
         }
         return $this->Object_Has_Tags;
+    }
+    public function Get_Tags_Have_Roles() : \DatabaseLink\Table
+    {
+        if(!$this->Tags_Have_Roles->Validate_Where_Logic_Started())
+        {
+            $this->Tags_Have_Roles->InnerJoinWith($this->Tags->
+                Get_Column('id'),$this->Tags_Have_Roles->Get_Column('tag_id'),true
+            );
+            $this->Tags_Have_Roles->InnerJoinWith($this->Company_Roles->
+                Get_Column('id'),$this->Tags_Have_Roles->Get_Column('role_id'),true
+            );
+            $this->Tags_Have_Roles->LimitBy(
+                $this->Tags->Get_Column('company_id')->
+                Equals($this->Get_Company()->Get_Verified_ID()),true
+            );
+            $this->Tags_Have_Roles->AndLimitBy(
+                $this->Company_Roles->Get_Column('company_id')->
+                Equals($this->Get_Company()->Get_Verified_ID(),true)
+            );
+            $this->Tags_Have_Roles->AndLimitBy(
+                $this->Tags_Have_Roles->Get_Column('tag_id')->
+                Equals($this->Get_Tag(3)->Get_Verified_ID(),true)
+            );
+        }
+        return $this->Tags_Have_Roles;
     }
 }
 

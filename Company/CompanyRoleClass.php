@@ -15,6 +15,7 @@ class Company_Role extends Active_Record implements iActiveRecord
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\app\Helpers\Company',true);
         $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Users_Have_Roles,$toolbelt_base->Users_Have_Roles->Get_Column('role_id'),'\app\Helpers\User_Role',false);
         $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Routes_Have_Roles,$toolbelt_base->Routes_Have_Roles->Get_Column('role_id'),'\app\Helpers\Route_Role',false);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Tags_Have_Roles,$toolbelt_base->Tags_Have_Roles->Get_Column('role_id'),'\app\Helpers\Tags_Have_Role',false);
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded

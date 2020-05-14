@@ -3,13 +3,15 @@ namespace Active_Record;
 
 use Active_Record_Object;
 use ADODB_Active_Record;
+use app\Helpers\Object_Has_Tag;
+use app\Helpers\Tag;
 use DateTime;
 
 abstract class Active_Record extends ADODB_Active_Record
 {
     public \config\ConfigurationFile $cConfigs;
     protected \DatabaseLink\Table $table_dblink;
-    private \Test_Tools\toolbelt $toolbelt;
+    public \Test_Tools\toolbelt $toolbelt;
 
     function __construct()
     {
@@ -19,6 +21,7 @@ abstract class Active_Record extends ADODB_Active_Record
         $this->cConfigs = $toolbelt_base->cConfigs;
         $table_name = $this->_table;
         $this->table_dblink = $toolbelt_base->$table_name;
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Object_Has_Tags,$toolbelt_base->Object_Has_Tags->Get_Column('object_id'),'\app\Helpers\Object_Has_Tag');
     }
 
     /**
@@ -335,16 +338,20 @@ abstract class Active_Record extends ADODB_Active_Record
     /**
      * @param int $recursive_depth is the depth you want to go on loading relational objects
      */
-    public function Get_Response_Collection(int $recursive_depth = 0,int $offset = 0,int $limit = 1) : array
+    public function Get_Response_Collection(int $recursive_depth = 0,int $offset = 0,int $limit = 1,bool $include_disabled_objects = false) : array
     {
         $related_tables = [];
+        $collection = [];
+        if(!$include_disabled_objects && !$this->Is_Object_Active())
+        {
+            return $collection;
+        }
         if($recursive_depth > 0)
         {
             $this->Load_All_Relationships($offset,$limit);
             $toolbelt = new \Test_Tools\toolbelt;
             $related_tables = $toolbelt->active_record_relationship_manager->Get_Relationships_From_Parent_Table($this->table_dblink);
         }
-        $collection = [];
         ForEach($this as $property_name => $property_value)
         {
             if(!is_array($property_value) && !is_object($property_value))
@@ -405,6 +412,7 @@ abstract class Active_Record extends ADODB_Active_Record
             {
                 ForEach($this->$child_table_name as $active_record)
                 {
+                    if(is_null($active_record)){continue;}
                     if(!$active_record->Is_Object_Active())
                     {
                         return true;
@@ -418,6 +426,7 @@ abstract class Active_Record extends ADODB_Active_Record
                 }
             }else
             {
+                if(is_null($this->$child_table_name)){continue;}
                 if(!$this->$child_table_name->Is_Object_Active())
                 {
                     return true;
@@ -438,9 +447,8 @@ abstract class Active_Record extends ADODB_Active_Record
      */
     function Get_API_Response_Collection(): array
     {
-        return $this->Get_Response_Collection((int) app()->request->input('include_details',0),(int) app()->request->input('details_offset',0),(int) app()->request->input('details_limit',1));
+        return $this->Get_Response_Collection((int) app()->request->input('include_details',0),(int) app()->request->input('details_offset',0),(int) app()->request->input('details_limit',1),(bool) app()->request->input('include_disabled_objects',false));
     }
-
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
@@ -454,7 +462,7 @@ abstract class Active_Record extends ADODB_Active_Record
             Response_422(['message' => 'You can\'t delete this object because there is a mandatory relationship that is currently inactive'],app()->request)->send();
             exit();
         }
-        if(app()->request->input('active_status'))
+        if(app()->request->input('active_status') && $this->table_dblink->Does_Column_Exist('active_status'))
         {
             $this->Set_Object_Inactive();
         }else
@@ -462,6 +470,114 @@ abstract class Active_Record extends ADODB_Active_Record
             $this->Delete_Object('destroy');
         }
     }
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
+    public function Add_Tag_As_Program(Tag $tag) : void
+    {
+        if(!$tag->Allow_Duplicates())
+        {
+            $this->Remove_Tag_As_Program($tag);
+        }
+        $link = new Object_Has_Tag;
+        $link->Set_Tag($tag,false);
+        $link->Set_Object($this);
+    }
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     * @throws \Active_Record\User_Lacks_Rights
+     */
+    public function Add_Tag_As_User(Tag $tag) : void
+    {
+        if($this->Can_I_Add_This_Tag($tag))
+        {
+            $this->Add_Tag_As_Program($tag);
+        }else
+        {
+            throw new User_Lacks_Rights('Sorry this user doesn\'t have rights to add this tag '.$tag->Get_Friendly_Name());
+        }
 
+    }
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     * @throws \Active_Record\User_Lacks_Rights
+     */
+    public function Remove_Tag_As_User(Tag $tag) : void
+    {
+        if($this->Can_I_Remove_This_Tag($tag))
+        {
+            $this->Remove_Tag_As_Program($tag);
+        }else
+        {
+            throw new User_Lacks_Rights('Sorry this user doesn\'t have rights to remove this tag '.$tag->Get_Friendly_Name().' from '.get_class($this));
+        }
+
+    }
+    /**
+     * @throws \Active_Record\Object_Has_Not_Been_Loaded
+     */
+    public function Remove_Tag_As_Program(Tag $tag) : void
+    {
+        if(!is_null($object_tag = $this->Get_Object_Has_Tag_From_Tag($tag)))
+        {
+            $object_tag->Delete_Object('destroy');
+        }
+    }
+    public function Get_Object_Has_Tag_From_Tag(Tag $tag) : ? \app\Helpers\Object_Has_Tag
+    {
+        $this->LoadRelations('Object_Has_Tags');
+        ForEach($this->Object_Has_Tags as $this_tag)
+        {
+            if($this_tag->Get_Tag()->Get_Verified_ID() == $tag->Get_Verified_ID())
+            {
+                return $this_tag;
+            }
+        }
+        return null;
+    }
+    public function Can_I_Read_This_Tag(Tag $tag) : bool
+    {
+        return $this->Do_I_Have_This_Right_For_This_Tag('get',$tag);
+    }
+    public function Can_I_Add_This_Tag(Tag $tag) : bool
+    {
+        return $this->Do_I_Have_This_Right_For_This_Tag('post',$tag);
+    }
+    public function Can_I_Remove_This_Tag(Tag $tag) : bool
+    {
+        return $this->Do_I_Have_This_Right_For_This_Tag('destroy',$tag);
+    }
+    private function Do_I_Have_This_Right_For_This_Tag(string $right_type,Tag $tag) : bool
+    {
+        $this->toolbelt->Get_Tags_Have_Roles()->InnerJoinWith($this->toolbelt->Users_Have_Roles->Get_Column('role_id'),$this->toolbelt->Tags_Have_Roles->Get_Column('role_id'),true);
+        $this->toolbelt->Get_Tags_Have_Roles()->AndLimitBy($this->toolbelt->Company_Roles->Get_Column('active_status')->Equals((string) (int) true),true);
+        $this->toolbelt->Get_Tags_Have_Roles()->AndLimitBy($this->toolbelt->Users_Have_Roles->Get_Column('user_id')->Equals((string) $this->toolbelt->Get_Program_Session(false,false)->Get_User_ID()));
+        $this->toolbelt->Get_Tags_Have_Roles()->AndLimitBy($this->toolbelt->Tags_Have_Roles->Get_Column($right_type)->Equals((string) (int) true));
+        $this->toolbelt->Get_Tags_Have_Roles()->Query_Table(['tag_id'],true);
+        While($row = $this->toolbelt->Get_Tags_Have_Roles()->Get_Queried_Data())
+        {
+            if($row['tag_id'] == $tag->Get_Verified_ID())
+            {
+                return true;
+            }
+        }
+        return false;
+
+    }
+	/**
+	 * @param string $name
+	 * @param string $whereOrderBy : eg. ' AND field1 = value ORDER BY field2'
+	 * @param offset
+	 * @param limit
+	 * @return mixed
+	 */
+    function LoadRelations($name, $whereOrderBy='', $offset=-1,$limit=-1)
+    {
+        if($name == 'Object_Has_Tags')
+        {
+            $whereOrderBy = "`Object_Table_Name`='".$this->table_dblink->Get_Table_Name()."'";
+        }
+        parent::LoadRelations($name,$whereOrderBy,$offset,$limit);
+    }
 }
 ?>

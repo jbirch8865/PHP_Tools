@@ -20,6 +20,9 @@ $toolbelt_base->Customer_Has_Addresses = new \DatabaseLink\Table('Customer_Has_A
 $toolbelt_base->Phone_Numbers = new \DatabaseLink\Table('Phone_Numbers',$toolbelt_base->dblink);
 $toolbelt_base->Phone_Number_Types = new \DatabaseLink\Table('Phone_Number_Types',$toolbelt_base->dblink);
 $toolbelt_base->Customer_Has_Phone_Numbers = new \DatabaseLink\Table('Customer_Has_Phone_Numbers',$toolbelt_base->dblink);
+$toolbelt_base->Tags = new \DatabaseLink\Table('Tags',$toolbelt_base->dblink);
+$toolbelt_base->Object_Has_Tags = new \DatabaseLink\Table('Object_Has_Tags',$toolbelt_base->dblink);
+$toolbelt_base->Tags_Have_Roles = new \DatabaseLink\Table('Tags_Have_Roles',$toolbelt_base->dblink);
 
 
 ?>

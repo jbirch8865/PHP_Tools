@@ -21,4 +21,5 @@ require '991PhoneNumberTable.php';
 require '992TagTable.php';
 require '993CustomerHasPhoneNumber.php';
 require '994ObjectHasTags.php';
+require '995TagsHaveRoles.php';
 ?>

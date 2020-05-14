@@ -10,7 +10,6 @@ class User extends Active_Record implements iUser
     public \DatabaseLink\Table $table_dblink;
     private string $password;
     var $_table = "Users";
-    private \Test_Tools\toolbelt $toolbelt;
 
     /**
      * @throws Incorrect_Password
@@ -33,7 +32,6 @@ class User extends Active_Record implements iUser
         $this->Set_Username($unverified_username);
         $this->password = $unverified_password;
         $this->project_name = $this->cConfigs->Get_Name_Of_Project();
-        $this->toolbelt = new \Test_Tools\toolbelt;
         if($this->Load_User_If_Exists())
         {
             $this->password = $this->Hash_Password($this->password);
@@ -132,6 +130,7 @@ class User extends Active_Record implements iUser
      */
     public function Assign_Company_Role(\app\Helpers\Company_Role $company_role): void
     {
+//        $this->LoadRelations('Companies');
         if($company_role->Companies->Get_Verified_ID() != $this->company_id)
         {
             throw new \Active_Record\Relationship_Miss_Match('Company Role '.$company_role->Get_Verified_ID().' belongs to company'.$company_role->Companies->Get_Verified_ID().' you are working with company '.$this->company_id);
