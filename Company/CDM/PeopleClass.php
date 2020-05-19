@@ -14,6 +14,11 @@ class People extends Active_Record implements iActiveRecord
         global $toolbelt_base;
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\app\Helpers\Company',true);
     }
+    public function Get_Companies() : Company
+    {
+        $this->Companies;
+        return $this->Companies;
+    }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
@@ -63,7 +68,7 @@ class People extends Active_Record implements iActiveRecord
      */
     public function Set_Email(string $email,bool $update_immediately = true,bool $send_response_on_failure = true) : void
     {
-        Validate_Email($email,$send_response_on_failure);
+        $this->toolbelt->functions->Validate_Email($email,$send_response_on_failure);
         $this->Set_Varchar($this->table_dblink->Get_Column('email'),$email,false,$update_immediately);
     }
     /**

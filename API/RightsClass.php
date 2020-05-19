@@ -12,12 +12,17 @@ class Right extends Active_Record
     {
         $toolbelt = new \test_tools\toolbelt;
         parent::__construct();
-        $toolbelt->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('id'),$toolbelt->Routes_Have_Roles,$toolbelt->Routes_Have_Roles->Get_Column('right_id'),'\app\Helpers\Route_Role',false);
+        $toolbelt->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('id'),$toolbelt->tables->Routes_Have_Roles,$toolbelt->tables->Routes_Have_Roles->Get_Column('right_id'),'\app\Helpers\Route_Role',false);
         $this->get = 0;
         $this->post = 0;
         $this->put = 0;
         $this->patch = 0;
         $this->destroy = 0;
+    }
+    public function Get_Routes_Have_Roles() : Route_Role
+    {
+        $this->Routes_Have_Roles;
+        return $this->Routes_Have_Roles;
     }
     public function Allow_Get() : void
     {

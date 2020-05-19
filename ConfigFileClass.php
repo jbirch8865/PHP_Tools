@@ -1,6 +1,8 @@
 <?php
 namespace config;
 
+use Test_Tools\Toolbelt;
+
 class ConfigurationFile
 {
 	private array $configurations;
@@ -460,7 +462,8 @@ class ConfigurationFile
 
 	private function write_php_ini(array $array,string $file)
 	{
-		$filebody = Array_To_Ini($array);
+        $toolbelt = new Toolbelt;
+		$filebody = $toolbelt->functions->Array_To_Ini($array);
 		$this->safefilerewrite($file, $filebody);
 	}
 

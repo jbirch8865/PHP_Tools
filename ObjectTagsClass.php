@@ -14,6 +14,10 @@ class Object_Has_Tag extends Active_Record implements iActiveRecord
         global $toolbelt_base;
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('tag_id'),$toolbelt_base->Tags,$toolbelt_base->Tags->Get_Column('id'),'\app\Helpers\Tag',true);
     }
+    public function Get_Tags() : array
+    {
+        return $this->Tags;
+    }
     /**
      * Doesn't work for object_has_tags
      */
@@ -42,9 +46,8 @@ class Object_Has_Tag extends Active_Record implements iActiveRecord
      */
     public function Set_Object(Active_Record $active_record,bool $update_immediately = true) : void
     {
-        $this->Set_Varchar($this->table_dblink->Get_Column('object_table_name'),$active_record->table_dblink->Get_Table_Name(),true,false);
         $this->Set_Int($this->table_dblink->Get_Column('object_id'),$active_record->Get_Verified_ID(),$update_immediately);
     }
-} 
+}
 
 ?>

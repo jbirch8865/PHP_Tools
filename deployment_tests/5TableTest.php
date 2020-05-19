@@ -13,7 +13,7 @@ class TableTest extends \PHPUnit\Framework\TestCase
         $this->cConfigs = $toolbelt->cConfigs;
         $this->database_dblink = new \DatabaseLink\Database('not_a_real_database');
     }
-    
+
     public function tearDown() :void
     {
 
@@ -91,5 +91,6 @@ class TableTest extends \PHPUnit\Framework\TestCase
     }
 
 }
+
 
 ?>

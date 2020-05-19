@@ -9,11 +9,11 @@ class CompanyTest extends \PHPUnit\Framework\TestCase
 
 	public function setUp() :void
 	{
-        $toolbelt = new \Test_Tools\toolbelt();;
-        $this->table_dblink = $toolbelt->Companies;
+        $toolbelt = new \Test_Tools\toolbelt();
+        $this->table_dblink = $toolbelt->tables->Companies;
         $this->toolbelt = $toolbelt;
     }
-    
+
     public function tearDown() :void
     {
 
@@ -71,7 +71,7 @@ class CompanyTest extends \PHPUnit\Framework\TestCase
     }
     function test_Clean_Up()
     {
-        $company = new \app\Helpers\Company();        
+        $company = new \app\Helpers\Company();
         $company->Load_Company_By_Name('System_test');
         $this->toolbelt->invokeMethod($company,'Delete_Object',array('destroy'));
         $this->addToAssertionCount(1);

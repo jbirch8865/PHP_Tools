@@ -14,12 +14,12 @@ class MySQLLinkTest extends \PHPUnit\Framework\TestCase
         $toolbelt = new \Test_Tools\toolbelt();;
         $this->toolbelt = $toolbelt;
         $this->cConfigs = $this->toolbelt->cConfigs;
-        $this->dblink = $this->toolbelt->dblink;
-        $this->root_dblink = $this->toolbelt->root_dblink;
+        $this->dblink = $this->toolbelt->tables->dblink;
+        $this->root_dblink = $this->toolbelt->tables->root_dblink;
         $this->project_username =  $this->cConfigs->Get_Connection_Username($this->cConfigs->Get_Name_Of_Project());
         $this->root_username =  $this->cConfigs->Get_Connection_Username('root');
     }
-    
+
     public function tearDown() :void
     {
         $this->cConfigs->Set_Database_Connection_Preferences(

@@ -14,6 +14,10 @@ class Address extends Active_Record implements iActiveRecord
         global $toolbelt_base;
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\app\Helpers\Company',true);
     }
+    public function Get_Companies() : array
+    {
+        return $this->Companies;
+    }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */

@@ -23,7 +23,11 @@ abstract class Active_Record extends ADODB_Active_Record
         $this->table_dblink = $toolbelt_base->$table_name;
         $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Object_Has_Tags,$toolbelt_base->Object_Has_Tags->Get_Column('object_id'),'\app\Helpers\Object_Has_Tag');
     }
-
+    public function Get_Object_Has_Tags() : array
+    {
+        $this->Object_Has_Tags;
+        return $this->Object_Has_Tags;
+    }
     /**
      * @throws Active_Record_Object_Failed_To_Load
      * @throws Object_Is_Already_Loaded
@@ -84,8 +88,8 @@ abstract class Active_Record extends ADODB_Active_Record
                 $columns[] = $value_to_match[0];
                 $values[] = $value_to_match[1];
             }
-            $columns = Wrap_Array_Values_With_String('`',$columns);
-            $columns = Append_To_Array_Values_With_String('=?',$columns);
+            $columns = $this->toolbelt->functions->Wrap_Array_Values_With_String('`',$columns);
+            $columns = $this->toolbelt->functions->Append_To_Array_Values_With_String('=?',$columns);
             $columns = implode(" AND ",$columns);
             if(!$this->load($columns,$values))
             {
@@ -269,14 +273,14 @@ abstract class Active_Record extends ADODB_Active_Record
         } catch (\DatabaseLink\Column_Does_Not_Exist $e){}
         if($this->Do_I_Have_Any_Inactive_Required_Relationships())
         {
-            Response_422(['message' => 'You can\'t update this object because there is a mandatory relationship that is currently inactive'],app()->request)->send();
+            $this->toolbelt->functions->Response_422(['message' => 'You can\'t update this object because there is a mandatory relationship that is currently inactive'],app()->request)->send();
             exit();
         }
         $this->Update_Object();
         if($this->Do_I_Have_Any_Inactive_Required_Relationships())
         {
             $this->Delete_Object('destroy');
-            Response_422(['message' => 'You can\'t create this object because there is a mandatory relationship that is currently inactive'],app()->request)->send();
+            $this->toolbelt->functions->Response_422(['message' => 'You can\'t create this object because there is a mandatory relationship that is currently inactive'],app()->request)->send();
             exit();
         }
         return $new_object;
@@ -459,7 +463,7 @@ abstract class Active_Record extends ADODB_Active_Record
         ]);
         if($this->Do_I_Have_Any_Inactive_Required_Relationships())
         {
-            Response_422(['message' => 'You can\'t delete this object because there is a mandatory relationship that is currently inactive'],app()->request)->send();
+            $this->toolbelt->functions->Response_422(['message' => 'You can\'t delete this object because there is a mandatory relationship that is currently inactive'],app()->request)->send();
             exit();
         }
         if(app()->request->input('active_status') && $this->table_dblink->Does_Column_Exist('active_status'))
@@ -525,8 +529,7 @@ abstract class Active_Record extends ADODB_Active_Record
     }
     public function Get_Object_Has_Tag_From_Tag(Tag $tag) : ? \app\Helpers\Object_Has_Tag
     {
-        $this->LoadRelations('Object_Has_Tags');
-        ForEach($this->Object_Has_Tags as $this_tag)
+        ForEach($this->Get_Object_Has_Tags() as $this_tag)
         {
             if($this_tag->Get_Tag()->Get_Verified_ID() == $tag->Get_Verified_ID())
             {
@@ -549,20 +552,18 @@ abstract class Active_Record extends ADODB_Active_Record
     }
     private function Do_I_Have_This_Right_For_This_Tag(string $right_type,Tag $tag) : bool
     {
-        $this->toolbelt->Get_Tags_Have_Roles()->InnerJoinWith($this->toolbelt->Users_Have_Roles->Get_Column('role_id'),$this->toolbelt->Tags_Have_Roles->Get_Column('role_id'),true);
-        $this->toolbelt->Get_Tags_Have_Roles()->AndLimitBy($this->toolbelt->Company_Roles->Get_Column('active_status')->Equals((string) (int) true),true);
-        $this->toolbelt->Get_Tags_Have_Roles()->AndLimitBy($this->toolbelt->Users_Have_Roles->Get_Column('user_id')->Equals((string) $this->toolbelt->Get_Program_Session(false,false)->Get_User_ID()));
-        $this->toolbelt->Get_Tags_Have_Roles()->AndLimitBy($this->toolbelt->Tags_Have_Roles->Get_Column($right_type)->Equals((string) (int) true));
-        $this->toolbelt->Get_Tags_Have_Roles()->Query_Table(['tag_id'],true);
-        While($row = $this->toolbelt->Get_Tags_Have_Roles()->Get_Queried_Data())
+        $this->toolbelt->tables->Get_Tags_Have_Roles($tag)->InnerJoinWith($this->toolbelt->tables->Users_Have_Roles->Get_Column('role_id'),$this->toolbelt->tables->Tags_Have_Roles->Get_Column('role_id'),true);
+        $this->toolbelt->tables->Get_Tags_Have_Roles($tag)->AndLimitBy($this->toolbelt->tables->Company_Roles->Get_Column('active_status')->Equals((string) (int) true),true);
+        $this->toolbelt->tables->Get_Tags_Have_Roles($tag)->AndLimitBy($this->toolbelt->tables->Users_Have_Roles->Get_Column('user_id')->Equals((string) $this->toolbelt->objects->Get_Program_Session(false,false)->Get_User_ID()));
+        $this->toolbelt->tables->Get_Tags_Have_Roles($tag)->AndLimitBy($this->toolbelt->tables->Tags_Have_Roles->Get_Column($right_type)->Equals((string) (int) true));
+        $this->toolbelt->tables->Get_Tags_Have_Roles($tag)->Query_Table(['tag_id'],true);
+        if($this->toolbelt->tables->Get_Tags_Have_Roles($tag)->Get_Number_Of_Rows_In_Query())
         {
-            if($row['tag_id'] == $tag->Get_Verified_ID())
-            {
-                return true;
-            }
+            return true;
+        }else
+        {
+            return false;
         }
-        return false;
-
     }
 	/**
 	 * @param string $name

@@ -6,6 +6,7 @@ use app\Helpers\Company_Role;
 use Active_Record\Active_Record;
 use Active_Record\iActiveRecord;
 use app\Helpers\Company;
+use company_program\Customers;
 
 class Customer_Has_Phone_Number extends Active_Record implements iActiveRecord
 {
@@ -15,8 +16,18 @@ class Customer_Has_Phone_Number extends Active_Record implements iActiveRecord
     {
         parent::__construct();
         global $toolbelt_base;
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('customer_id'),$this->toolbelt->Customers,$this->toolbelt->Customers->Get_Column('id'),'\app\Helpers\Customer',true);
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('phone_number_id'),$this->toolbelt->Phone_Numbers,$this->toolbelt->Phone_Numbers->Get_Column('id'),'\app\Helpers\Phone_Number',true);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('customer_id'),$this->toolbelt->tables->Customers,$this->toolbelt->tables->Customers->Get_Column('id'),'\app\Helpers\Customer',true);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('phone_number_id'),$this->toolbelt->tables->Phone_Numbers,$this->toolbelt->tables->Phone_Numbers->Get_Column('id'),'\app\Helpers\Phone_Number',true);
+    }
+    public function Get_Customers() : Customer
+    {
+        $this->Customers;
+        return $this->Customers;
+    }
+    public function Get_Phone_Numbers() : Phone_Number
+    {
+        $this->Phone_Numbers;
+        return $this->Phone_Numbers;
     }
 
     /**

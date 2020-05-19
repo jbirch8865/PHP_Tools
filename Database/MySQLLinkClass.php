@@ -67,23 +67,23 @@ Class MySQLLink
 	private function Establish_Database_Link(string $database_to_connect_to) : void
 	{
 		$driver = 'mysqli';
- 
-		$db = \newAdoConnection($driver); 		 
+
+		$db = \newAdoConnection($driver);
 		if(!$database_to_connect_to == "")
 		{
 			if(!$db->connect($this->hostname,$this->username,$this->password,$database_to_connect_to))
 			{
 				throw new SQLConnectionError("Couldn't connect to mysql with the error ".$db->ErrorMsg()." and error number ".$db->ErrorNo());
-			}	
+			}
 		}else
 		{
 			if(!$db->connect($this->hostname,$this->username,$this->password))
 			{
 				throw new SQLConnectionError("Couldn't connect to mysql with the error ".$db->ErrorMsg()." and error number ".$db->ErrorNo());
-			}	
+			}
 		}
 		$this->database = $db;
-		
+
 	}
 	function Is_Connected() : bool
 	{
@@ -92,7 +92,7 @@ Class MySQLLink
 	/**
 	 * @throws SQLQueryError
 	 * @return null if no recordset returned
-	 * @param array|null $bind_variables if set will prevent sql injection by replacing '?' 
+	 * @param array|null $bind_variables if set will prevent sql injection by replacing '?'
 	 * found in your query with the values in the array in the order they are given
 	 */
 	function Execute_Any_SQL_Query(string $query,?array $bind_variables = null) : ?bool
@@ -164,7 +164,7 @@ Class MySQLLink
 	}
 	function Get_Results() : array
 	{
-		$results = array();	
+		$results = array();
 		While(!$this->results->EOF)
 		{
 			$row_array = array();
@@ -174,7 +174,7 @@ Class MySQLLink
 				if(!is_int($key))
 				{
 					$row_array[$key] = $value;
-				}	
+				}
 			}
 			$results[] = $row_array;
 		}
@@ -189,7 +189,7 @@ Class MySQLLink
 		if($use_cached_result)
 		{
 			$this->cached_results->moveFirst();
-			return $this->cached_results->fetchRow();	
+			return $this->cached_results->fetchRow();
 		}else
 		{
 			if(!$this->results->moveFirst())
@@ -197,7 +197,7 @@ Class MySQLLink
 				return null;
 			}else
 			{
-				return $this->results->fetchRow();	
+				return $this->results->fetchRow();
 			}
 		}
 	}
@@ -221,14 +221,15 @@ Class MySQLLink
 		}else
 		{
 			return true;
-		}	
+		}
 	}
 	function Get_Results_Current_EOF_Status() : bool
 	{
 		return $this->results->EOF;
 	}
-	function Escape_String(string $string_to_escape) : string
+	function Escape_String(?string $string_to_escape) : ?string
 	{
+        if(is_null($string_to_escape)){return null;}
 		$link = mysqli_connect($this->cConfigs->Get_Root_Hostname(),$this->cConfigs->Get_Root_Username(),$this->cConfigs->Get_Root_Password(),"",(int)$this->cConfigs->Get_Root_Listeningport());
 		$string = mysqli_real_escape_string($link,$string_to_escape);
 		mysqli_close($link);

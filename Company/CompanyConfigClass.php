@@ -15,6 +15,16 @@ class Company_Config extends Active_Record implements iActiveRecord
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\app\Helpers\Company',true);
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('config_id'),$toolbelt_base->Configs,$toolbelt_base->Configs->Get_Column('id'),'\app\Helpers\Config',true);
     }
+    public function Get_Companies() : Company
+    {
+        $this->Companies;
+        return $this->Companies;
+    }
+    public function Get_Configs() : Config
+    {
+        $this->Configs;
+        return $this->Configs;
+    }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded for config and company
      * @throws UpdateFailed
@@ -52,7 +62,7 @@ class Company_Config extends Active_Record implements iActiveRecord
     public function Get_Friendly_Name() : string
     {
         $this->Get_Verified_ID();
-        return $this->Configs->Get_Value_From_Name('config_name');
+        return $this->Get_Configs()->Get_Value_From_Name('config_name');
     }
     /**
      * @throws Active_Record_Object_Failed_To_Load

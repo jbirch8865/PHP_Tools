@@ -12,25 +12,25 @@ class DatabaseTest extends \PHPUnit\Framework\TestCase
 	{
         $toolbelt = new \Test_Tools\toolbelt();;
         $this->cConfigs = $toolbelt->cConfigs;
-        $this->dblink = $toolbelt->dblink;
-        $this->root_dblink = $toolbelt->root_dblink;
+        $this->dblink = $toolbelt->tables->dblink;
+        $this->root_dblink = $toolbelt->tables->root_dblink;
     }
-    
+
     public function tearDown() :void
     {
 
     }
     function test_Create_Database_If_Does_Not_Exist()
-    {   
+    {
         $this->root_dblink->Execute_Any_SQL_Query("SHOW DATABASES WHERE `Database` = 'not_a_real_database'");
         if($this->root_dblink->Get_Num_Of_Rows())
         {
             $new_database = new \DatabaseLink\Database('not_a_real_database');
-            $new_database->Drop_Database_And_User("destroy");            
+            $new_database->Drop_Database_And_User("destroy");
         }
         $new_database = new \DatabaseLink\Database('not_a_real_database');
         $this->root_dblink->Execute_Any_SQL_Query("SHOW DATABASES WHERE `Database` = 'not_a_real_database'");
-        $this->assertEquals('1',$this->root_dblink->Get_Num_Of_Rows());        
+        $this->assertEquals('1',$this->root_dblink->Get_Num_Of_Rows());
     }
     function test_Establish_Connection_On_Existing_Database_Without_Tables()
     {

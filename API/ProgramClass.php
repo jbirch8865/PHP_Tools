@@ -39,8 +39,8 @@ class Program extends Active_Record implements iActiveRecord
             throw new Object_Is_Already_Loaded($this->Get_Value_From_Name('program_name'));
         }
         $this->Set_Varchar($this->table_dblink->Get_Column('program_name'),$program_name,true,false);
-        $this->Set_Varchar($this->table_dblink->Get_Column('secret'),Generate_CSPRNG(48),false,false);
-        $this->Set_Varchar($this->table_dblink->Get_Column('client_id'),Generate_CSPRNG(32),false,true);
+        $this->Set_Varchar($this->table_dblink->Get_Column('secret'),$this->toolbelt->functions->Generate_CSPRNG(48),false,false);
+        $this->Set_Varchar($this->table_dblink->Get_Column('client_id'),$this->toolbelt->functions->Generate_CSPRNG(32),false,true);
     }
     /**
      * @throws SQLQueryError

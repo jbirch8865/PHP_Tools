@@ -17,6 +17,26 @@ class Company_Role extends Active_Record implements iActiveRecord
         $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Routes_Have_Roles,$toolbelt_base->Routes_Have_Roles->Get_Column('role_id'),'\app\Helpers\Route_Role',false);
         $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Tags_Have_Roles,$toolbelt_base->Tags_Have_Roles->Get_Column('role_id'),'\app\Helpers\Tags_Have_Role',false);
     }
+    public function Get_Companies() : Company
+    {
+        $this->Companies;
+        return $this->Companies;
+    }
+    public function Get_Users_Have_Roles() : array
+    {
+        $this->Users_Have_Roles;
+        return $this->Users_Have_Roles;
+    }
+    public function Get_Routes_Have_Roles() : array
+    {
+        $this->Routes_Have_Roles;
+        return $this->Routes_Have_Roles;
+    }
+    public function Get_Tags_Have_Roles() : array
+    {
+        $this->Tags_Have_Roles;
+        return $this->Tags_Have_Roles;
+    }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */

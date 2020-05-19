@@ -224,6 +224,8 @@ function Register_Routes() : void
     Create_Route_If_Not_Exist('Remove_Tag_From_Customer','CDM',false);
     Create_Route_If_Not_Exist('Remove_Tag_From_Tag','Global',false);
     Create_Route_If_Not_Exist('Remove_Role_From_Tag','Global',false);
+    Create_Route_If_Not_Exist('List_Tag_Tags','Global',false);
+    Create_Route_If_Not_Exist('Create_Tag_Tag','Global',false);
  }
 
 function Create_Route_If_Not_Exist(string $name,string $module,bool $implicit_allow = false) : void
@@ -250,13 +252,13 @@ function Create_Global_Tags() : void
         $multi_tag->Load_Object_By_ID(1);
         if($multi_tag->Get_Friendly_Name() != 'Allow_Duplicate_Tagging')
         {
-            $multi_tag->Set_Table_Name($toolbelt->Tags,false);
+            $multi_tag->Set_Table_Name($toolbelt->tables->Tags,false);
             $multi_tag->Set_Tag_Name('Allow_Duplicate_Tagging');
         }
     } catch (\Active_Record\Active_Record_Object_Failed_To_Load $e)
     {
         $multi_tag = new \app\Helpers\Tag;
-        $multi_tag->Set_Table_Name($toolbelt->Tags,false);
+        $multi_tag->Set_Table_Name($toolbelt->tables->Tags,false);
         $multi_tag->Set_Tag_Name('Allow_Duplicate_Tagging',true,true);
         $multi_tag->Change_Primary_Key(1,$multi_tag->Get_Verified_ID());
     }

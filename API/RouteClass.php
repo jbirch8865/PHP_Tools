@@ -10,7 +10,12 @@ class Route extends Active_Record implements \Active_Record\iActiveRecord
     {
         $toolbelt = new \test_tools\toolbelt;
         parent::__construct();
-        $toolbelt->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt->Routes_Have_Roles,$toolbelt->Routes_Have_Roles->Get_Column('route_id'),'\app\Helpers\Route_Role',false);
+        $toolbelt->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt->tables->Routes_Have_Roles,$toolbelt->tables->Routes_Have_Roles->Get_Column('route_id'),'\app\Helpers\Route_Role',false);
+    }
+    public function Get_Routes_Have_Roles() : array
+    {
+        $this->Routes_Have_Roles;
+        return $this->Routes_Have_Roles;
     }
 
 

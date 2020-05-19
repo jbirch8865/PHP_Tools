@@ -6,6 +6,7 @@ use DatabaseLink\Column_Does_Not_Exist;
 use databaseLink\MySQLLink;
 use DatabaseLink\SQLQueryError;
 use phpDocumentor\Reflection\Types\Integer;
+use Test_Tools\Toolbelt;
 
 class Database
 {
@@ -13,14 +14,16 @@ class Database
 	private string $verified_database_name;
 	private MySQLLink $root_dblink;
 	private array $tables = array();
-	private \ArrayIterator $table_iterator;
+    private \ArrayIterator $table_iterator;
+    private Toolbelt $toolbelt;
 	/**
 	 * @param string $unverified_database_name if this does not exist then a database will automatically be created and credentials will be created and added to the config file
-	 * If the database is already created credentials are expected to already be created and linked in the config file.  If not manual intervention is required. 
+	 * If the database is already created credentials are expected to already be created and linked in the config file.  If not manual intervention is required.
 	 * @throws SQLQueryError
 	 */
 	function __construct(string $unverified_database_name,bool $full_rights = true)
 	{
+        $this->toolbelt = new Toolbelt;
 		global $toolbelt_base;
 		$this->root_dblink = $toolbelt_base->root_dblink;
 		$unverified_database_name = $this->root_dblink->Escape_String($unverified_database_name);
@@ -70,21 +73,21 @@ class Database
 	}
 	private function Create_Full_Database_User($unverified_database_name) : void
 	{
-		$password = Generate_CSPRNG(18,'D&hFl@gg1ng');
+		$password = $this->toolbelt->functions->Generate_CSPRNG(18,'D&hFl@gg1ng');
 		$this->root_dblink->Execute_Any_SQL_Query("
 		CREATE USER '".$unverified_database_name."'@'%' IDENTIFIED BY '".$password."'");
-		$this->root_dblink->Execute_Any_SQL_Query("GRANT ALL PRIVILEGES ON 
-		`".$this->verified_database_name."`.* TO 
+		$this->root_dblink->Execute_Any_SQL_Query("GRANT ALL PRIVILEGES ON
+		`".$this->verified_database_name."`.* TO
 		'".$this->verified_database_name."'@'%';");
 		$this->root_dblink->cConfigs->Set_Database_Connection_Preferences('localhost',$this->verified_database_name,$password,$this->verified_database_name);
 	}
 	private function Create_Read_Only_Database_User() : void
 	{
-		$password = Generate_CSPRNG(14,'D&hFl@gg1ng');
+		$password = $this->toolbelt->functions->Generate_CSPRNG(14,'D&hFl@gg1ng');
 		$this->root_dblink->Execute_Any_SQL_Query("
 		CREATE USER 'read_only_".$this->verified_database_name."'@'%' IDENTIFIED BY '".$password."'");
-		$this->root_dblink->Execute_Any_SQL_Query("GRANT SELECT ON 
-		`".$this->verified_database_name."`.* TO 
+		$this->root_dblink->Execute_Any_SQL_Query("GRANT SELECT ON
+		`".$this->verified_database_name."`.* TO
 		'read_only_".$this->verified_database_name."'@'%';");
 		$this->root_dblink->cConfigs->Set_Database_Connection_Preferences('localhost','read_only_'.$this->verified_database_name,$password,$this->verified_database_name,"3306",true);
 	}
@@ -166,7 +169,7 @@ class Database
 	function Drop_All_Constraints()
 	{
 		$this->root_dblink->Execute_Any_SQL_Query("SELECT concat('ALTER TABLE ', concat(TABLE_SCHEMA,'.',TABLE_NAME), ' DROP FOREIGN KEY ', CONSTRAINT_NAME, ';') as 'query'
-		FROM information_schema.key_column_usage 
+		FROM information_schema.key_column_usage
 		WHERE CONSTRAINT_SCHEMA = '".$this->Get_Database_Name()."'
 		AND referenced_table_name IS NOT NULL;");
 		$rows = $this->root_dblink->Get_Results();

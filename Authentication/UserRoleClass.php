@@ -17,6 +17,11 @@ class User_Role extends Active_Record implements iActiveRecord
         global $toolbelt_base;
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('role_id'),$toolbelt_base->Company_Roles,$toolbelt_base->Company_Roles->Get_Column('id'),'\app\Helpers\Company_Role',true);
     }
+    public function Get_Company_Roles() : Company_Role
+    {
+        $this->Company_Roles;
+        return $this->Company_Roles;
+    }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */

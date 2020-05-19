@@ -15,8 +15,13 @@ class Program_Session extends Active_Record implements iUser
     function __construct()
     {
         $toolbelt = new \Test_Tools\toolbelt;
-        $toolbelt->active_record_relationship_manager->Load_Table_Key_Has_Many_If_Empty($toolbelt->Programs_Have_Sessions,$toolbelt->Users_Have_Roles,$toolbelt->Programs_Have_Sessions->Get_Column('user_id'),$toolbelt->Users_Have_Roles->Get_Column('user_id'),'\app\Helpers\User_Role');
+        $toolbelt->active_record_relationship_manager->Load_Table_Key_Has_Many_If_Empty($toolbelt->tables->Programs_Have_Sessions,$toolbelt->tables->Users_Have_Roles,$toolbelt->tables->Programs_Have_Sessions->Get_Column('user_id'),$toolbelt->tables->Users_Have_Roles->Get_Column('user_id'),'\app\Helpers\User_Role');
         parent::__construct();
+    }
+    public function Get_Users_Have_Roles() : array
+    {
+        $this->Users_Have_Roles;
+        return $this->Users_Have_Roles;
     }
     /**
      * @throws Active_Record_Object_Failed_To_Load
@@ -45,7 +50,7 @@ class Program_Session extends Active_Record implements iUser
         try
         {
             $this->Load_From_Multiple_Vars(array(array('client_id',$client_id),array('user_id',$User->Get_Verified_ID())));
-            $dateTime = new \DateTime(gmdate('Y-m-d H:i:s',strtotime('+'.$User->Companies->Get_Session_Time_Limit()." seconds")));
+            $dateTime = new \DateTime(gmdate('Y-m-d H:i:s',strtotime('+'.$User->Get_Companies()->Get_Session_Time_Limit()." seconds")));
             $this->Set_Varchar($this->table_dblink->Get_Column('access_token'),Generate_CSPRNG(45),false,false);
             if($this->toolbelt->cConfigs->Is_Dev()){sleep(1);}
             $this->Set_Timestamp($this->table_dblink->Get_Column('experation_timestamp'),$dateTime,true);
@@ -53,7 +58,7 @@ class Program_Session extends Active_Record implements iUser
         {
             $this->Set_Varchar($this->table_dblink->Get_Column('client_id'),$client_id,false,false);
             $this->Set_Varchar($this->table_dblink->Get_Column('access_token'),Generate_CSPRNG(45),false,false);
-            $dateTime = new \DateTime(gmdate('Y-m-d H:i:s',strtotime('+'.$User->Companies->Get_Session_Time_Limit()." seconds")));
+            $dateTime = new \DateTime(gmdate('Y-m-d H:i:s',strtotime('+'.$User->Get_Companies()->Get_Session_Time_Limit()." seconds")));
             $this->Set_Timestamp($this->table_dblink->Get_Column('experation_timestamp'),$dateTime,false);
             $this->Set_Int($this->table_dblink->Get_Column('user_id'),$User->Get_Verified_ID(),true);
         }
@@ -92,8 +97,8 @@ class Program_Session extends Active_Record implements iUser
     public function Get_Username() : string
     {
         $toolbelt = new \Test_Tools\toolbelt;
-        $toolbelt->Users->Query_Single_Table(['username'],false,"WHERE `id` = '".$this->Get_User_ID()."'");
-        $username = $toolbelt->Users->Get_Queried_Data();
+        $toolbelt->tables->Users->Query_Single_Table(['username'],false,"WHERE `id` = '".$this->Get_User_ID()."'");
+        $username = $toolbelt->tables->Users->Get_Queried_Data();
         return $username['username'];
     }
     /**
@@ -102,9 +107,9 @@ class Program_Session extends Active_Record implements iUser
     public function Get_Company_ID() : string
     {
         $toolbelt = new \Test_Tools\toolbelt;
-        $toolbelt->Users->LimitBy($toolbelt->Users->Get_Column('id')->Equals((string) $this->Get_User_ID()));
-        $toolbelt->Users->Query_Table(['company_id']);
-        $company_id = $toolbelt->Users->Get_Queried_Data();
+        $toolbelt->tables->Users->LimitBy($toolbelt->tables->Users->Get_Column('id')->Equals((string) $this->Get_User_ID()));
+        $toolbelt->tables->Users->Query_Table(['company_id']);
+        $company_id = $toolbelt->tables->Users->Get_Queried_Data();
         return $company_id['company_id'];
     }
     /**
@@ -143,9 +148,9 @@ class Program_Session extends Active_Record implements iUser
     public function Assign_Company_Role(\app\Helpers\Company_Role $company_role): void
     {
 
-        if($this->toolbelt->Get_Company()->Get_Verified_ID() == $company_role->Companies->Get_Verified_ID())
+        if($this->toolbelt->objects->Get_Company()->Get_Verified_ID() == $company_role->Companies->Get_Verified_ID())
         {
-            throw new \Active_Record\Relationship_Miss_Match($company_role->Get_Friendly_Name().' is not a valid role for .'.$this->toolbelt->Get_Company()->Get_Friendly_Name());
+            throw new \Active_Record\Relationship_Miss_Match($company_role->Get_Friendly_Name().' is not a valid role for .'.$this->toolbelt->objects->Get_Company()->Get_Friendly_Name());
         }
         $user_role = new \app\Helpers\User_Role;
         $user_role->Set_Role($company_role,false);

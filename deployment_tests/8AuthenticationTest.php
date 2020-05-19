@@ -13,7 +13,7 @@ class AuthenticationTest extends \PHPUnit\Framework\TestCase
 	{
         $toolbelt = new \Test_Tools\toolbelt();;
         $this->cConfigs = $toolbelt->cConfigs;
-        $this->table_dblink = $toolbelt->Users;
+        $this->table_dblink = $toolbelt->Tables->Users;
         $this->company = new \app\Helpers\Company;
         $this->company->Load_Object_By_ID(1);
     }

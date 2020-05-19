@@ -13,9 +13,24 @@ class Route_Role extends Active_Record implements iActiveRecord
         $toolbelt = new \Test_Tools\toolbelt;
         parent::__construct();
         global $toolbelt_base;
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('route_id'),$toolbelt->Routes,$toolbelt->Routes->Get_Column('id'),'\app\Helpers\Route',true);
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('role_id'),$toolbelt->Company_Roles,$toolbelt->Company_Roles->Get_Column('id'),'\app\Helpers\Company_Role',true);
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('right_id'),$toolbelt->Rights,$toolbelt->Rights->Get_Column('id'),'\app\Helpers\Right',false);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('route_id'),$toolbelt->tables->Routes,$toolbelt->tables->Routes->Get_Column('id'),'\app\Helpers\Route',true);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('role_id'),$toolbelt->tables->Company_Roles,$toolbelt->tables->Company_Roles->Get_Column('id'),'\app\Helpers\Company_Role',true);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('right_id'),$toolbelt->tables->Rights,$toolbelt->tables->Rights->Get_Column('id'),'\app\Helpers\Right',false);
+    }
+    public function Get_Routes() : Route
+    {
+        $this->Routes;
+        return $this->Routes;
+    }
+    public function Get_Company_Roles() : Company_Role
+    {
+        $this->Company_Roles;
+        return $this->Company_Roles;
+    }
+    public function Get_Rights() : Right
+    {
+        $this->Rights;
+        return $this->Rights;
     }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded

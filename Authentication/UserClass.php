@@ -57,6 +57,16 @@ class User extends Active_Record implements iUser
             }
         }
     }
+    public function Get_Companies() : Company
+    {
+        $this->Companies;
+        return $this->Companies;
+    }
+    public function Get_Users_Have_Roles() : array
+    {
+        $this->Users_Have_Roles;
+        return $this->Users_Have_Roles;
+    }
     private function Load_User_If_Exists() : bool
     {
         return $this->Load('username=? AND company_id=? AND project_name=?',array($this->username,$this->company_id,$this->project_name));
@@ -89,7 +99,7 @@ class User extends Active_Record implements iUser
      */
     protected function Create_Object() : bool
     {
-        $this->cspring = Generate_CSPRNG(64);
+        $this->cspring = $this->toolbelt->functions->Generate_CSPRNG(64);
         $this->verified_hashed_password = $this->Hash_Password($this->password);
         return parent::Create_Object();
     }
@@ -112,7 +122,7 @@ class User extends Active_Record implements iUser
     {
         if($this->Get_Username() == 'default' && !$mark_inactive)
         {
-            Response_401(['message' => 'Sorry the default user cannot be permanently deleted'],app()->request)->send();
+            $this->toolbelt->functions->Response_401(['message' => 'Sorry the default user cannot be permanently deleted'],app()->request)->send();
             exit();
         }
         if($mark_inactive)
@@ -130,8 +140,7 @@ class User extends Active_Record implements iUser
      */
     public function Assign_Company_Role(\app\Helpers\Company_Role $company_role): void
     {
-//        $this->LoadRelations('Companies');
-        if($company_role->Companies->Get_Verified_ID() != $this->company_id)
+        if($company_role->Get_Companies()->Get_Verified_ID() != $this->company_id)
         {
             throw new \Active_Record\Relationship_Miss_Match('Company Role '.$company_role->Get_Verified_ID().' belongs to company'.$company_role->Companies->Get_Verified_ID().' you are working with company '.$this->company_id);
         }
@@ -141,9 +150,9 @@ class User extends Active_Record implements iUser
     }
     public function Remove_All_Roles():void
     {
-        $this->toolbelt->Users_Have_Roles->LimitBy($this->toolbelt->Users_Have_Roles->Get_Column('user_id')->Equals((string) $this->Get_Verified_ID()));
-        $this->toolbelt->Users_Have_Roles->Query_Table(['role_id']);
-        While($row = $this->toolbelt->Users_Have_Roles->Get_Queried_Data())
+        $this->toolbelt->tables->Users_Have_Roles->LimitBy($this->toolbelt->tables->Users_Have_Roles->Get_Column('user_id')->Equals((string) $this->Get_Verified_ID()));
+        $this->toolbelt->tables->Users_Have_Roles->Query_Table(['role_id']);
+        While($row = $this->toolbelt->tables->Users_Have_Roles->Get_Queried_Data())
         {
             $role = new Company_Role;
             $role->Load_Object_By_ID((int) $row['role_id']);
@@ -196,9 +205,9 @@ class User extends Active_Record implements iUser
      */
     public function Revoke_Access_Tokens() : void
     {
-        $this->toolbelt->Get_Programs_Have_Sessions()->LimitBy($this->toolbelt->Get_Programs_Have_Sessions()->Get_Column('user_id')->Equals((string) $this->Get_Verified_ID()));
-        $this->toolbelt->Get_Programs_Have_Sessions()->Query_Table(['access_token']);
-        While($row = $this->toolbelt->Get_Programs_Have_Sessions()->Get_Queried_Data())
+        $this->toolbelt->tables->Get_Programs_Have_Sessions()->LimitBy($this->toolbelt->tables->Get_Programs_Have_Sessions()->Get_Column('user_id')->Equals((string) $this->Get_Verified_ID()));
+        $this->toolbelt->tables->Get_Programs_Have_Sessions()->Query_Table(['access_token']);
+        While($row = $this->toolbelt->tables->Get_Programs_Have_Sessions()->Get_Queried_Data())
         {
             $program_session = new Program_Session;
             $program_session->Load_Session_By_Access_Token($row['access_token']);

@@ -20,6 +20,14 @@ class Tags_Have_Role extends Active_Record implements iActiveRecord
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('tag_id'),$toolbelt_base->Tags,$toolbelt_base->Tags->Get_Column('id'),'\app\Helpers\Tag',true);
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('role_id'),$toolbelt_base->Company_Roles,$toolbelt_base->Company_Roles->Get_Column('id'),'\app\Helpers\Company_Role',true);
     }
+    public function Get_Tags() : array
+    {
+        return $this->Tags;
+    }
+    public function Get_Company_Roles() : array
+    {
+        return $this->Company_Roles;
+    }
     /**
      * Doesn't work for Tags_Have_Roles
      */
@@ -81,10 +89,12 @@ class Tags_Have_Role extends Active_Record implements iActiveRecord
     {
         try
         {
-            $this->Load_By_Tag_And_Role($this->tag_id,$this->role_id);
+            $this->Load_By_Tag_And_Role($this->tag_to_add,$this->role_to_add);
             $this->Delete_Object('destroy');
-            $this->Set_Tag($this->tag_to_add,false);
-            $this->Set_Role($this->role_to_add,$this->get_to_assign,$this->post_to_assign,$this->destroy_to_assign,false);
+            $new_tag_has_role = new Tags_Have_Role;
+            $new_tag_has_role->Set_Tag($this->tag_to_add,false);
+            $new_tag_has_role->Set_Role($this->role_to_add,$this->get_to_assign,$this->post_to_assign,$this->destroy_to_assign);
+            return true;
         } catch (\Active_Record\Active_Record_Object_Failed_To_Load $e)
         {
         } catch (\Exception $e)

@@ -16,6 +16,14 @@ class Tag extends Active_Record implements iActiveRecord
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$toolbelt_base->Companies,$toolbelt_base->Companies->Get_Column('id'),'\app\Helpers\Company',true);
         $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Tags_Have_Roles,$toolbelt_base->Tags_Have_Roles->Get_Column('tag_id'),'\app\Helpers\Tags_Have_Role');
     }
+    public function Get_Companies() : array
+    {
+        return $this->Companies;
+    }
+    public function Get_Tags_Have_Roles() : array
+    {
+        return $this->Tags_Have_Roles;
+    }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
@@ -80,6 +88,14 @@ class Tag extends Active_Record implements iActiveRecord
 
     }
 
+    protected function Create_Object() : bool
+    {
+        parent::Create_Object();
+        $tag_has_role = new Tags_Have_Role;
+        $tag_has_role->Set_Role($this->toolbelt->objects->Get_Company()->Get_Master_Role(),true,true,true,false);
+        $tag_has_role->Set_Tag($this);
+        return true;
+    }
 }
 
 ?>

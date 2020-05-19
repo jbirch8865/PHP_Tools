@@ -4,6 +4,7 @@ use DatabaseLink\Column_Does_Not_Exist;
 use DatabaseLink\Safe_Strings;
 use DatabaseLink\SQLQueryError;
 use League\Flysystem\SafeStorage;
+use Test_Tools\Toolbelt;
 
 class Table
 {
@@ -22,7 +23,6 @@ class Table
 	private string $saved_join_section = '';
 	private string $saved_validate_where_section = '';
 	private string $saved_validate_join_section = '';
-
     /**
 	 * @param string $unverified_table_name if does not exist will automatically create it
 	 * @throws SQLQueryError
@@ -175,10 +175,12 @@ class Table
         {
             $this->database_dblink->dblink->Execute_Any_SQL_Query("SELECT ".$columns_to_select." FROM `".$this->Get_Table_Name()."`".$this->Get_Validate_Where_Clause());
             $this->validate_where_section = '';
+            $this->validate_join_section = '';
         }else
         {
             $this->database_dblink->dblink->Execute_Any_SQL_Query("SELECT ".$columns_to_select." FROM `".$this->Get_Table_Name()."`".$this->Get_Where_Clause());
             $this->where_section = '';
+            $this->join_section = '';
         }
 		$rows = $this->database_dblink->dblink->Get_Results();
 		$arrayObject = new \ArrayObject($rows);
@@ -346,8 +348,11 @@ class Table
 			{
 				throw new \DatabaseLink\Column_Does_Not_Exist($column_name." does not exist in table ".$this->Get_Table_Name());
 			}
-		}
-		$columns = implode(",",Wrap_Array_Values_With_String("`",$columns_to_be_unique));
+        }
+        array_walk($columns_to_be_unique,function(&$value, $key){
+            $value = "`".$value."`";
+        });
+		$columns = implode(",",$columns_to_be_unique);
 		try
 		{
 			$this->database_dblink->dblink->Execute_Any_SQL_Query('ALTER TABLE `'.$this->Get_Table_Name().'` ADD UNIQUE `'.implode(",",$columns_to_be_unique).'` ('.$columns.')');
@@ -526,10 +531,6 @@ class Table
 	{
         if($validate)
         {
-            if(!$this->Validate_Where_Logic_Started())
-            {
-                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
-            }
             $this->validate_where_section = $this->validate_where_section." OR ".$string->Print_String()." ) ";
         }else
         {
@@ -591,10 +592,6 @@ class Table
 	{
         if(strpos(trim($this->where_section),'LIMIT') === 0)
         {
-            if(!$this->Validate_Where_Logic_Started())
-            {
-                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
-            }
             return $this->join_section.$this->where_section;
         }else
         {
@@ -605,10 +602,6 @@ class Table
 	{
         if(strpos(trim($this->validate_where_section),'LIMIT') === 0)
         {
-            if(!$this->Validate_Where_Logic_Started())
-            {
-                //call_user_func('Relational_Foundation_For_'.$this->Get_Table_Name(),$this);
-            }
             return $this->validate_join_section.$this->validate_where_section;
         }else
         {
@@ -686,7 +679,7 @@ class Table
 
 			}
 		}
-		$this->Query_Table(['id'],true);
+		$this->Query_Table(['`'.$this->Get_Table_Name().'`.`id`'],true);
 		$this->revert_to_saved_where_statement(true);
 		if($this->Get_Number_Of_Rows_In_Query())
 		{
@@ -747,7 +740,8 @@ class Table
                 $objects[$object->Get_Friendly_Name().' - '.$object->Get_Verified_ID()] = $object->Get_Verified_ID();
             }
         }
-        return Response_200([
+        $toolbelt = New Toolbelt;
+        return $toolbelt->functions->Response_200([
             'message' => 'Response Objects',
             $object_class => $objects
         ],$request);

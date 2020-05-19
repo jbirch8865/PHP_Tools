@@ -16,12 +16,17 @@ class Employee extends People
             $toolbelt_base->People_Belong_To_Company->Get_Column('people_id'),
             '\app\Helpers\Employee_Company',false);
     }
+    public function Get_People_Belong_To_Company() : Employee
+    {
+        $this->People_Belong_To_Company;
+        return $this->People_Belong_To_Company;
+    }
 
     public function Create(): void
     {
-        $this->Set_Company($this->toolbelt->Get_Company(),false);
+        $this->Set_Company($this->toolbelt->objects->Get_Company(),false);
         parent::Create_Object();
-        $this->link->Set_Company($this->toolbelt->Get_Company(),false);
+        $this->link->Set_Company($this->toolbelt->objects->Get_Company(),false);
         $this->link->Set_Employee($this);
         $this->LoadRelations('People_Belong_To_Company');
     }

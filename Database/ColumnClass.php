@@ -316,7 +316,7 @@ class Column extends MySQL_Equation_Strings
 	{
 		return $this->column_key;
 	}
-	function Get_Field_Value() : string
+	function Get_Field_Value() : ?string
 	{
 		return $this->field_value;
 	}
@@ -462,7 +462,7 @@ abstract class MySQL_Equation_Strings
 		return $safestring;
 	}
 	abstract function Set_Field_Value(?string $value) : void;
-	abstract function Get_Field_Value() : string;
+	abstract function Get_Field_Value() : ?string;
 	abstract function Get_Column_Name() : string;
 }
 

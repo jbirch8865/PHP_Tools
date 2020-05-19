@@ -9,6 +9,8 @@ class CustomException Extends \Exception {
 }
 namespace config;
 
+use Test_Tools\Toolbelt;
+
 use function exception\Send_Message_Get_Response;
 
 class config_file_missing Extends \exception\CustomException {
@@ -16,10 +18,11 @@ class config_file_missing Extends \exception\CustomException {
 	{
 		if($create_config_file)
 		{
-			$go_ahead_and_create_file = Send_Message_To_Stdin_Get_Response("Config file does not exist.  Would you like to create it?");
+            $toolbelt = new Toolbelt;
+			$go_ahead_and_create_file = $toolbelt->functions->Send_Message_To_Stdin_Get_Response("Config file does not exist.  Would you like to create it?");
 			if(strtoupper($go_ahead_and_create_file) == "Y" || strtoupper($go_ahead_and_create_file) == "YES")
 			{
-				Ask_User_For_Credentials();
+				$toolbelt->functions->Ask_User_For_Credentials();
 			}
 		}
 		parent::__construct($message);

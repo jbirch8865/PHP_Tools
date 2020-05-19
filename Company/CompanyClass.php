@@ -18,6 +18,31 @@ class Company extends Active_Record implements iActiveRecord
         $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->Credit_Statuses,$toolbelt_base->Credit_Statuses->Get_Column('company_id'),'\app\Helpers\Credit_Status',false);
         $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$toolbelt_base->People_Belong_To_Company,$toolbelt_base->People_Belong_To_Company->Get_Column('company_id'),'\app\Helpers\Employee_Company',false);
     }
+    public function Get_Company_Configs() : array
+    {
+        $this->Company_Configs;
+        return $this->Company_Configs;
+    }
+    public function Get_Company_Roles() : array
+    {
+        $this->Company_Roles;
+        return $this->Company_Roles;
+    }
+    public function Get_Equipments() : array
+    {
+        $this->Equipments;
+        return $this->Equipments;
+    }
+    public function Get_Credit_Statuses() : array
+    {
+        $this->Credit_Statuses;
+        return $this->Credit_Statuses;
+    }
+    public function Get_People_Belong_To_Company() : array
+    {
+        $this->People_Belong_To_Company;
+        return $this->People_Belong_To_Company;
+    }
     /**
      * @throws \Active_Record\Object_Has_Not_Been_Loaded
      */
@@ -137,7 +162,7 @@ class Company extends Active_Record implements iActiveRecord
     private function Get_Config_Value_By_Name(string $config_name) : ?string
     {
         $this->Get_Verified_ID();
-        ForEach($this->Company_Configs as $index => $company_config)
+        ForEach($this->Get_Company_Configs() as $index => $company_config)
         {
             if($company_config->Get_Friendly_Name() == $config_name)
             {
@@ -171,8 +196,7 @@ class Company extends Active_Record implements iActiveRecord
 
     function Get_Master_Role() : ?\app\Helpers\Company_Role
     {
-//        $this->LoadRelations('Company_Roles');
-        ForEach($this->Company_Roles as $company_role)
+        ForEach($this->Get_Company_Roles() as $company_role)
         {
             if($company_role->Get_Friendly_Name() == 'master')
             {
@@ -201,8 +225,8 @@ class Company extends Active_Record implements iActiveRecord
         $new_role = new Company_Role;
         $new_role->Load_Object_By_ID($role_id);
         $toolbelt = new \test_tools\toolbelt;
-        $toolbelt->Routes->Query_Single_Table(['id'],false);
-        while($row = $toolbelt->Routes->Get_Queried_Data())
+        $toolbelt->tables->Routes->Query_Single_Table(['id'],false);
+        while($row = $toolbelt->tables->Routes->Get_Queried_Data())
         {
             $route = new \app\Helpers\Route;
             $route->Load_Object_By_ID((int) $row['id']);

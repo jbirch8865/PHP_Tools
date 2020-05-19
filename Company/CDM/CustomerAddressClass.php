@@ -18,6 +18,16 @@ class Customer_Has_Address extends Active_Record implements iActiveRecord
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('customer_id'),$toolbelt_base->Customers,$toolbelt_base->Customers->Get_Column('id'),'\app\Helpers\Customer',true);
         $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('address_id'),$toolbelt_base->Addresses,$toolbelt_base->Addresses->Get_Column('id'),'\app\Helpers\Address',false);
     }
+    public function Get_Customers() : Customer
+    {
+        $this->Customers;
+        return $this->Customers;
+    }
+    public function Get_Addresses() : Address
+    {
+        $this->Addresses;
+        return $this->Addresses;
+    }
     /**
      * @throws UpdateFailed — — if adodb->save method fails
      * @throws \Active_Record\Object_Has_Not_Been_Loaded for company_role

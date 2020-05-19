@@ -11,10 +11,30 @@ class Customer extends Active_Record implements iActiveRecord
     {
         parent::__construct();
         global $toolbelt_base;
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$this->toolbelt->Companies,$this->toolbelt->Companies->Get_Column('id'),'\app\Helpers\Company',true);
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('credit_status'),$this->toolbelt->Credit_Statuses,$this->toolbelt->Credit_Statuses->Get_Column('id'),'\app\Helpers\Credit_Status',true);
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$this->toolbelt->Customer_Has_Addresses,$this->toolbelt->Customer_Has_Addresses->Get_Column('customer_id'),'\app\Helpers\Customer_Has_Address',false);
-        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$this->toolbelt->Customer_Has_Phone_Numbers,$this->toolbelt->Customer_Has_Phone_Numbers->Get_Column('customer_id'),'\app\Helpers\Customer_Has_Phone_Number',false);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('company_id'),$this->toolbelt->tables->Companies,$this->toolbelt->tables->Companies->Get_Column('id'),'\app\Helpers\Company',true);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Belongs_To_If_Empty($this->table_dblink,$this->table_dblink->Get_Column('credit_status'),$this->toolbelt->tables->Credit_Statuses,$this->toolbelt->tables->Credit_Statuses->Get_Column('id'),'\app\Helpers\Credit_Status',true);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$this->toolbelt->tables->Customer_Has_Addresses,$this->toolbelt->tables->Customer_Has_Addresses->Get_Column('customer_id'),'\app\Helpers\Customer_Has_Address',false);
+        $toolbelt_base->active_record_relationship_manager->Load_Table_Has_Many_If_Empty($this->table_dblink,$this->toolbelt->tables->Customer_Has_Phone_Numbers,$this->toolbelt->tables->Customer_Has_Phone_Numbers->Get_Column('customer_id'),'\app\Helpers\Customer_Has_Phone_Number',false);
+    }
+    public function Get_Companies() : Company
+    {
+        $this->Companies;
+        return $this->Companies;
+    }
+    public function Get_Credit_Statuses() : Credit_Status
+    {
+        $this->Credit_Statuses;
+        return $this->Credit_Statuses;
+    }
+    public function Get_Customer_Has_Addresses() : array
+    {
+        $this->Customer_Has_Addresses;
+        return $this->Customer_Has_Addresses;
+    }
+    public function Get_Customer_Has_Phone_Numbers() : array
+    {
+        $this->Customer_Has_Phone_Numbers;
+        return $this->Customer_Has_Phone_Numbers;
     }
 
     /**
