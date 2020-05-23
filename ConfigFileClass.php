@@ -3,35 +3,56 @@ namespace config;
 
 class ConfigurationFile
 {
-	private array $configurations;
-	private string $filename;
+	private $Configurations;
+	private $filename;
 
-	function __construct(string $filename = "config.local.ini")
+	function __construct($fileName = "config.local.ini")
 	{
-		if($filename == "config.local.ini" || $filename == "ConfigFileClass.php")
+		if($fileName == "config.local.ini" || $fileName == "ConfigFileClass.php")
 		{			
-			$this->filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . $filename;
+			$this->filename = dirname(__FILE__) . DIRECTORY_SEPARATOR . $fileName;
 		}else
 		{
-			$this->filename = $filename;
+			$this->filename = $fileName;
 		}
-
-		if($this->DoesFileExist())
+		if($this->IsThisAString($this->filename))
 		{
-			$this->configurations = $this->LoadFile();
+			if($this->DoesFileExist())
+			{
+				$this->Configurations = $this->LoadFile();
+			}else
+			{
+				$this->Configurations = array();
+			}
 		}else
 		{
-			throw new config_file_missing("$filename does not exist");
+			throw new \Exception("This is not a valid filename");
 		}
 	}
 	
 	private function DoesFileExist()
 	{
-
-		if(file_exists($this->filename))
+		if($this->IsThisAString($this->filename))
 		{
-			return true;
+			if(file_exists($this->filename))
+			{
+				return true;
+			}else
+			{
+				return false;
+			}
 		}else
+		{
+			return false;
+		}
+	}
+	private function IsThisAString($string)
+	{
+		try
+		{
+			$string = (string) $string;
+			return true;
+		}catch (\Exception $e)
 		{
 			return false;
 		}
@@ -46,11 +67,6 @@ class ConfigurationFile
 			throw new \Exception("Error loading this ini configuration file");
 		}
 	}
-
-
-	/**
-	 * DO NOT USE, as of version 1.4.20 moved this function to Get_Value_If_Enabled('name_of_the_config_you_want')
-	 */
 	function Configurations()
 	{
 		return $this->Configurations;
@@ -71,53 +87,16 @@ class ConfigurationFile
 			return false;
 		}
 	}
-
-	function Is_Prod()
-	{
-		if(isset($this->Configurations()['Environment']))
-		{
-			if(strtoupper($this->Configurations()['Environment']) == "PRODUCTION")
-			{
-				return true;
-			}else
-			{
-				return false;
-			}
-		}else
-		{
-			return false;
-		}
-	}
-
-	function Set_Dev_Environment()
-	{
-		$this->Add_Or_Update_Config('Environment','DEVELOPMENT');
-	}
-
-	function Set_Prod_Environment()
-	{
-		$this->Add_Or_Update_Config('Environment','PRODUCTION');
-	}
-
-	function Set_End_User_Date_Format(string $date_format)
-	{
-		$this->Add_Or_Update_Config('end_user_date_format',$date_format);
-	}
-
 	function Get_End_User_Date_Format()
 	{
-		if($this->Get_Value_If_Enabled('end_user_date_format'))
+		if(!empty($this->Configurations()['end_user_date_format']))
 		{
-			return $this->Get_Value_If_Enabled('end_user_date_format');
+			return $this->Configurations()['end_user_date_format'];
 		}else
 		{
 			return 'Y-m-d';
 		}
 	}
-
-	/**
-	 * Please use Get_Name_Of_Project_Database as of version 1.4.20 this function is depricated
-	 */
 	function Name_Of_Project_Database()
 	{
 		if(isset($this->Configurations()['database_name']))
@@ -125,17 +104,6 @@ class ConfigurationFile
 			return $this->Configurations()['database_name'];
 		}
 	}
-
-	function Get_Name_Of_Project_Database()
-	{
-		return $this->Get_Value_If_Enabled('database_name');
-	}
-
-	function Set_Name_Of_Project_Database(string $name_of_database)
-	{
-		$this->Add_Or_Update_Config('database_name',$name_of_database);
-	}
-
 	function Get_Images_URL()
 	{
 		if(isset($this->Configurations()['vendor_directory']))

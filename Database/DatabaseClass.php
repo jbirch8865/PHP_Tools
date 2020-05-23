@@ -1,80 +1,103 @@
 <?php
 namespace DatabaseLink;
-
+Class SQLConnectionError extends \Exception{}
+Class SQLQueryError extends \Exception{}
+Class DuplicatePrimaryKeyRequest extends \Exception{}
 Class MySQLLink
 {
 	
-	private string $database;
-	private int $lastinsertid;
-	private int $lastlogid;
-	private string $username;
-	private string $password;
-	private string $hostname;
-	private int $listeningport;
-	private string $lastmysqlerror;
-	private int $lastmysqlerrorno;
-
-	function __construct(string $database_to_connect_to,bool $run_as_root_user = false)
+	private $Database;
+	private $LastInsertID;
+	private $LastLogID;
+	private $UserName;
+	private $Password;
+	private $Hostname;
+	private $ListeningPort;
+	private $LastMySQLError;
+	private $LastMySQLErrorNo;
+	function __construct($Database)
 	{
-		if($run_as_root_user)
+		
+		$this->LoadConfigurationFile();
+		try 
 		{
-			$this->LoadRootConfigurationFile();
-		}else
+			$this->EstablishDatabaseLink($Database);
+		} catch (SQLConnectionError $e) 
 		{
-			$this->LoadConfigurationFile();
+			throw new SQLConnectionError("Unreliable SQL object, couldn't properly connect to SQL host");
 		}
-		$this->EstablishDatabaseLink($database_to_connect_to);
 	}
 	
 	private function LoadConfigurationFile()
 	{
-		$cConfigs = new \Config\ConfigurationFile;
-		$this->username = $cConfigs->Get_Value_If_Enabled('username');
-		$this->password = $cConfigs->Get_Value_If_Enabled('password');
-		$this->hostname = $cConfigs->Get_Value_If_Enabled('hostname');
-		$this->listeningport = $cConfigs->Get_Value_If_Enabled('listeningport');
-	}
-	
-	private function LoadRootConfigurationFile()
-	{
-		$cConfigs = new \Config\ConfigurationFile;
-		$this->username = $cConfigs->Get_Value_If_Enabled('root_username');
-		$this->password = $cConfigs->Get_Value_If_Enabled('root_password');
-		$this->hostname = $cConfigs->Get_Value_If_Enabled('hostname');
-		$this->listeningport = $cConfigs->Get_Value_If_Enabled('listeningport');
+		try 
+		{
+			$configs = new \Config\ConfigurationFile;
+			if($this->AreConfigurationValuesValid($configs->Configurations()))
+			{
+				$configs = $configs->Configurations();
+				$this->UserName = $configs['username'];
+				$this->Password = $configs['password'];
+				$this->Hostname = $configs['hostname'];
+				$this->ListeningPort = $configs['listeningport'];
+			}else
+			{
+				throw new \Exception("Database Configs are Invalid");
+			}
+		} catch (\Exception $e)
+		{
+			throw new \Exception($e->getMessage());
+		}
 	}
 
-	private function EstablishDatabaseLink($database_to_connect_to)
+	private function AreConfigurationValuesValid($configs)
 	{
-		$driver = 'mysqli';
- 
-		$db = \newAdoConnection($driver); 		 
-		if(!$db->connect($this->hostname,$this->username,$this->password,$database_to_connect_to))
+		if(isset($configs['username'])&&isset($configs['password'])&&isset($configs['hostname'])&&isset($configs['listeningport']))
 		{
-			throw new SQLConnectionError("Couldn't connect to mysql");
+			if($Con = mysqli_connect($configs['hostname'], $configs['username'], $configs['password'], 'syslog', $configs['listeningport']))
+			{
+				mysqli_close($Con);
+				return true;
+			}else
+			{
+				return false;
+			}
+		}else
+		{
+			return false;
 		}
-		
+	}
+	
+	private function EstablishDatabaseLink($Database)
+	{
+		If($Connection=mysqli_connect($this->Hostname, $this->UserName, $this->Password, $Database, $this->ListeningPort)) 
+		{	
+			$this->Database = $Connection;
+		} Else 
+		{ 
+			throw new SQLConnectionError("Error connecting to MySQL");
+		}
 	}
 	
 	function ExecuteSQLQuery( $Query, $Type = '10', $Ignore_Log_Error = true)
 	{
-		Try
+		try
 		{
 			$Response = $this->QuerySQL($Query);
 			$this->LastInsertID = mysqli_insert_id($this->Database);
-			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
+//			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
 			return $Response;
 		} catch (SQLQueryError $e)
 		{
-			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
+//			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
 			throw new SQLQueryError($e->getMessage());
 		} catch (DuplicatePrimaryKeyRequest $e)
 		{
-			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
+//			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
 			throw new DuplicatePrimaryKeyRequest($e->getMessage());
 		} catch (\Exception $e)
 		{
-			$this->AddToSyslog($Query, "unknown error running this SQL query", $Type,$Ignore_Log_Error);		
+//			$this->AddToSyslog($Query, "unknown error running this SQL query", $Type,$Ignore_Log_Error);		
 			throw new \Exception($e->getMessage());
 		}
 	}

@@ -1,25 +1,4 @@
 <?php
-namespace config;
-class config_file_missing Extends \exception\CustomException {
-	function __construct($message = "",$create_config_file = false)
-	{
-		if($create_config_file)
-		{
-			echo "Config file does not exist.  Would you like to create it?";
-			echo "Type 'yes' or 'y' to continue: ";
-
-			$handle = fopen("php://stdin","r"); // read from STDIN
-			$line = trim(fgets($handle));
-
-			if($line !== 'yes' && $line !== 'y'){
-
-			}else
-			{
-			}
-		}
-		parent::__construct($message);
-	}
-}
 namespace exception;
 
 class CustomException Extends \Exception {
@@ -167,27 +146,6 @@ class Fields_Are_Not_Set_Properly Extends \exception\CustomException{
 }
 
 class SQL_Search_Returned_Null Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}		
-}
-
-Class SQLConnectionError Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}		
-}
-
-Class SQLQueryError Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}		
-}
-
-Class DuplicatePrimaryKeyRequest Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);

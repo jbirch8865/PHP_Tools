@@ -141,7 +141,7 @@ class icon
         {
             $description = mysqli_real_escape_string($this->dblink->GetCurrentLink(),$this->Get_Description());
             $file_name = mysqli_real_escape_string($this->dblink->GetCurrentLink(),$this->Get_File_Name()); 
-            if($this->dblink->ExecuteSQLQuery("INSERT INTO `icon_library` SET `description` = '".$description."', `file_name` = '".$file_name()."'"))
+            if($this->dblink->ExecuteSQLQuery("INSERT INTO `icon_library` SET `description` = '".$description."', `file_name` = '".$file_name."'"))
             {
                 return $this->Verify_Icon_ID($this->dblink->GetLastInsertID());
             }else

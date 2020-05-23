@@ -92,14 +92,9 @@ class User_Session
         {
             throw new \Exception("you can't create a user without setting the username and password");
         }
-        if($this->Does_User_Exist())
-        {
-            throw new User_Already_Exists("this user has already been created");
-        }
-
         try
         {
-            if($results = $this->dblink->ExecuteSQLQuery("INSERT INTO ".$this->configs['user_table_name']." SET ".$this->configs['username_column_name']." = '".$this->username."', ".$this->configs['password_column_name']." = '".$this->hashed_password_given."', ".$this->configs['cspring_column_name']." = '".$this->salt."'"))
+            if($results = $this->dblink->ExecuteSQLQuery("INSERT INTO ".$this->configs['user_table_name']." SET ".$this->configs['username_column_name']." = '".$this->username."', ".$this->configs['password_column_name']." = '".$this->hashed_password_given."', ".$this->configs['cspring_column_name']." = '".$this->salt."' ON DUPLICATE KEY UPDATE `Active_Status` = '1'"))
             {
                 $this->Set_User_ID($this->dblink->GetLastInsertID());
                 return true;    
@@ -129,7 +124,7 @@ class User_Session
 
         try
         {
-            if($results = $this->dblink->ExecuteSQLQuery("DELETE FROM ".$this->configs['user_table_name']." WHERE ".$this->configs['username_column_name']." = '".$this->username."'"))
+            if($results = $this->dblink->ExecuteSQLQuery("UPDATE ".$this->configs['user_table_name']." SET `Active_Status` = '0' WHERE ".$this->configs['username_column_name']." = '".$this->username."'"))
             {
                 return true;    
             }else
@@ -289,10 +284,9 @@ class User_Session
     {
         try
         {
-            $results = $this->dblink->ExecuteSQLQuery("SELECT * FROM ".$this->configs['user_table_name']." WHERE ".$this->configs['username_column_name']." = '".$this->username."'");
+            $results = $this->dblink->ExecuteSQLQuery("SELECT * FROM ".$this->configs['user_table_name']." WHERE ".$this->configs['username_column_name']." = '".$this->username."' AND `Active_Status` = '1'");
             if(mysqli_num_rows($results) == 1)
             {
-                $this->dblink->ExecuteSQLQuery("UPDATE ".$this->configs['user_table_name']." SET `Active_Status` = '1' WHERE ".$this->configs['username_column_name']." = '".$this->username."'");
                 return $results;
             }else
             {

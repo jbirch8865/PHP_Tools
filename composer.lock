@@ -4,63 +4,6 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e7901d306e2f4ea6978b52c188b5a270",
-    "packages": [
-        {
-            "name": "adodb/adodb-php",
-            "version": "v5.20.16",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ADOdb/ADOdb.git",
-                "reference": "b3cbd53be811f8307493f387ca5831143c1925c1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ADOdb/ADOdb/zipball/b3cbd53be811f8307493f387ca5831143c1925c1",
-                "reference": "b3cbd53be811f8307493f387ca5831143c1925c1",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.2"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "adodb.inc.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause",
-                "LGPL-2.1-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "John Lim",
-                    "email": "jlim@natsoft.com",
-                    "role": "Author"
-                },
-                {
-                    "name": "Damien Regad",
-                    "role": "Current maintainer"
-                },
-                {
-                    "name": "Mark Newnham",
-                    "role": "Developer"
-                }
-            ],
-            "description": "ADOdb is a PHP database abstraction layer library",
-            "homepage": "http://adodb.org/",
-            "keywords": [
-                "abstraction",
-                "database",
-                "layer",
-                "library",
-                "php"
-            ],
-            "time": "2020-01-12T17:37:13+00:00"
-        },
-        {
     "content-hash": "15f421fc7f2832e0123017e80cf0cd3e",
     "packages": [
         {
@@ -154,8 +97,6 @@
             "authors": [
                 {
                     "name": "Frank Kleine",
-                    "homepage": "http://frankkleine.de/",
-                    "role": "Developer"
                     "role": "Developer",
                     "homepage": "http://frankkleine.de/"
                 }
@@ -959,8 +900,6 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "email": "sebastian@phpunit.de",
-                    "role": "lead"
                     "role": "lead",
                     "email": "sebastian@phpunit.de"
                 }
@@ -1741,7 +1680,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
+    "stability-flags": [],
     "prefer-stable": false,
+    "prefer-lowest": false,
     "platform": [],
     "platform-dev": []
 }
