@@ -21,6 +21,28 @@ class icon
             $this->Load_Icon($unverified_icon_id);
         }
     }
+    private function Load_By_file_name($file_name)
+    {
+      $results = $this->dblink->ExecuteSQLQuery("SELECT * FROM `icon_library` WHERE `file_name` = '".$file_name."'");
+      if(mysqli_num_rows($results))
+      {
+        $value = mysqli_fetch_assoc($results);
+        $this->Load_Icon($value['id']);  
+      }
+    }
+    public function Create_File_If_Not_Already($file)
+    {
+      $this->Set_Description('TCP - '.$file);
+      $this->Set_File_Name('/tcps/'.$file);
+      try
+      {
+          $this->Create_Icon();
+      } catch (\DatabaseLink\DuplicatePrimaryKeyRequest $e)
+      {
+        $this->Load_By_file_name($file);
+      }
+
+    }
     private function Load_Icon($unverified_icon_id)
     {
         if($this->Verify_Icon_ID($unverified_icon_id))
@@ -121,12 +143,12 @@ class icon
         }
     }
 
-    private function Update_Icon()
+    public function Update_Icon()
     {
         if(is_null($this->verified_icon_id)){ return false;}
         $description = mysqli_real_escape_string($this->dblink->GetCurrentLink(),$this->Get_Description());
         $file_name = mysqli_real_escape_string($this->dblink->GetCurrentLink(),$this->Get_File_Name()); 
-        if($results = $this->dblink->ExecuteSQLQuery("UPDATE `icon_library` SET `description` = '".$description."', `file_name` = '".$file_name()."' WHERE `id` = '".$this->verified_icon_id."'"))
+        if($results = $this->dblink->ExecuteSQLQuery("UPDATE `icon_library` SET `description` = '".$description."', `file_name` = '".$file_name."' WHERE `id` = '".$this->verified_icon_id."'"))
         {
             return true;
         }else
