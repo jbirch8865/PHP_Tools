@@ -39,7 +39,7 @@ class icon
           $this->Create_Icon();
       } catch (\DatabaseLink\DuplicatePrimaryKeyRequest $e)
       {
-        $this->Load_By_file_name($file);
+        $this->Load_By_file_name('/tcps/'.$file);
       }
 
     }
