@@ -244,6 +244,16 @@ class icon
         }
       }
     }
+
+    public function Get_Reactified_Object()
+    {
+        $response = [
+            "icon_id" => $this->Get_Icon_ID(),
+            "filename" => $this->Get_File_Name(),
+            "description" => $this->Get_Description(),
+        ];
+        return $response;
+    }
 }
 class icons
 {
