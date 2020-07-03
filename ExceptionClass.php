@@ -5,218 +5,90 @@ class CustomException Extends \Exception {
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}
+	}		
 }
-namespace config;
 
-use Test_Tools\Toolbelt;
+namespace docker;
 
-use function exception\Send_Message_Get_Response;
-
-class config_file_missing Extends \exception\CustomException {
-	function __construct($message = "",$create_config_file = false)
+class BadFolderLocation Extends \exception\CustomException {
+	function __construct($secret_directory = '/run/secret/', $config_directory = '/')
 	{
-		if($create_config_file)
-		{
-            $toolbelt = new Toolbelt;
-			$go_ahead_and_create_file = $toolbelt->functions->Send_Message_To_Stdin_Get_Response("Config file does not exist.  Would you like to create it?");
-			if(strtoupper($go_ahead_and_create_file) == "Y" || strtoupper($go_ahead_and_create_file) == "YES")
-			{
-				$toolbelt->functions->Ask_User_For_Credentials();
-			}
-		}
-		parent::__construct($message);
+		parent::__construct("Either the Secret directory ".$secret_directory.", or config directory ".$config_directory." does not exist.  Please verify existance in the container");
 	}
 }
-class file_or_folder_does_not_exist Extends \exception\CustomException {
-	function __construct($message = "")
+class SecretDoesNotExist Extends \exception\CustomException{
+	function __construct($secret_name)
 	{
-		parent::__construct($message);
+		parent::__construct("The docker secret ".$secret_name." does not exist, please ensure the docker secret is configured in the docker swarm");
+	}
+}
+class ConfigDoesNotExist Extends \exception\CustomException{
+	function __construct($config_name)
+	{
+		parent::__construct("The docker config ".$config_name." does not exist. Please make sure docker swarm is configured with it");
 	}
 }
 
-class Config_Missing Extends \exception\CustomException {
-	function __construct($message = "")
+namespace number_validator;
+class InvalidPhoneNumber Extends \exception\CustomException {
+	function __construct($phone_number)
 	{
-		parent::__construct($message);
+		parent::__construct("The phone number ".$phone_number." is not valid, please try again.  Make sure it does not start with a + and is no more than 11 digits if using the country code");
 	}
 }
 
-namespace DatabaseLink;
-class Table_Does_Not_Exist Extends \exception\CustomException{
+class Missing_Access_Key Extends \docker\SecretDoesNotExist{
+	function __construct()
+	{
+		parent::__construct('Number_Validator_Access_Key');
+	}
+}
+
+class Missing_SID_Or_Token Extends \docker\SecretDoesNotExist{
+	function __construct($what_is_missing)
+	{
+		parent::__construct($what_is_missing);
+	}
+}
+class Missing_From_Number Extends \docker\ConfigDoesNotExist {
+	function __construct($what_is_missing)
+	{
+		parent::__construct($what_is_missing);
+	}
+}
+class MessageBodyTooLong Extends \exception\CustomException{
+	function __construct($message_body)
+	{
+		parent::__construct("Message body is more than 160 legal characters - ".$message_body);
+	}
+}
+class MessageNotReadyToSend Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
 	}
 }
-
-class Field_Is_Locked Extends \exception\CustomException{
-	function __construct($message = Null)
+class ThisIsADuplicateMessage Extends \exception\CustomException{
+	function __construct()
 	{
-		parent::__construct($message);
+		parent::__construct("You are trying to send the same message to the same person today.  You can't do this using Send_SMS use Send_Message to bypas this error and send anyway");
 	}
 }
 
-class Not_A_Primary_Key Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-class Primary_Key_Auto_Increments Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-class Row_Not_Ready_To_Update Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-class Fields_Are_Not_Set_Properly Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-class Column_Does_Not_Exist Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-class Column_Is_Required Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-class SQL_Search_Returned_Null Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-Class SQLConnectionError Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-Class SQLQueryError Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-Class DuplicatePrimaryKeyRequest Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-namespace Active_Record;
-Class UpdateFailed Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-Class Active_Record_Object_Failed_To_Load Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-Class Varchar_Too_Long_To_Set Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-Class Object_Is_Already_Loaded Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-Class Object_Has_Not_Been_Loaded Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-Class Object_Is_Currently_Inactive Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
-Class Relationship_Miss_Match Extends \exception\CustomException{
-    function __construct($message = Null)
-    {
-        parent::__construct($message);
-    }
-}
-
-Class Email_Address_Not_Valid Extends \exception\CustomException{
-    function __construct($message = Null)
-    {
-        parent:: __construct($message);
-    }
-}
-Class User_Lacks_Rights Extends \exception\CustomException{
-    function __construct($message = Null)
-    {
-        parent::__construct($message);
-    }
-}
-
-namespace app\Helpers;
-
-Class User_Not_Set Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-Class Session_Not_Established Extends \exception\CustomException{
-	function __construct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
-
+namespace User_Session;
 class User_Session_Expired Extends \exception\CustomException{
-	function __contruct($message = Null)
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}	
+}
+class User_Already_Exists Extends \exception\CustomException{
+	function __construct($message = Null)
 	{
 		parent::__construct($message);
 	}
 }
-class User_Not_Logged_In Extends \exception\CustomException{
-	function __contruct($message = Null)
-	{
-		parent::__construct($message);
-	}
-}
+
 class User_Does_Not_Exist Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
@@ -224,20 +96,68 @@ class User_Does_Not_Exist Extends \exception\CustomException{
 	}
 }
 
-class Incorrect_Password Extends \exception\CustomException{
+class User_Is_Not_Authenticated Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}
+	}	
 }
 
-namespace sms;
-
-class Twilio_Connection_Error Extends \exception\CustomException{
+class User_Is_Already_Authenticated Extends \exception\CustomException{
 	function __construct($message = Null)
 	{
 		parent::__construct($message);
-	}
+	}	
+}
+namespace DatabaseLink;
+class Field_Is_Locked Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
+class Not_A_Primary_Key Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
+class Primary_Key_Auto_Increments Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
+class Row_Not_Ready_To_Update Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
+class Fields_Are_Not_Set_Properly Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
+class SQL_Search_Returned_Null Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
+}
+
+namespace logging;
+class Log_Does_Not_Exist Extends \exception\CustomException{
+	function __construct($message = Null)
+	{
+		parent::__construct($message);
+	}		
 }
 
 ?>

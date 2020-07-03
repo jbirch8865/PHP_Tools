@@ -1,198 +1,194 @@
-<?php declare(strict_types=1);
+<?php
 namespace DatabaseLink;
-
-use ArrayObject;
-use DatabaseLink\Column_Does_Not_Exist;
-use databaseLink\MySQLLink;
-use DatabaseLink\SQLQueryError;
-use phpDocumentor\Reflection\Types\Integer;
-use Test_Tools\Toolbelt;
-
-class Database
+Class SQLConnectionError extends \Exception{}
+Class SQLQueryError extends \Exception{}
+Class DuplicatePrimaryKeyRequest extends \Exception{}
+Class MySQLLink
 {
-	public ?MySQLLink $dblink = NULL;
-	private string $verified_database_name;
-	private MySQLLink $root_dblink;
-	private array $tables = array();
-    private \ArrayIterator $table_iterator;
-    private Toolbelt $toolbelt;
-	/**
-	 * @param string $unverified_database_name if this does not exist then a database will automatically be created and credentials will be created and added to the config file
-	 * If the database is already created credentials are expected to already be created and linked in the config file.  If not manual intervention is required.
-	 * @throws SQLQueryError
-	 */
-	function __construct(string $unverified_database_name,bool $full_rights = true)
+	
+	private $Database;
+	private $LastInsertID;
+	private $LastLogID;
+	private $UserName;
+	private $Password;
+	private $Hostname;
+	private $ListeningPort;
+	private $LastMySQLError;
+	private $LastMySQLErrorNo;
+	function __construct($Database)
 	{
-        $this->toolbelt = new Toolbelt;
-		global $toolbelt_base;
-		$this->root_dblink = $toolbelt_base->root_dblink;
-		$unverified_database_name = $this->root_dblink->Escape_String($unverified_database_name);
-		$this->If_Does_Not_Exist_Create_Database_And_Issue_Credentials($unverified_database_name);
-		$user_to_use = (int) $full_rights;
-		$this->dblink = new MySQLLink($unverified_database_name,$user_to_use);
-		$this->Load_Tables();
-		$array_object = new ArrayObject($this->tables);
-		$this->table_iterator = $array_object->getIterator();
-	}
-	private function If_Does_Not_Exist_Create_Database_And_Issue_Credentials(string $unverified_database_name) : void
-	{
-		if($this->Does_Database_Exist($unverified_database_name))
+		
+		$this->LoadConfigurationFile();
+		try 
 		{
-			$this->verified_database_name = $unverified_database_name;
-		}else
+			$this->EstablishDatabaseLink($Database);
+		} catch (SQLConnectionError $e) 
 		{
-			$this->Create_Database_And_Issue_Credentials($unverified_database_name);
+			throw new SQLConnectionError("Unreliable SQL object, couldn't properly connect to SQL host");
 		}
 	}
-	private function Does_Database_Exist(string $unverified_database_name) : bool
+	
+	private function LoadConfigurationFile()
 	{
-		if($this->root_dblink->Does_This_Return_A_Count_Of_More_Than_Zero("INFORMATION_SCHEMA.SCHEMATA","SCHEMA_NAME = '".$unverified_database_name."'",'understood'))
+		try 
 		{
-			return true;
+			$configs = new \Config\ConfigurationFile;
+			if($this->AreConfigurationValuesValid($configs->Configurations()))
+			{
+				$configs = $configs->Configurations();
+				$this->UserName = $configs['username'];
+				$this->Password = $configs['password'];
+				$this->Hostname = $configs['hostname'];
+				$this->ListeningPort = $configs['listeningport'];
+			}else
+			{
+				throw new \Exception("Database Configs are Invalid");
+			}
+		} catch (\Exception $e)
+		{
+			throw new \Exception($e->getMessage());
+		}
+	}
+
+	private function AreConfigurationValuesValid($configs)
+	{
+		if(isset($configs['username'])&&isset($configs['password'])&&isset($configs['hostname'])&&isset($configs['listeningport']))
+		{
+			if($Con = mysqli_connect($configs['hostname'], $configs['username'], $configs['password'], 'syslog', $configs['listeningport']))
+			{
+				mysqli_close($Con);
+				return true;
+			}else
+			{
+				return false;
+			}
 		}else
 		{
 			return false;
 		}
 	}
-	private function Create_Database_And_Issue_Credentials(string $unverified_database_name) : void
+	
+	private function EstablishDatabaseLink($Database)
 	{
-		$this->Create_Database($unverified_database_name);
-		$this->Create_Full_Database_User($unverified_database_name);
-		$this->Create_Read_Only_Database_User();
+		If($Connection=mysqli_connect($this->Hostname, $this->UserName, $this->Password, $Database, $this->ListeningPort)) 
+		{	
+			$this->Database = $Connection;
+		} Else 
+		{ 
+			throw new SQLConnectionError("Error connecting to MySQL");
+		}
 	}
-	private function Create_Database(string $unverified_database_name) : void
+	
+	function ExecuteSQLQuery( $Query, $Type = '10', $Ignore_Log_Error = true)
 	{
-		$this->root_dblink->Execute_Any_SQL_Query("CREATE DATABASE ".$unverified_database_name);
-		if($this->Does_Database_Exist($unverified_database_name))
+		try
 		{
-			$this->verified_database_name = $unverified_database_name;
+			$Response = $this->QuerySQL($Query);
+			$this->LastInsertID = mysqli_insert_id($this->Database);
+//			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
+			return $Response;
+		} catch (SQLQueryError $e)
+		{
+//			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
+			throw new SQLQueryError($e->getMessage());
+		} catch (DuplicatePrimaryKeyRequest $e)
+		{
+//			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
+			throw new DuplicatePrimaryKeyRequest($e->getMessage());
+		} catch (\Exception $e)
+		{
+//			$this->AddToSyslog($Query, "unknown error running this SQL query", $Type,$Ignore_Log_Error);		
+			throw new \Exception($e->getMessage());
+		}
+	}
+	
+	private function QuerySQL($Query)
+	{
+		if(!$Response = mysqli_query($this->Database, $Query))
+		{
+			$this->LastMySQLError = mysqli_error($this->Database);
+			$this->LastMySQLErrorNo = mysqli_errno($this->Database);
+			if($this->LastMySQLErrorNo == '1062')
+			{
+				throw new DuplicatePrimaryKeyRequest("You are trying to create a duplicate entry for the primary key in the DB");
+			}else
+			{
+				throw new SQLQueryError("SQL Server returned error number ".$this->LastMySQLErrorNo." - ".mysqli_error($this->Database));
+			}
 		}else
 		{
-			throw new SQLQueryError("Database did not appear to create.  Last Error - ".$this->root_dblink->Get_Last_Error());
+			return $Response;
 		}
 	}
-	private function Create_Full_Database_User($unverified_database_name) : void
+	
+	function AddToSyslog( $Query, $Response = "", $Type = '3',$Ignore_Log_Error)
 	{
-		$password = $this->toolbelt->functions->Generate_CSPRNG(18,'D&hFl@gg1ng');
-		$this->root_dblink->Execute_Any_SQL_Query("
-		CREATE USER '".$unverified_database_name."'@'%' IDENTIFIED BY '".$password."'");
-		$this->root_dblink->Execute_Any_SQL_Query("GRANT ALL PRIVILEGES ON
-		`".$this->verified_database_name."`.* TO
-		'".$this->verified_database_name."'@'%';");
-		$this->root_dblink->cConfigs->Set_Database_Connection_Preferences('localhost',$this->verified_database_name,$password,$this->verified_database_name);
+		Try 
+		{
+			$this->QuerySQL("INSERT INTO `syslog`.`Sys_Log` SET Message = '".str_replace("'","\'",$Query)."', Response = '".str_replace("'","\'",$Response)."', Message_Type = '$Type'");
+			$this->LastLogID = mysqli_insert_id($this->Database);
+		} catch (SQLQueryError $e)
+		{
+			if(!$Ignore_Log_Error)
+			{
+				throw new SQLQueryError($e->getMessage());
+			}
+		}
 	}
-	private function Create_Read_Only_Database_User() : void
+	function GetCurrentLink()
 	{
-		$password = $this->toolbelt->functions->Generate_CSPRNG(14,'D&hFl@gg1ng');
-		$this->root_dblink->Execute_Any_SQL_Query("
-		CREATE USER 'read_only_".$this->verified_database_name."'@'%' IDENTIFIED BY '".$password."'");
-		$this->root_dblink->Execute_Any_SQL_Query("GRANT SELECT ON
-		`".$this->verified_database_name."`.* TO
-		'read_only_".$this->verified_database_name."'@'%';");
-		$this->root_dblink->cConfigs->Set_Database_Connection_Preferences('localhost','read_only_'.$this->verified_database_name,$password,$this->verified_database_name,"3306",true);
+		return $this->Database;
+	}
+	function GetLastInsertID()
+	{
+		return $this->LastInsertID;
+	}
+	function GetLastLogID()
+	{
+		return $this->LastLogID;
 	}
 
 	/**
-	 * This will drop the database with foreign relation checks enabled so it's possible it will fail and the foreign relationship will need to be removed first
-	 * @param string $password since this is such a destructive public function you need to enter "destroy" as the password in order for this to execute
-	 * This will also destroy all properties belonging to this class.  Recommended that you unset after you run this command
-	 * @throws Exception if password not set
-	 * @throws SQLQueryError
-	 */
-	function Drop_Database_And_User(string $password) : void
+    *
+    * Returns the last error that mysqli had
+    *
+    */
+	function GetLastError()
 	{
-		if($password != "destroy")
-		{
-			throw new \Exception("You didn't enter in the password to drop this database");
-		}
-		$this->root_dblink->Execute_Any_SQL_Query("DROP DATABASE `".$this->verified_database_name."`");
-		$this->root_dblink->Execute_Any_SQL_Query("DROP USER '".$this->verified_database_name."'@'%'");
-		$this->root_dblink->Execute_Any_SQL_Query("DROP USER 'read_only_".$this->verified_database_name."'@'%'");
-		$this->root_dblink->cConfigs->Delete_Database_Configs($this->verified_database_name);
-		ForEach($this as $key => $value)
-		{
-			unset($this->$key);
-		}
+		return $this->LastMySQLError;
 	}
-
-	function Get_Database_Name() : string
+	function GetLastErrorNumber()
 	{
-		return $this->dblink->Get_Database_Name();
-	}
-
-	private function Load_Tables() : void
-	{
-		$tables = $this->root_dblink->Execute_Any_SQL_Query("SELECT TABLE_NAME FROM `information_schema`.`tables` WHERE `TABLE_SCHEMA` = '".$this->Get_Database_Name()."'");
-		$tables = $this->root_dblink->Get_Results();
-		ForEach($tables as $row => $value)
-		{
-			$this->tables[$value['TABLE_NAME']] = new Table($value['TABLE_NAME'],$this);
-		}
-	}
-
-	/**
-	 * this function will return the current table in the table array and advance the index to the next table
-	 * use function Reset_Tables() to reset the pointer back to the beginning
-	 * use case while($table = $->Get_Tables())
-	 */
-	function Get_Tables() : ?Table
-	{
-		while($this->table_iterator->valid())
-		{
-			$table = $this->table_iterator->current();
-			$this->table_iterator->Next();
-			return $table;
-		}
-		return null;
-	}
-	function Reset_Tables() : void
-	{
-		$this->table_iterator->rewind();
-	}
-	function Get_Number_Of_Tables() : int
-	{
-		return count($this->tables);
-	}
-	function Does_Table_Exist(string $table_name) : bool
-	{
-		While($table = $this->Get_Tables())
-		{
-			if($table->Get_Table_Name() == $table_name)
-			{
-				$this->Reset_Tables();
-				return true;
-			}
-		}
-		$this->Reset_Tables();
-		return false;
-	}
-	function Drop_All_Constraints()
-	{
-		$this->root_dblink->Execute_Any_SQL_Query("SELECT concat('ALTER TABLE ', concat(TABLE_SCHEMA,'.',TABLE_NAME), ' DROP FOREIGN KEY ', CONSTRAINT_NAME, ';') as 'query'
-		FROM information_schema.key_column_usage
-		WHERE CONSTRAINT_SCHEMA = '".$this->Get_Database_Name()."'
-		AND referenced_table_name IS NOT NULL;");
-		$rows = $this->root_dblink->Get_Results();
-		ForEach($rows as $row)
-		{
-			$this->root_dblink->Execute_Any_SQL_Query($row['query']);
-		}
-	}
-	function Drop_All_Indexes()
-	{
-		$this->root_dblink->Execute_Any_SQL_Query("SELECT DISTINCT
-    	TABLE_NAME,
-    	INDEX_NAME
-		FROM INFORMATION_SCHEMA.STATISTICS
-		WHERE TABLE_SCHEMA = '".$this->Get_Database_Name()."';");
-		$rows = $this->root_dblink->Get_Results();
-		ForEach($rows as $row)
-		{
-			if(strpos($row['INDEX_NAME'],"_ibfk_1"))
-			{
-				$this->root_dblink->Execute_Any_SQL_Query("ALTER TABLE `".$this->Get_Database_Name()."`.`".$row['TABLE_NAME']."` DROP INDEX `".$row['INDEX_NAME']."`");
-			}
-		}
+		return $this->LastMySQLErrorNo;
 	}
 }
+///UPDATE - BELOW is an exerpt from a previous project I am retaining in case it comes in handy again.
+/*
+Class Incident_Tickets_DB_Link 
+{
+	private $DBLink;
+	public function __construct()
+	{
+		try
+		{
+			$this->SetDBLink();
+		} catch (Exception $e)
+		{
+			throw new SQLConnectionError("There was an error connecting to the SQL DB");
+		}
+	}
+	private function SetDBLink()
+	{
+		global $Incident_Tickets_Link;
+		$this->DBLink = $Incident_Tickets_Link;
+	}
+	function GetDBLink()
+	{
+		return $this->DBLink;
+	}	
+}
+*/
+////Due to the issues of constantly needing $User = new User($User_ID) or $Ticket = new Ticket($Ticket_ID) I was rapidly using up all the avaiable SQL thread connections.  So after researching online I decided to store all the necessary Database links as global variables and then build classes that load those global variables to local DBLink variables. Then I have a public method called GetDBLink in each class.  So instead of Exctends MySQLLink we will instead extend the instantion of the link we want the naming convention will be NameOfDatabase_DB_Link
+//global $Incident_Tickets_Link;
+//$Incident_Tickets_Link = new MySQLLink('Incident_Tickets');
 ?>

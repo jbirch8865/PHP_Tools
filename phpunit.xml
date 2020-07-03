@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="php_unitClassLoader.php"
+<phpunit bootstrap="ClassLoader.php"
 	colors="true"
 	verbose="true"
 	stopOnFailure="true">
     <testsuites>
 	<testsuite name="Test suite">
-	    <directory>deployment_tests</directory>
+	    <directory>tests</directory>
 	</testsuite>
     </testsuites>
 </phpunit>
