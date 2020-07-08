@@ -77,6 +77,7 @@ class User_Session
 
     function Auth0_Logout()
     {
+        /*
         $auth0 = Auth0_Client();
         $auth0->logout();
         $cConfigs = new \config\ConfigurationFile();
@@ -92,6 +93,7 @@ class User_Session
         $url = $auth0->get_logout_link("http://" . $_SERVER['HTTP_HOST']);
         header('Location: ' . $url);
         exit();
+        */
     }
 
     function Authenticate_User()
@@ -197,24 +199,34 @@ class User_Session
         }
     }
 
+    /**
+     * WILL DO THE AUTHENTICATION FOR API REQUESTS. USERNAME WILL BE CHANGED
+     */
     public function Am_I_Currently_Authenticated($throw_exception = false, $auto_renew = true)
     {
-        if ($this->Is_Auth0_Logged_In() && isset($_GET['Auth0'])) {
-            return true;
-        } elseif (isset($_GET['Auth0'])) {
-            $this->Auth0_Login();
-        }
-        if ($this->is_user_authenticated) {
-            if (!$this->Is_Expired($throw_exception)) {
-                if ($auto_renew) {
-                    $this->Renew_Session();
-                }
+        if (isset(apache_request_headers()['Authorization'])) {
+            $results = $this->dblink->ExecuteSQLQuery("SELECT * FROM `Users` WHERE `current_session_token` = '" . apache_request_headers()['Authorization'] . "' AND `auth0_session_exp` > '" . date('Y-m-d H:i') . "'");
+            if (mysqli_num_rows($results)) {
+                $this->is_user_authenticate = true;
+                $results = mysqli_fetch_assoc($results);
+                $this->Set_Username($results['username']);
                 return true;
             } else {
                 return false;
             }
         } else {
-            return false;
+            if ($this->is_user_authenticated) {
+                if (!$this->Is_Expired($throw_exception)) {
+                    if ($auto_renew) {
+                        $this->Renew_Session();
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         }
     }
 
@@ -433,7 +445,7 @@ class Current_User
     private $user_session;
     function __construct()
     {
-        if ($this->Does_User_Session_Exist()) {
+        if ($this->Does_User_Session_Exist() && !isset($_SERVER['HTTP_AUTHORIZATION']) && basename($_SERVER['SCRIPT_NAME']) != 'api_login.php') {
             $this->user_session = $_SESSION['User_Session'];
             $this->user_session->Create_Database_Connection();
         } else {
