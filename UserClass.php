@@ -204,7 +204,7 @@ class User_Session
      */
     public function Am_I_Currently_Authenticated($throw_exception = false, $auto_renew = true)
     {
-        if (isset(apache_request_headers()['Authorization'])) {
+        if (isset(apache_request_headers()['Authorization']) && !isset($_GET['no_auth'])) {
             $results = $this->dblink->ExecuteSQLQuery("SELECT * FROM `Users` WHERE `current_session_token` = '" . apache_request_headers()['Authorization'] . "' AND `auth0_session_exp` > '" . date('Y-m-d H:i') . "'");
             if (mysqli_num_rows($results)) {
                 $this->is_user_authenticate = true;

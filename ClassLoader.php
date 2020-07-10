@@ -13,4 +13,6 @@ require dirname(__FILE__) . DIRECTORY_SEPARATOR . "BootstrapHTMLClass.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "BootstrapJSClass.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "LoggingClass.php";
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . "SystemClass.php";
+require dirname(__FILE__). DIRECTORY_SEPARATOR . 'SocketIO.php';
+
 ?>
