@@ -20,8 +20,14 @@ abstract class SocketIOParent
     protected $client = null;
     function __construct()
     {
-        $cConfigs = new \config\ConfigurationFile();
-        $version = new Version2X("https://dandh.dsfellowship.com:3001",[]);
+        $cConfigs = new ConfigurationFile();
+        if($cConfigs->Is_Dev())
+        {
+            $version = new Version2X("http://localhost:3001",[]);
+        }else
+        {
+            $version = new Version2X("http://dandh.dsfellowship.com:3001",[]);
+        }
         $this->client = new Client($version);
         try{
             $this->client->initialize();
