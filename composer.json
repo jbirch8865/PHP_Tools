@@ -12,7 +12,8 @@
     "require": {
         "instasent/sms-counter-php": "^0.5.2",
         "twilio/sdk": "^5.0",
-        "mikey179/vfsstream": "^1.6"
+        "mikey179/vfsstream": "^1.6",
+        "textalk/websocket": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "^8"
