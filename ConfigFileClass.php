@@ -178,15 +178,13 @@ class ConfigurationFile
 	public function Set_Night_Mode()
 	{
 		$this->Add_Or_Update_Config('after_business_hours', '1');
-		$socketio = new SocketIO();
-		$socketio->emit('updateBizPref');
+		new EmitSocketMessage('updateBizPref');
 	}
 
 	public function Set_Day_Mode()
 	{
 		$this->Add_Or_Update_Config('after_business_hours', '0');
-		$socketio = new SocketIO();
-		$socketio->emit('updateBizPref');
+		new EmitSocketMessage('updateBizPref');
 	}
 
 	public function Is_Night_Mode_On()
