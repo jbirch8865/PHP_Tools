@@ -17,10 +17,14 @@ class EmitSocketMessage
         {
             throw new \Exception('not a valid message to emit');
         }
+        $current_user = new \gCurrent_User;
         $this->curl = curl_init($_SERVER['SERVER_NAME'].'/scripts/react/emit_event.php?event='.$message);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        $response = curl_exec($ch);
-        curl_close($ch);
+        curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($this->curl, CURLOPT_HTTPHEADER, array(
+            'Authorization: '.$current_user->current_user->Get_API_Token()
+        ));
+        curl_exec($this->curl);
+        curl_close($this->curl);
     }
 }
 

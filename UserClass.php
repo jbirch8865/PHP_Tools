@@ -438,6 +438,37 @@ class User_Session
             return false;
         }
     }
+
+    public function Create_API_Token()
+    {
+        
+        $token      = $_SERVER['HTTP_HOST'];
+        $token     .= $_SERVER['REQUEST_URI'];
+        $token     .= uniqid(rand(), true);
+        $hash        = strtoupper(md5($token));
+        $hash = substr($hash,  0,  8) .
+            substr($hash,  8,  4) .
+            substr($hash, 12,  4) .
+            substr($hash, 16,  4) .
+            substr($hash, 20, 12);
+        $cConfigs = new \config\ConfigurationFile();
+        $this->dblink->ExecuteSQLQuery("UPDATE `Users` SET `current_session_token` = '" . $hash . "', `auth0_session_exp` = '" . date('Y-m-d H:i', strtotime('+10 hours')) . "' WHERE `username` = '" . $this->Get_Username() . "'");
+        return $hash;
+    }
+
+    public function Get_API_Token()
+    {
+        $results = $this->dblink->ExecuteSQLQuery("SELECT `current_session_token` FROM `Users` WHERE `username` = '" . $this->Get_Username() . "'");
+        if(mysqli_num_rows($results))
+        {
+            $results = mysqli_fetch_assoc($results);
+            $results = $results['current_session_token'];
+        }else
+        {
+            $results = false;
+        }
+        return $results;
+    }
 }
 
 class Current_User
@@ -454,6 +485,15 @@ class Current_User
         }
     }
 
+    public function Create_API_Token()
+    {
+        return $this->user_session->Create_API_Token();
+    }
+
+    public function Get_API_Token()
+    {
+        return $this->user_session->Get_API_Token();
+    }
     private function Does_User_Session_Exist()
     {
         if (isset($_SESSION['User_Session'])) {
