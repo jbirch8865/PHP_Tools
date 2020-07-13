@@ -2,6 +2,8 @@
 
 namespace User_Session;
 
+use config\SocketIO;
+
 class User_Session
 {
     private $person_id;
@@ -77,23 +79,8 @@ class User_Session
 
     function Auth0_Logout()
     {
-        /*
-        $auth0 = Auth0_Client();
-        $auth0->logout();
-        $cConfigs = new \config\ConfigurationFile();
-        $logout_url = sprintf('https://%s/v2/logout?client_id=%s&returnTo=%s', $cConfigs->Get_Auth0_Domain(), $cConfigs->Get_Auth0_Client_ID());
-        $ch = curl_init($logout_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_exec($ch);
-        curl_close($ch);
-        $auth0 = new \Auth0\SDK\API\Authentication(
-            $cConfigs->Get_Auth0_Domain(),
-            $cConfigs->Get_Auth0_Client_ID()
-        );
-        $url = $auth0->get_logout_link("http://" . $_SERVER['HTTP_HOST']);
-        header('Location: ' . $url);
-        exit();
-        */
+        $this->dblink->ExecuteSQLQuery("UPDATE `Users` SET `auth0_session_exp` = '".date('Y-m-d')."' WHERE `person_id` ='".$this->Get_User_ID()."'");
+        new SocketIO('updateBizPref');
     }
 
     function Authenticate_User()
@@ -110,6 +97,7 @@ class User_Session
             throw new User_Does_Not_Exist("You can't authenticate a user that doesn't exist");
         }
         if ($this->hashed_password_given == $this->Get_Hashed_Password_From_DB()) {
+            $this->Create_API_Token();
             $this->is_user_authenticated = true;
         } else {
             $this->is_user_authenticated = false;
@@ -216,7 +204,8 @@ class User_Session
             }
         } else {
             if ($this->is_user_authenticated) {
-                if (!$this->Is_Expired($throw_exception)) {
+                if (!$this->Is_Expired($throw_exception)) {                    
+                    echo '<script>localStorage.setItem("hash","'.$this->Get_API_Token().'")</script>';
                     if ($auto_renew) {
                         $this->Renew_Session();
                     }
@@ -485,11 +474,6 @@ class Current_User
         }
     }
 
-    public function Create_API_Token()
-    {
-        return $this->user_session->Create_API_Token();
-    }
-
     public function Get_API_Token()
     {
         return $this->user_session->Get_API_Token();
@@ -532,8 +516,8 @@ class Current_User
 
     function LogOut()
     {
-        $this->user_session->LogOut();
         $this->user_session->Auth0_Logout();
+        $this->user_session->LogOut();
     }
 
     function Set_Password($password)
