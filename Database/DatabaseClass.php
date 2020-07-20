@@ -79,11 +79,17 @@ Class MySQLLink
 		}
 	}
 	
-	function ExecuteSQLQuery( $Query, $Type = '10', $Ignore_Log_Error = true)
+	function ExecuteSQLQuery( $Query, $Type = '10', $Ignore_Log_Error = true, $multi_query = false)
 	{
 		try
 		{
-			$Response = $this->QuerySQL($Query);
+			if($multi_query)
+			{
+				$Response = $this->MultiQuerySQL($Query);
+			}else
+			{
+				$Response = $this->QuerySQL($Query);
+			}
 			$this->LastInsertID = mysqli_insert_id($this->Database);
 //			$this->AddToSyslog($Query, $this->LastMySQLError, $Type,$Ignore_Log_Error);		
 			return $Response;
@@ -102,6 +108,39 @@ Class MySQLLink
 		}
 	}
 	
+	private function MultiQuerySQL($Query)
+	{
+		if(!$Response = mysqli_multi_query($this->Database, $Query))
+		{
+			$this->LastMySQLError = mysqli_error($this->Database);
+			$this->LastMySQLErrorNo = mysqli_errno($this->Database);
+			if($this->LastMySQLErrorNo == '1062')
+			{
+				throw new DuplicatePrimaryKeyRequest("You are trying to create a duplicate entry for the primary key in the DB");
+			}else
+			{
+				throw new SQLQueryError("SQL Server returned error number ".$this->LastMySQLErrorNo." - ".mysqli_error($this->Database));
+			}
+		}else
+		{
+			if($Response = mysqli_store_result($this->Database))
+			{
+				return $Response;
+			}else
+			{
+				$this->LastMySQLError = mysqli_error($this->Database);
+				$this->LastMySQLErrorNo = mysqli_errno($this->Database);
+				if($this->LastMySQLErrorNo == '1062')
+				{
+					throw new DuplicatePrimaryKeyRequest("You are trying to create a duplicate entry for the primary key in the DB");
+				}else
+				{
+					throw new SQLQueryError("SQL Server returned error number ".$this->LastMySQLErrorNo." - ".mysqli_error($this->Database));
+				}
+			}
+		}
+
+	}
 	private function QuerySQL($Query)
 	{
 		if(!$Response = mysqli_query($this->Database, $Query))
