@@ -1,4 +1,5 @@
 <?php
+
 namespace config;
 
 use ElephantIO\Client;
@@ -7,12 +8,37 @@ use ElephantIO\Engine\SocketIO\Version2X;
 
 class SocketIO extends SocketIOParent
 {
-    function __construct($action = false, $message = [])
+    function __construct($Object_Being_Updated)
     {
-        if(is_null($this->client))
-        {
-            parent::__construct($action, $message);
+        parent::__construct();
+        $class = get_class($Object_Being_Updated);
+        switch ($class) {
+            case \company_program\Equipment_Need::class:
+                if (Is_This_A_Dispatching_Day($Object_Being_Updated->shift->Get_Shift_Date())) {
+                    $this->Send_Message("updateDispatchNumbers");
+                    $this->Send_Message("updateDispatchShifts");
+                }
+                break;
+            case \company_program\Shift::class:
+                if (Is_This_A_Dispatching_Day($Object_Being_Updated->Get_Shift_Date())) {
+                    $this->Send_Message("updateDispatchNumbers");
+                    $this->Send_Message("updateDispatchShifts");
+                }
+                break;
+            case \company_program\Need::class:
+                if (Is_This_A_Dispatching_Day($Object_Being_Updated->shift->Get_Shift_Date())) {
+                    $this->Send_Message("updateDispatchNumbers");
+                    $this->Send_Message("updateDispatchShifts");
+                }
+                break;
+            default:
+                break;
         }
+    }
+
+    private function Send_Message($action, $message = [])
+    {
+        parent::emit($action, $message);
     }
 }
 
@@ -22,34 +48,31 @@ abstract class SocketIOParent
     function __construct($action = false, $message = [])
     {
         $cConfigs = new ConfigurationFile();
-        if($cConfigs->Is_Dev())
-        {
-            $version = new Version2X("http://localhost:3001",[]);
-        }else
-        {
-            $version = new Version2X("http://localhost:3001",[]);
+        if ($cConfigs->Is_Dev()) {
+            $version = new Version2X("http://localhost:3001", []);
+        } else {
+            $version = new Version2X("http://localhost:3001", []);
         }
-        $this->client = new Client($version);
-        try{
+        if (is_null($this->client)) {
+            $this->client = new Client($version);
+        }
+        try {
             $this->client->initialize();
-            if($action)
-            {
+            if ($action) {
                 $this->emit($action, $message);
             }
-        } catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             $var = $e->getMessage();
-            echo '';
         }
     }
 
     function __destruct()
     {
-        $this->client->close();        
+        $this->client->close();
     }
-    
+
     function emit($action, $data = [])
     {
-        $this->client->emit($action,$data);
-    }    
+        $this->client->emit($action, $data);
+    }
 }
