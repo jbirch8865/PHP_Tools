@@ -14,19 +14,19 @@ class SocketIO extends SocketIOParent
         $class = get_class($Object_Being_Updated);
         switch ($class) {
             case \company_program\Equipment_Need::class:
-                if (Is_This_A_Dispatching_Day($Object_Being_Updated->shift->Get_Shift_Date())) {
+                if (Is_This_A_Dispatching_Shift($Object_Being_Updated->shift)) {
                     $this->Send_Message("updateDispatchNumbers");
                     $this->Send_Message("updateDispatchShifts");
                 }
                 break;
             case \company_program\Shift::class:
-                if (Is_This_A_Dispatching_Day($Object_Being_Updated->Get_Shift_Date())) {
+                if (Is_This_A_Dispatching_Shift($Object_Being_Updated)) {
                     $this->Send_Message("updateDispatchNumbers");
                     $this->Send_Message("updateDispatchShifts");
                 }
                 break;
             case \company_program\Need::class:
-                if (Is_This_A_Dispatching_Day($Object_Being_Updated->shift->Get_Shift_Date())) {
+                if (Is_This_A_Dispatching_Shift($Object_Being_Updated->shift)) {
                     $this->Send_Message("updateDispatchNumbers");
                     $this->Send_Message("updateDispatchShifts");
                 }
