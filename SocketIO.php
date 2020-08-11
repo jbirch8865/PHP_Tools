@@ -35,6 +35,9 @@ class SocketIO extends SocketIOParent
                     $this->Send_Message("updateDispatchShifts");
                 }
                 break;
+            case \config\ConfigurationFile::class:
+                $this->Send_Message("updateBizPref");
+                break;
             default:
                 break;
         }
