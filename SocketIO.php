@@ -11,7 +11,11 @@ class SocketIO extends SocketIOParent
     function __construct($Object_Being_Updated)
     {
         parent::__construct();
-        $class = get_class($Object_Being_Updated);
+        try {
+            $class = get_class($Object_Being_Updated);
+        } catch (\Exception $e) {
+            return false;
+        }
         switch ($class) {
             case \company_program\Equipment_Need::class:
                 if (Is_This_A_Dispatching_Shift($Object_Being_Updated->shift)) {

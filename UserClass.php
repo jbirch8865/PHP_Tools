@@ -79,7 +79,7 @@ class User_Session
 
     function Auth0_Logout()
     {
-        $this->dblink->ExecuteSQLQuery("UPDATE `Users` SET `auth0_session_exp` = '".date('Y-m-d')."' WHERE `person_id` ='".$this->Get_User_ID()."'");
+        $this->dblink->ExecuteSQLQuery("UPDATE `Users` SET `auth0_session_exp` = '" . date('Y-m-d') . "' WHERE `person_id` ='" . $this->Get_User_ID() . "'");
         new SocketIO('updateBizPref');
     }
 
@@ -192,7 +192,7 @@ class User_Session
      */
     public function Am_I_Currently_Authenticated($throw_exception = false, $auto_renew = true)
     {
-        if (isset(apache_request_headers()['Authorization']) && !isset($_GET['no_auth'])) {
+        if (function_exists('apache_request_headers') && isset(apache_request_headers()['Authorization']) && !isset($_GET['no_auth'])) {
             $results = $this->dblink->ExecuteSQLQuery("SELECT * FROM `Users` WHERE `current_session_token` = '" . apache_request_headers()['Authorization'] . "' AND `auth0_session_exp` > '" . date('Y-m-d H:i') . "'");
             if (mysqli_num_rows($results)) {
                 $this->is_user_authenticate = true;
@@ -204,8 +204,8 @@ class User_Session
             }
         } else {
             if ($this->is_user_authenticated) {
-                if (!$this->Is_Expired($throw_exception)) {                    
-                    echo '<script>localStorage.setItem("hash","'.$this->Get_API_Token().'")</script>';
+                if (!$this->Is_Expired($throw_exception)) {
+                    echo '<script>localStorage.setItem("hash","' . $this->Get_API_Token() . '")</script>';
                     if ($auto_renew) {
                         $this->Renew_Session();
                     }
@@ -430,30 +430,30 @@ class User_Session
 
     public function Create_API_Token()
     {
-        
-        $token      = $_SERVER['HTTP_HOST'];
-        $token     .= $_SERVER['REQUEST_URI'];
-        $token     .= uniqid(rand(), true);
-        $hash        = strtoupper(md5($token));
-        $hash = substr($hash,  0,  8) .
-            substr($hash,  8,  4) .
-            substr($hash, 12,  4) .
-            substr($hash, 16,  4) .
-            substr($hash, 20, 12);
-        $cConfigs = new \config\ConfigurationFile();
-        $this->dblink->ExecuteSQLQuery("UPDATE `Users` SET `current_session_token` = '" . $hash . "', `auth0_session_exp` = '" . date('Y-m-d H:i', strtotime('+10 hours')) . "' WHERE `username` = '" . $this->Get_Username() . "'");
-        return $hash;
+        if (isset($_SERVER['HTTP_HOST'])) {
+            $token      = $_SERVER['HTTP_HOST'];
+            $token     .= $_SERVER['REQUEST_URI'];
+            $token     .= uniqid(rand(), true);
+            $hash        = strtoupper(md5($token));
+            $hash = substr($hash,  0,  8) .
+                substr($hash,  8,  4) .
+                substr($hash, 12,  4) .
+                substr($hash, 16,  4) .
+                substr($hash, 20, 12);
+            $cConfigs = new \config\ConfigurationFile();
+            $this->dblink->ExecuteSQLQuery("UPDATE `Users` SET `current_session_token` = '" . $hash . "', `auth0_session_exp` = '" . date('Y-m-d H:i', strtotime('+10 hours')) . "' WHERE `username` = '" . $this->Get_Username() . "'");
+            return $hash;
+        }
+        return false;
     }
 
     public function Get_API_Token()
     {
         $results = $this->dblink->ExecuteSQLQuery("SELECT `current_session_token` FROM `Users` WHERE `username` = '" . $this->Get_Username() . "'");
-        if(mysqli_num_rows($results))
-        {
+        if (mysqli_num_rows($results)) {
             $results = mysqli_fetch_assoc($results);
             $results = $results['current_session_token'];
-        }else
-        {
+        } else {
             $results = false;
         }
         return $results;
