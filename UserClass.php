@@ -205,7 +205,9 @@ class User_Session
         } else {
             if ($this->is_user_authenticated) {
                 if (!$this->Is_Expired($throw_exception)) {
-                    echo '<script>localStorage.setItem("hash","' . $this->Get_API_Token() . '")</script>';
+                    if (!strpos($_SERVER['SCRIPT_NAME'], "ajax_return_scripts")) {
+                        echo '<script>localStorage.setItem("hash","' . $this->Get_API_Token() . '")</script>';
+                    }
                     if ($auto_renew) {
                         $this->Renew_Session();
                     }
