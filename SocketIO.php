@@ -14,7 +14,7 @@ class SocketIO extends SocketIOParent
         try {
             $class = get_class($Object_Being_Updated);
         } catch (\Exception $e) {
-            return false;
+            throw new \Exception($e->getMessage());
         }
         switch ($class) {
             case \company_program\Equipment_Need::class:
@@ -37,6 +37,9 @@ class SocketIO extends SocketIOParent
                 break;
             case \config\ConfigurationFile::class:
                 $this->Send_Message("updateBizPref");
+                break;
+            case \company_program\Current_User::class:
+                $this->Send_Message("updateUserPref");
                 break;
             default:
                 break;
