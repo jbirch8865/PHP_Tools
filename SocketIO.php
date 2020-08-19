@@ -20,18 +20,21 @@ class SocketIO extends SocketIOParent
             case \company_program\Equipment_Need::class:
                 if (Is_This_A_Dispatching_Shift($Object_Being_Updated->shift)) {
                     $this->Send_Message("updateDispatchNumbers");
+                    $this->Send_Message("updateDispatchWizard");
                     $this->Send_Message("updateDispatchShifts");
                 }
                 break;
             case \company_program\Shift::class:
                 if (Is_This_A_Dispatching_Shift($Object_Being_Updated)) {
                     $this->Send_Message("updateDispatchNumbers");
+                    $this->Send_Message("updateDispatchWizard");
                     $this->Send_Message("updateDispatchShifts");
                 }
                 break;
             case \company_program\Need::class:
                 if (Is_This_A_Dispatching_Shift($Object_Being_Updated->shift)) {
                     $this->Send_Message("updateDispatchNumbers");
+                    $this->Send_Message("updateDispatchWizard");
                     $this->Send_Message("updateDispatchShifts");
                 }
                 break;
