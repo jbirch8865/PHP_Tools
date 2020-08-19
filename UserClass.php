@@ -80,7 +80,6 @@ class User_Session
     function Auth0_Logout()
     {
         $this->dblink->ExecuteSQLQuery("UPDATE `Users` SET `auth0_session_exp` = '" . date('Y-m-d') . "' WHERE `person_id` ='" . $this->Get_User_ID() . "'");
-        new SocketIO('updateBizPref');
     }
 
     function Authenticate_User()
