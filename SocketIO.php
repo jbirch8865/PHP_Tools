@@ -62,9 +62,9 @@ abstract class SocketIOParent
     {
         $cConfigs = new ConfigurationFile();
         if ($cConfigs->Is_Dev()) {
-            $version = new Version2X("http://localhost:3001", []);
+            $version = new Version2X("http://dandh.dsfellowship.com:3001", []);
         } else {
-            $version = new Version2X("http://localhost:3001", []);
+            $version = new Version2X("http://dandh.dsfellowship.com:3001", []);
         }
         if (is_null($this->client)) {
             $this->client = new Client($version);
