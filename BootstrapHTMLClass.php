@@ -96,12 +96,15 @@ class icon
     }
     public function Get_IMG_HTML($tooltip = null, $height = "25px", $width = "25px")
     {
-      if(is_null($tooltip))
+      if($this->Get_File_Name() !== "")
       {
-        return "<img src='".$this->Get_File_Name()."' height = '".$height."' width = '".$width."' data-toggle='tooltip' title = '".$this->Get_Description()."'>";
-      }else
-      {
-        return "<img src='".$this->Get_File_Name()."' height = '".$height."' width = '".$width."' data-toggle='tooltip' title = '".$tooltip."'>";
+        if(is_null($tooltip))
+        {
+          return "<img src='".$this->Get_File_Name()."' height = '".$height."' width = '".$width."' data-toggle='tooltip' title = '".$this->Get_Description()."'>";
+        }else
+        {
+          return "<img src='".$this->Get_File_Name()."' height = '".$height."' width = '".$width."' data-toggle='tooltip' title = '".$tooltip."'>";
+        }  
       }
     }
 
@@ -908,4 +911,3 @@ class drop_down_menu
     }
   }
 }
-?>
