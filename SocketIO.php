@@ -21,22 +21,22 @@ class SocketIO extends SocketIOParent
                 if (Is_This_A_Dispatching_Shift($Object_Being_Updated->shift)) {
                     $this->Send_Message("updateDispatchNumbers");
                     $this->Send_Message("updateDispatchWizard");
-                    $this->Send_Message("updateJobSearch");
                 }
+                $this->Send_Message("updateDispatchShifts");
                 break;
             case \company_program\Shift::class:
                 if (Is_This_A_Dispatching_Shift($Object_Being_Updated)) {
                     $this->Send_Message("updateDispatchNumbers");
                     $this->Send_Message("updateDispatchWizard");
-                    $this->Send_Message("updateJobSearch");
                 }
+                $this->Send_Message("updateDispatchShifts");
                 break;
             case \company_program\Need::class:
                 if (Is_This_A_Dispatching_Shift($Object_Being_Updated->shift)) {
                     $this->Send_Message("updateDispatchNumbers");
                     $this->Send_Message("updateDispatchWizard");
-                    $this->Send_Message("updateJobSearch");
                 }
+                $this->Send_Message("updateDispatchShifts");
                 break;
             case \config\ConfigurationFile::class:
                 $this->Send_Message("updateBizPref");
@@ -62,7 +62,7 @@ abstract class SocketIOParent
     {
         $cConfigs = new ConfigurationFile();
         if ($cConfigs->Is_Dev()) {
-            $version = new Version2X("http://dandh.dsfellowship.com:3001", []);
+            $version = new Version2X("http://localhost:3001", []);
         } else {
             $version = new Version2X("http://dandh.dsfellowship.com:3001", []);
         }
@@ -86,6 +86,11 @@ abstract class SocketIOParent
 
     function emit($action, $data = [])
     {
-        $this->client->emit($action, $data);
+        try {
+            $this->client->emit($action, $data);
+        } catch (\Error $e) {
+            global $aAlerts;
+            $aAlerts->aAlerts->Add_Alert("Socket Server Unreachable", "minor error you shouldn't notice any issues.  Please let Joel know.");
+        }
     }
 }

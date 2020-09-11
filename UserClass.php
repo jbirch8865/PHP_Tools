@@ -500,11 +500,24 @@ class Current_User
         }
     }
 
-    function Authenticate()
+    function Authenticate($throw_exception = false)
     {
         try {
             $authenticated = $this->user_session->Authenticate_User();
+        } catch (\User_Session\User_Is_Not_Authenticated $e) {
+            if ($throw_exception) {
+                throw new \User_Session\User_Is_Not_Authenticated($e->getMessage());
+            }
+            $authenticated = false;
+        } catch (\User_Session\User_Does_Not_Exist $e) {
+            if ($throw_exception) {
+                throw new \User_Session\User_Does_Not_Exist($e->getMessage());
+            }
+            $authenticated = false;
         } catch (\Exception $e) {
+            if ($throw_exception) {
+                throw new \Exception($e->getMessage());
+            }
             $authenticated = false;
         }
         return $authenticated;
