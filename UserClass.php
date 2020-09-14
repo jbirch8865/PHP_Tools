@@ -4,6 +4,8 @@ namespace User_Session;
 
 use config\SocketIO;
 
+use function GuzzleHttp\json_encode;
+
 class User_Session
 {
     private $person_id;
@@ -115,7 +117,7 @@ class User_Session
             throw new \Exception("you can't create a user without setting the username and password");
         }
         try {
-            if ($results = $this->dblink->ExecuteSQLQuery("INSERT INTO " . $this->configs['user_table_name'] . " SET " . $this->configs['username_column_name'] . " = '" . $this->username . "', " . $this->configs['password_column_name'] . " = '" . $this->hashed_password_given . "', " . $this->configs['cspring_column_name'] . " = '" . $this->salt . "' ON DUPLICATE KEY UPDATE `Active_Status` = '1'")) {
+            if ($results = $this->dblink->ExecuteSQLQuery("INSERT INTO " . $this->configs['user_table_name'] . " SET " . $this->configs['username_column_name'] . " = '" . $this->username . "', " . $this->configs['password_column_name'] . " = '" . $this->hashed_password_given . "', " . $this->configs['cspring_column_name'] . " = '" . $this->salt . "' ON DUPLICATE KEY UPDATE `Active_Status` = '1', `" . $this->configs['password_column_name'] . "` = '" . $this->hashed_password_given . "', `" . $this->configs['cspring_column_name'] . "` = '" . $this->salt . "'")) {
                 $this->Set_User_ID($this->dblink->GetLastInsertID());
                 return true;
             } else {
@@ -496,6 +498,7 @@ class Current_User
     function Exit_If_Not_Currently_Authenticated($message = "", $throw_exception = false)
     {
         if (!$this->Am_I_Currently_Authenticated($throw_exception)) {
+            header("Response: " . json_encode(["message" => "Sorry you need to authenticate."]));
             exit($message);
         }
     }
