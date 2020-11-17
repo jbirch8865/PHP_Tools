@@ -10,39 +10,39 @@ class SocketIO extends SocketIOParent
 {
     function __construct($Object_Being_Updated)
     {
-        parent::__construct();
+      //  parent::__construct();
         try {
             $class = get_class($Object_Being_Updated);
         } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+         //   throw new \Exception($e->getMessage());
         }
         switch ($class) {
             case \company_program\Equipment_Need::class:
-                if (Is_This_A_Dispatching_Shift($Object_Being_Updated->shift)) {
-                    $this->Send_Message("updateDispatchNumbers");
-                    $this->Send_Message("updateDispatchWizard");
-                }
-                $this->Send_Message("updateDispatchShifts");
+            //    if (Is_This_A_Dispatching_Shift($Object_Being_Updated->shift)) {
+                    // $this->Send_Message("updateDispatchNumbers");
+                    //  $this->Send_Message("updateDispatchWizard");
+            //    }
+                // $this->Send_Message("updateDispatchShifts");
                 break;
             case \company_program\Shift::class:
-                if (Is_This_A_Dispatching_Shift($Object_Being_Updated)) {
-                    $this->Send_Message("updateDispatchNumbers");
-                    $this->Send_Message("updateDispatchWizard");
-                }
-                $this->Send_Message("updateDispatchShifts");
+            //    if (Is_This_A_Dispatching_Shift($Object_Being_Updated)) {
+                    // $this->Send_Message("updateDispatchNumbers");
+                    // $this->Send_Message("updateDispatchWizard");
+             //   }
+                // $this->Send_Message("updateDispatchShifts");
                 break;
             case \company_program\Need::class:
-                if (Is_This_A_Dispatching_Shift($Object_Being_Updated->shift)) {
-                    $this->Send_Message("updateDispatchNumbers");
-                    $this->Send_Message("updateDispatchWizard");
-                }
-                $this->Send_Message("updateDispatchShifts");
+              //  if (Is_This_A_Dispatching_Shift($Object_Being_Updated->shift)) {
+                    //   $this->Send_Message("updateDispatchNumbers");
+                    //   $this->Send_Message("updateDispatchWizard");
+              //  }
+                // $this->Send_Message("updateDispatchShifts");
                 break;
             case \config\ConfigurationFile::class:
-                $this->Send_Message("updateBizPref");
+            //    $this->Send_Message("updateBizPref");
                 break;
             case \company_program\Current_User::class:
-                $this->Send_Message("updateUserPref");
+            //    $this->Send_Message("updateUserPref");
                 break;
             default:
                 break;

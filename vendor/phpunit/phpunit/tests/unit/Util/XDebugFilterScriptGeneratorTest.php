@@ -19,7 +19,7 @@ final class XDebugFilterScriptGeneratorTest extends TestCase
 {
     public function testReturnsExpectedScript(): void
     {
-        $expectedDirectory = \sprintf('%s/', __DIR__);
+        $expectedDirectory = \sprintf(\addslashes('%s' . \DIRECTORY_SEPARATOR), __DIR__);
         $expected          = <<<EOF
 <?php declare(strict_types=1);
 if (!\\function_exists('xdebug_set_filter')) {
@@ -30,9 +30,9 @@ if (!\\function_exists('xdebug_set_filter')) {
     \\XDEBUG_FILTER_CODE_COVERAGE,
     \\XDEBUG_PATH_WHITELIST,
     [
-        '$expectedDirectory',
-        '$expectedDirectory',
-        '$expectedDirectory',
+        '{$expectedDirectory}',
+        '{$expectedDirectory}',
+        '{$expectedDirectory}',
         'src/foo.php',
         'src/bar.php'
     ]

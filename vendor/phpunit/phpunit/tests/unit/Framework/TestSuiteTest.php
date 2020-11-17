@@ -76,7 +76,7 @@ final class TestSuiteTest extends TestCase
     {
         $suite = new TestSuite(\NotPublicTestCase::class);
 
-        $this->assertCount(2, $suite);
+        $this->assertCount(1, $suite);
     }
 
     public function testNotVoidTestCase(): void
@@ -157,6 +157,17 @@ final class TestSuiteTest extends TestCase
         $suite->run($this->result);
 
         $this->assertEquals(3, $this->result->count());
+        $this->assertEquals(1, $this->result->skippedCount());
+    }
+
+    public function testItErrorsOnlyOnceOnHookException(): void
+    {
+        $suite = new TestSuite(\TestCaseWithExceptionInHook::class);
+
+        $suite->run($this->result);
+
+        $this->assertEquals(2, $this->result->count());
+        $this->assertEquals(1, $this->result->errorCount());
         $this->assertEquals(1, $this->result->skippedCount());
     }
 

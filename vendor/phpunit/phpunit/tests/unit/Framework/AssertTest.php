@@ -411,14 +411,14 @@ final class AssertTest extends TestCase
      */
     public function testAssertXmlStringEqualsXmlString3(): void
     {
-        $expected = <<<XML
+        $expected = <<<'XML'
 <?xml version="1.0"?>
 <root>
     <node />
 </root>
 XML;
 
-        $actual = <<<XML
+        $actual = <<<'XML'
 <?xml version="1.0"?>
 <root>
 <node />
@@ -642,6 +642,31 @@ XML;
         $this->expectException(AssertionFailedError::class);
 
         $this->assertFileIsReadable(__DIR__ . \DIRECTORY_SEPARATOR . 'NotExisting');
+    }
+
+    public function testAssertFileIsNotReadable(): void
+    {
+        if (\PHP_OS_FAMILY === 'Windows') {
+            self::markTestSkipped('Cannot test this behaviour on Windows');
+        }
+
+        $tempFile = \tempnam(
+            \sys_get_temp_dir(),
+            'unreadable'
+        );
+
+        \chmod($tempFile, \octdec('0'));
+
+        $this->assertFileNotIsReadable($tempFile);
+
+        \chmod($tempFile, \octdec('755'));
+
+        try {
+            $this->assertFileNotIsReadable($tempFile);
+        } catch (AssertionFailedError $e) {
+        }
+
+        \unlink($tempFile);
     }
 
     public function testAssertFileIsWritable(): void
@@ -1370,6 +1395,21 @@ XML;
         );
     }
 
+    public function testAssertStringEqualsFileIgnoringCase(): void
+    {
+        $this->assertStringEqualsFileIgnoringCase(
+            TEST_FILES_PATH . 'foo.xml',
+            \file_get_contents(TEST_FILES_PATH . 'fooUppercase.xml')
+        );
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertStringEqualsFileIgnoringCase(
+            TEST_FILES_PATH . 'foo.xml',
+            \file_get_contents(TEST_FILES_PATH . 'bar.xml')
+        );
+    }
+
     public function testAssertStringNotEqualsFile(): void
     {
         $this->assertStringNotEqualsFile(
@@ -1382,6 +1422,51 @@ XML;
         $this->assertStringNotEqualsFile(
             TEST_FILES_PATH . 'foo.xml',
             \file_get_contents(TEST_FILES_PATH . 'foo.xml')
+        );
+    }
+
+    public function testAssertStringNotEqualsFileIgnoringCase(): void
+    {
+        $this->assertStringNotEqualsFileIgnoringCase(
+            TEST_FILES_PATH . 'foo.xml',
+            \file_get_contents(TEST_FILES_PATH . 'bar.xml')
+        );
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertStringNotEqualsFileIgnoringCase(
+            TEST_FILES_PATH . 'foo.xml',
+            \file_get_contents(TEST_FILES_PATH . 'fooUppercase.xml')
+        );
+    }
+
+    public function testAssertFileEqualsIgnoringCase(): void
+    {
+        $this->assertFileEqualsIgnoringCase(
+            TEST_FILES_PATH . 'foo.xml',
+            TEST_FILES_PATH . 'fooUppercase.xml'
+        );
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertFileEqualsIgnoringCase(
+            TEST_FILES_PATH . 'foo.xml',
+            TEST_FILES_PATH . 'bar.xml'
+        );
+    }
+
+    public function testAssertFileNotEqualsIgnoringCase(): void
+    {
+        $this->assertFileNotEqualsIgnoringCase(
+            TEST_FILES_PATH . 'foo.xml',
+            TEST_FILES_PATH . 'bar.xml'
+        );
+
+        $this->expectException(AssertionFailedError::class);
+
+        $this->assertFileNotEqualsIgnoringCase(
+            TEST_FILES_PATH . 'foo.xml',
+            TEST_FILES_PATH . 'fooUppercase.xml'
         );
     }
 
@@ -1516,7 +1601,7 @@ XML;
         try {
             $this->assertCount(2, '');
         } catch (Exception $e) {
-            $this->assertEquals('Argument #2 (No Value) of PHPUnit\Framework\Assert::assertCount() must be a countable or iterable', $e->getMessage());
+            $this->assertEquals('Argument #2 of PHPUnit\Framework\Assert::assertCount() must be a countable or iterable', $e->getMessage());
 
             return;
         }
@@ -1554,7 +1639,7 @@ XML;
         try {
             $this->assertSameSize('a', []);
         } catch (Exception $e) {
-            $this->assertEquals('Argument #1 (No Value) of PHPUnit\Framework\Assert::assertSameSize() must be a countable or iterable', $e->getMessage());
+            $this->assertEquals('Argument #1 of PHPUnit\Framework\Assert::assertSameSize() must be a countable or iterable', $e->getMessage());
 
             return;
         }
@@ -1567,7 +1652,7 @@ XML;
         try {
             $this->assertSameSize([], '');
         } catch (Exception $e) {
-            $this->assertEquals('Argument #2 (No Value) of PHPUnit\Framework\Assert::assertSameSize() must be a countable or iterable', $e->getMessage());
+            $this->assertEquals('Argument #2 of PHPUnit\Framework\Assert::assertSameSize() must be a countable or iterable', $e->getMessage());
 
             return;
         }
@@ -2355,9 +2440,9 @@ XML;
             [\NAN, \NAN],
             // arrays
             [[], [0 => 1]],
-            [[0     => 1], []],
-            [[0     => null], []],
-            [[0     => 1, 1 => 2], [0     => 1, 1 => 3]],
+            [[0 => 1], []],
+            [[0 => null], []],
+            [[0 => 1, 1 => 2], [0 => 1, 1 => 3]],
             [['a', 'b' => [1, 2]], ['a', 'b' => [2, 1]]],
             // objects
             [new \SampleClass(4, 8, 15), new \SampleClass(16, 23, 42)],
@@ -2438,7 +2523,7 @@ XML;
             // different types
             [new \SampleClass(4, 8, 15), false],
             [false, new \SampleClass(4, 8, 15)],
-            [[0        => 1, 1 => 2], false],
+            [[0 => 1, 1 => 2], false],
             [false, [0 => 1, 1 => 2]],
             [[], new \stdClass],
             [new \stdClass, []],

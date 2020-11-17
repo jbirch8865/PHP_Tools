@@ -10,6 +10,7 @@
 namespace PHPUnit\Framework;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Runner\BaseTestRunner;
 use PHPUnit\Util\Test as TestUtil;
 
@@ -122,7 +123,7 @@ final class TestCaseTest extends TestCase
 
     public function testExceptionInSetUp(): void
     {
-        $test   = new \ExceptionInSetUpTest('testSomething');
+        $test = new \ExceptionInSetUpTest('testSomething');
         $test->run();
 
         $this->assertTrue($test->setUp);
@@ -134,7 +135,7 @@ final class TestCaseTest extends TestCase
 
     public function testExceptionInAssertPreConditions(): void
     {
-        $test   = new \ExceptionInAssertPreConditionsTest('testSomething');
+        $test = new \ExceptionInAssertPreConditionsTest('testSomething');
         $test->run();
 
         $this->assertTrue($test->setUp);
@@ -146,7 +147,7 @@ final class TestCaseTest extends TestCase
 
     public function testExceptionInTest(): void
     {
-        $test   = new \ExceptionInTest('testSomething');
+        $test = new \ExceptionInTest('testSomething');
         $test->run();
 
         $this->assertTrue($test->setUp);
@@ -158,7 +159,7 @@ final class TestCaseTest extends TestCase
 
     public function testExceptionInAssertPostConditions(): void
     {
-        $test   = new \ExceptionInAssertPostConditionsTest('testSomething');
+        $test = new \ExceptionInAssertPostConditionsTest('testSomething');
         $test->run();
 
         $this->assertTrue($test->setUp);
@@ -170,7 +171,7 @@ final class TestCaseTest extends TestCase
 
     public function testExceptionInTearDown(): void
     {
-        $test   = new \ExceptionInTearDownTest('testSomething');
+        $test = new \ExceptionInTearDownTest('testSomething');
         $test->run();
 
         $this->assertTrue($test->setUp);
@@ -184,7 +185,7 @@ final class TestCaseTest extends TestCase
 
     public function testExceptionInTestIsDetectedInTeardown(): void
     {
-        $test   = new \ExceptionInTestDetectedInTeardown('testSomething');
+        $test = new \ExceptionInTestDetectedInTeardown('testSomething');
         $test->run();
 
         $this->assertTrue($test->exceptionDetected);
@@ -332,7 +333,7 @@ final class TestCaseTest extends TestCase
     {
         $test = new \ThrowExceptionTestCase('test');
         $test->expectException(\RuntimeException::class);
-        $test->expectExceptionMessageRegExp('/runtime .*? occurred/');
+        $test->expectExceptionMessageMatches('/runtime .*? occurred/');
 
         $result = $test->run();
 
@@ -346,7 +347,7 @@ final class TestCaseTest extends TestCase
 
         $test = new \ThrowExceptionTestCase('test');
 
-        $test->expectExceptionMessageRegExp($messageRegExp);
+        $test->expectExceptionMessageMatches($messageRegExp);
 
         $this->assertSame($messageRegExp, $test->getExpectedExceptionMessageRegExp());
     }
@@ -355,7 +356,7 @@ final class TestCaseTest extends TestCase
     {
         $test = new \ThrowExceptionTestCase('test');
         $test->expectException(\RuntimeException::class);
-        $test->expectExceptionMessageRegExp('/logic .*? occurred/');
+        $test->expectExceptionMessageMatches('/logic .*? occurred/');
 
         $result = $test->run();
 
@@ -371,7 +372,7 @@ final class TestCaseTest extends TestCase
     {
         $test = new \ThrowExceptionTestCase('test');
         $test->expectException(\RuntimeException::class);
-        $test->expectExceptionMessageRegExp('#runtime .*? occurred/');
+        $test->expectExceptionMessageMatches('#runtime .*? occurred/');
 
         $test->run();
 
@@ -569,16 +570,17 @@ final class TestCaseTest extends TestCase
     /**
      * @backupGlobals enabled
      * @backupStaticAttributes enabled
+     * @depends testGlobalsBackupPost
      *
      * @doesNotPerformAssertions
      */
     public function testStaticAttributesBackupPre(): void
     {
         $GLOBALS['singleton'] = \Singleton::getInstance();
-        $GLOBALS['i']         = 'not reset by backup';
+        $GLOBALS['i']         = 'set by testStaticAttributesBackupPre';
 
-        $GLOBALS['j']         = 'reset by backup';
-        self::$testStatic     = 123;
+        $GLOBALS['j']     = 'reset by backup';
+        self::$testStatic = 123;
     }
 
     /**
@@ -588,7 +590,7 @@ final class TestCaseTest extends TestCase
     {
         // Snapshots made by @backupGlobals
         $this->assertSame(\Singleton::getInstance(), $GLOBALS['singleton']);
-        $this->assertSame('not reset by backup', $GLOBALS['i']);
+        $this->assertSame('set by testStaticAttributesBackupPre', $GLOBALS['i']);
 
         // Reset global
         $this->assertArrayNotHasKey('j', $GLOBALS);
@@ -608,7 +610,7 @@ final class TestCaseTest extends TestCase
 
     public function testIsInIsolationReturnsTrue(): void
     {
-        $test   = new \IsolationTest('testIsInIsolationReturnsTrue');
+        $test = new \IsolationTest('testIsInIsolationReturnsTrue');
         $test->setRunTestInSeparateProcess(true);
         $result = $test->run();
 
@@ -714,7 +716,7 @@ final class TestCaseTest extends TestCase
 
     public function testSkipsIfRequiresNonExistingExtension(): void
     {
-        $test   = new \RequirementsTest('testTen');
+        $test = new \RequirementsTest('testTen');
         $test->run();
 
         $this->assertEquals(
@@ -725,7 +727,7 @@ final class TestCaseTest extends TestCase
 
     public function testSkipsIfRequiresExtensionWithAMinimumVersion(): void
     {
-        $test   = new \RequirementsTest('testSpecificExtensionVersion');
+        $test = new \RequirementsTest('testSpecificExtensionVersion');
         $test->run();
 
         $this->assertEquals(
@@ -736,7 +738,7 @@ final class TestCaseTest extends TestCase
 
     public function testSkipsProvidesMessagesForAllSkippingReasons(): void
     {
-        $test   = new \RequirementsTest('testAllPossibleRequirements');
+        $test = new \RequirementsTest('testAllPossibleRequirements');
         $test->run();
 
         $this->assertEquals(
@@ -783,7 +785,7 @@ final class TestCaseTest extends TestCase
 
     public function testRequiringASetting(): void
     {
-        $test   = new \RequirementsTest('testSettingDisplayErrorsOn');
+        $test = new \RequirementsTest('testSettingDisplayErrorsOn');
 
         // Get this so we can return it to whatever it was before the test.
         $displayErrorsVal = \ini_get('display_errors');
@@ -831,8 +833,23 @@ final class TestCaseTest extends TestCase
 
     public function testCreateMockMocksAllMethods(): void
     {
-        /** @var \Mockable $mock */
         $mock = $this->createMock(\Mockable::class);
+
+        $this->assertNull($mock->mockableMethod());
+        $this->assertNull($mock->anotherMockableMethod());
+    }
+
+    public function testCreateStubFromClassName(): void
+    {
+        $mock = $this->createStub(\Mockable::class);
+
+        $this->assertInstanceOf(\Mockable::class, $mock);
+        $this->assertInstanceOf(Stub::class, $mock);
+    }
+
+    public function testCreateStubStubsAllMethods(): void
+    {
+        $mock = $this->createStub(\Mockable::class);
 
         $this->assertNull($mock->mockableMethod());
         $this->assertNull($mock->anotherMockableMethod());
@@ -856,9 +873,28 @@ final class TestCaseTest extends TestCase
         $this->assertTrue($mock->anotherMockableMethod());
     }
 
+    public function testCreatePartialMockWithFakeMethods(): void
+    {
+        $test = new \TestWithDifferentStatuses('testWithCreatePartialMockWarning');
+
+        $test->run();
+
+        $this->assertSame(BaseTestRunner::STATUS_WARNING, $test->getStatus());
+        $this->assertFalse($test->hasFailed());
+    }
+
+    public function testCreatePartialMockWithRealMethods(): void
+    {
+        $test = new \TestWithDifferentStatuses('testWithCreatePartialMockPassesNoWarning');
+
+        $test->run();
+
+        $this->assertSame(BaseTestRunner::STATUS_PASSED, $test->getStatus());
+        $this->assertFalse($test->hasFailed());
+    }
+
     public function testCreateMockSkipsConstructor(): void
     {
-        /** @var \Mockable $mock */
         $mock = $this->createMock(\Mockable::class);
 
         $this->assertNull($mock->constructorArgs);
@@ -866,8 +902,22 @@ final class TestCaseTest extends TestCase
 
     public function testCreateMockDisablesOriginalClone(): void
     {
-        /** @var \Mockable $mock */
         $mock = $this->createMock(\Mockable::class);
+
+        $cloned = clone $mock;
+        $this->assertNull($cloned->cloned);
+    }
+
+    public function testCreateStubSkipsConstructor(): void
+    {
+        $mock = $this->createStub(\Mockable::class);
+
+        $this->assertNull($mock->constructorArgs);
+    }
+
+    public function testCreateStubDisablesOriginalClone(): void
+    {
+        $mock = $this->createStub(\Mockable::class);
 
         $cloned = clone $mock;
         $this->assertNull($cloned->cloned);
@@ -903,6 +953,7 @@ final class TestCaseTest extends TestCase
             [123],
             ['foo'],
             [$this->createMock(\Mockable::class)],
+            [$this->createStub(\Mockable::class)],
         ];
 
         $test = new \TestAutoreferenced('testJsonEncodeException', [$data]);
@@ -1120,6 +1171,42 @@ final class TestCaseTest extends TestCase
         $test->run();
 
         $this->assertTrue($test->hasOutput());
+    }
+
+    public function testDeprecationCanBeExpected(): void
+    {
+        $this->expectDeprecation();
+        $this->expectDeprecationMessage('foo');
+        $this->expectDeprecationMessageMatches('/foo/');
+
+        \trigger_error('foo', \E_USER_DEPRECATED);
+    }
+
+    public function testNoticeCanBeExpected(): void
+    {
+        $this->expectNotice();
+        $this->expectNoticeMessage('foo');
+        $this->expectNoticeMessageMatches('/foo/');
+
+        \trigger_error('foo', \E_USER_NOTICE);
+    }
+
+    public function testWarningCanBeExpected(): void
+    {
+        $this->expectWarning();
+        $this->expectWarningMessage('foo');
+        $this->expectWarningMessageMatches('/foo/');
+
+        \trigger_error('foo', \E_USER_WARNING);
+    }
+
+    public function testErrorCanBeExpected(): void
+    {
+        $this->expectError();
+        $this->expectErrorMessage('foo');
+        $this->expectErrorMessageMatches('/foo/');
+
+        \trigger_error('foo', \E_USER_ERROR);
     }
 
     /**

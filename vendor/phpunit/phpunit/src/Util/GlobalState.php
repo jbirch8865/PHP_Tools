@@ -34,7 +34,7 @@ final class GlobalState
      */
     public static function getIncludedFilesAsString(): string
     {
-        return static::processIncludedFilesAsString(\get_included_files());
+        return self::processIncludedFilesAsString(\get_included_files());
     }
 
     /**
@@ -56,7 +56,7 @@ final class GlobalState
             $file = $files[$i];
 
             if (!empty($GLOBALS['__PHPUNIT_ISOLATION_BLACKLIST']) &&
-                \in_array($file, $GLOBALS['__PHPUNIT_ISOLATION_BLACKLIST'])) {
+                \in_array($file, $GLOBALS['__PHPUNIT_ISOLATION_BLACKLIST'], true)) {
                 continue;
             }
 
@@ -85,7 +85,7 @@ final class GlobalState
             $result .= \sprintf(
                 '@ini_set(%s, %s);' . "\n",
                 self::exportVariable($key),
-                self::exportVariable($value)
+                self::exportVariable((string) $value)
             );
         }
 

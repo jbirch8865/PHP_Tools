@@ -19,7 +19,7 @@ final class XdebugFilterScriptGenerator
         $items = $this->getWhitelistItems($filterData);
 
         $files = \array_map(
-            function ($item) {
+            static function ($item) {
                 return \sprintf(
                     "        '%s'",
                     $item
@@ -40,7 +40,7 @@ if (!\\function_exists('xdebug_set_filter')) {
     \\XDEBUG_FILTER_CODE_COVERAGE,
     \\XDEBUG_PATH_WHITELIST,
     [
-$files
+{$files}
     ]
 );
 
@@ -56,7 +56,10 @@ EOF;
                 $path = \realpath($directory['path']);
 
                 if (\is_string($path)) {
-                    $files[] = \sprintf('%s/', $path);
+                    $files[] = \sprintf(
+                        \addslashes('%s' . \DIRECTORY_SEPARATOR),
+                        $path
+                    );
                 }
             }
         }
