@@ -86,8 +86,8 @@ class Log_To_DB
 
     public function Set_Person_ID($user_id = null)
     {
-        $current_user = new \User_Session\Current_User;
-        $this->person_id = $current_user->Get_User_ID();    
+        $current_user = new \gCurrent_User;
+        $this->person_id = $current_user->current_user->Get_User_ID();    
         if($this->person_id == '')
         {
             $this->person_id = '1';

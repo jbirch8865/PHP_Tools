@@ -81,16 +81,16 @@ abstract class SocketIOParent
 
     function __destruct()
     {
-        $this->client->close();
+        //$this->client->close();
     }
 
     function emit($action, $data = [])
     {
         try {
-            $this->client->emit($action, $data);
+           // $this->client->emit($action, $data);
         } catch (\Error $e) {
-            global $aAlerts;
-            $aAlerts->aAlerts->Add_Alert("Socket Server Unreachable", "minor error you shouldn't notice any issues.  Please let Joel know.");
+            //global $aAlerts;
+           // $aAlerts->aAlerts->Add_Alert("Socket Server Unreachable", "minor error you shouldn't notice any issues.  Please let Joel know.");
         }
     }
 }
